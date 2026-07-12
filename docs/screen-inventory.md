@@ -7,9 +7,9 @@
 | `/goal/confirm`, `/goal/success` | candidate, confirmed | Not received; no handoff branch/tag created | Implemented |
 | `/home` | fresh, loading, error | Not received; no handoff branch/tag created | Implemented |
 | `/report` | report, loading, error | Not received; no handoff branch/tag created | Implemented |
-| `/mates`, `/mates/group/:id` | list, detail, replacement confirmation | Not received; no handoff branch/tag created | Implemented |
-| `/mates/adventurer/:id` | anonymous detail | Not received; no handoff branch/tag created | Implemented |
-| `/routine`, `/routine/confirm` | adaptation, STANDARD candidate, active | Not received; no handoff branch/tag created | Implemented |
+| `/mates`, `/mates/group/:groupId` | list, group detail | Not received; no handoff branch/tag created | Implemented |
+| `/mates/group/:groupId/adventurer/:adventurerId/routine/:routineId` | anonymous routine detail | Not received; no handoff branch/tag created | Implemented |
+| `/routine/:groupId/:adventurerId/:routineId`, `/routine/confirm` | adaptation, candidate choice, replacement confirmation, active | Not received; no handoff branch/tag created | Implemented |
 | `/quests` | ready, education | Not received; no handoff branch/tag created | Implemented |
 | `/record` | 30-day grid, day bottom sheet | Not received; no handoff branch/tag created | Implemented |
 | `/demo`, `/goal/complete` | demo advance, completed | Not received; no handoff branch/tag created | Implemented |

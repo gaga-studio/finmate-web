@@ -8,8 +8,12 @@ api_pid=""
 
 cleanup() {
   if [[ -n "$api_pid" ]]; then kill "$api_pid" 2>/dev/null || true; fi
+  rm -f "$api_log"
 }
 trap cleanup EXIT
+
+npm run generate:api
+git diff --exit-code -- src/api/generated.ts src/api/openapi.snapshot.yaml
 
 (
   cd "$api_root"
@@ -30,7 +34,7 @@ trap cleanup EXIT
 api_pid=$!
 
 for _ in {1..90}; do
-  if [[ "$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/api/v1/auth/signup)" != "000" ]]; then
+  if curl --fail --silent http://127.0.0.1:18080/actuator/health >/dev/null; then
     cd "$web_root"
     npx playwright test --config playwright.actual.config.ts
     exit 0

@@ -2,6 +2,8 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter } from 'react-router-dom'
+import { currentSession, sessionChangedEvent } from './api/client'
+import { clearOnboardingDraft } from './api/onboardingDraft'
 import { isMockMode } from './api/runtime'
 import './index.css'
 import App from './App.tsx'
@@ -13,6 +15,11 @@ async function enableMocking() {
 }
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: 30_000 } } })
+window.addEventListener(sessionChangedEvent, () => {
+  queryClient.clear()
+  clearOnboardingDraft()
+  if (!currentSession() && !['/login', '/signup'].includes(window.location.pathname)) window.location.replace('/login')
+})
 
 enableMocking().then(() => {
   createRoot(document.getElementById('root')!).render(

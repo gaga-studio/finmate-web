@@ -34,7 +34,7 @@ test('moves through the representative FinMate mobile flow', async ({ page }) =>
   await expect(page.getByText('2,000,000 KRW')).toBeVisible()
   await page.getByRole('link', { name: '퀘스트' }).click()
   await page.getByRole('button', { name: '자동저축 입금 반영 확인하기 완료' }).click()
-  await expect(page.getByRole('status')).toContainText('XP 5')
+  await expect(page.getByRole('status')).toContainText('MyData 반영을 기다리고 있어요')
   await page.getByRole('link', { name: '기록' }).click()
   await page.getByRole('button', { name: '2026-07-01 기록' }).click()
   await expect(page.getByRole('heading', { name: '루틴을 지킨 날이에요' })).toBeVisible()

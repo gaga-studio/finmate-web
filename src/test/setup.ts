@@ -3,7 +3,8 @@ import { afterAll, afterEach, beforeAll } from 'vitest'
 import { server } from '../mocks/server'
 import { resetMockState } from '../mocks/handlers'
 import { clearOnboardingDraft } from '../api/onboardingDraft'
+import { clearSession } from '../api/client'
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
-afterEach(() => { server.resetHandlers(); resetMockState(); clearOnboardingDraft() })
+afterEach(() => { server.resetHandlers(); resetMockState(); clearOnboardingDraft(); clearSession() })
 afterAll(() => server.close())

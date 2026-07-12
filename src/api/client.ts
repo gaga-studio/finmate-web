@@ -23,7 +23,10 @@ type AuthSession = Schema['AuthSession']
 type Problem = Schema['Problem']
 
 const sessionStorageKey = 'finmate.auth-session'
+export const sessionChangedEvent = 'finmate:session-changed'
 let session: AuthSession | null = null
+let refreshInFlight: Promise<AuthSession | null> | null = null
+const commandKeys = new Map<string, string>()
 
 function restoreStoredSession(): AuthSession | null {
   if (typeof window === 'undefined') return null
@@ -44,13 +47,21 @@ export function currentSession(): AuthSession | null {
 }
 
 export function saveSession(nextSession: AuthSession): void {
+  const previousUserId = session?.user.userId
   session = nextSession
   if (typeof window !== 'undefined') window.sessionStorage.setItem(sessionStorageKey, JSON.stringify(nextSession))
+  if (typeof window !== 'undefined' && previousUserId !== nextSession.user.userId) {
+    commandKeys.clear()
+    window.dispatchEvent(new Event(sessionChangedEvent))
+  }
 }
 
 export function clearSession(): void {
+  const hadSession = session !== null
   session = null
+  commandKeys.clear()
   if (typeof window !== 'undefined') window.sessionStorage.removeItem(sessionStorageKey)
+  if (typeof window !== 'undefined' && hadSession) window.dispatchEvent(new Event(sessionChangedEvent))
 }
 
 export class ApiError extends Error {
@@ -74,7 +85,7 @@ function requestUrl(path: string): string {
 }
 
 function isProtected(path: string): boolean {
-  return !path.startsWith('/auth/')
+  return !['/auth/signup', '/auth/login', '/auth/refresh'].includes(path)
 }
 
 function needsIdempotencyKey(path: string, method: string): boolean {
@@ -107,15 +118,28 @@ type RequestOptions = {
   body?: object
   protected?: boolean
   retrying?: boolean
+  idempotencyKey?: string
+  commandFingerprint?: string
+}
+
+function commandFingerprint(path: string, method: string, body: object | undefined): string {
+  return `${session?.user.userId ?? 'anonymous'}:${method}:${path}:${JSON.stringify(body ?? null)}`
 }
 
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const method = options.method ?? 'GET'
   const protectedRequest = options.protected ?? isProtected(path)
+  const fingerprint = needsIdempotencyKey(path, method)
+    ? options.commandFingerprint ?? commandFingerprint(path, method, options.body)
+    : undefined
+  const idempotencyKey = fingerprint
+    ? options.idempotencyKey ?? commandKeys.get(fingerprint) ?? crypto.randomUUID()
+    : undefined
+  if (fingerprint && idempotencyKey) commandKeys.set(fingerprint, idempotencyKey)
   const headers: Record<string, string> = {}
   if (options.body !== undefined) headers['Content-Type'] = 'application/json'
   if (protectedRequest && session?.accessToken) headers.Authorization = `Bearer ${session.accessToken}`
-  if (needsIdempotencyKey(path, method)) headers['Idempotency-Key'] = crypto.randomUUID()
+  if (idempotencyKey) headers['Idempotency-Key'] = idempotencyKey
 
   const response = await fetch(requestUrl(path), {
     method,
@@ -126,37 +150,48 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   if (response.status === 401 && protectedRequest && !options.retrying) {
     const refreshed = await refreshSession()
-    if (refreshed) return request<T>(path, { ...options, retrying: true })
+    if (refreshed) return request<T>(path, { ...options, retrying: true, idempotencyKey, commandFingerprint: fingerprint })
   }
 
-  if (!response.ok) throw new ApiError(response.status, await problemFrom(response))
-  if (response.status === 204) return undefined as T
+  if (!response.ok) {
+    if (fingerprint && response.status < 500) commandKeys.delete(fingerprint)
+    throw new ApiError(response.status, await problemFrom(response))
+  }
+  if (response.status === 204) {
+    if (fingerprint) commandKeys.delete(fingerprint)
+    return undefined as T
+  }
   const result = await response.json() as T
+  if (fingerprint) commandKeys.delete(fingerprint)
   if (isAuthSession(result)) saveSession(result)
   return result
 }
 
 export async function refreshSession(): Promise<AuthSession | null> {
-  try {
-    return await request<AuthSession>('/auth/refresh', { method: 'POST', protected: false })
-  } catch {
-    clearSession()
-    return null
-  }
+  if (refreshInFlight) return refreshInFlight
+
+  refreshInFlight = (async () => {
+    try {
+      return await request<AuthSession>('/auth/refresh', { method: 'POST', protected: false })
+    } catch {
+      clearSession()
+      return null
+    } finally {
+      refreshInFlight = null
+    }
+  })()
+  return refreshInFlight
 }
 
 export async function apiGet<T>(path: string): Promise<T> {
   return request<T>(path)
 }
 
-export async function apiRequest<T>(path: string, method: 'POST' | 'PUT', body?: object): Promise<T> {
-  return request<T>(path, { method, body })
+export async function apiRequest<T>(path: string, method: 'POST' | 'PUT', body?: object, idempotencyKey?: string): Promise<T> {
+  return request<T>(path, { method, body, idempotencyKey })
 }
 
 export async function apiLogout(): Promise<void> {
-  try {
-    await request<void>('/auth/logout', { method: 'POST' })
-  } finally {
-    clearSession()
-  }
+  await request<void>('/auth/logout', { method: 'POST' })
+  clearSession()
 }

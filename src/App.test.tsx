@@ -2,9 +2,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
+import { http, HttpResponse } from 'msw'
 import { describe, expect, it } from 'vitest'
 import App from './App'
-import { apiGet, type HomeResponse, type Schema } from './api/client'
+import { apiGet, apiRequest, type HomeResponse, type Schema } from './api/client'
+import { server } from './mocks/server'
 
 function renderApp(initialEntry = '/signup') {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
@@ -73,6 +75,28 @@ describe('FinMate representative flow', () => {
     expect(await screen.findByRole('heading', { name: '생활비 탐험대' })).toBeInTheDocument()
   })
 
+  it('shows synthetic financial quests as waiting for MyData evidence', async () => {
+    const user = userEvent.setup()
+    renderApp('/quests')
+
+    await user.click(await screen.findByRole('button', { name: '자동저축 입금 반영 확인하기 완료' }))
+
+    expect(await screen.findByRole('status')).toHaveTextContent('MyData 반영을 기다리고 있어요')
+    expect(screen.getByRole('button', { name: '자동저축 입금 반영 확인하기 완료' })).toBeDisabled()
+  })
+
+  it('returns an expired protected session to login', async () => {
+    const unauthorized = { type: 'https://finmate.example/problems/unauthorized', title: 'Unauthorized', status: 401, detail: 'Session expired.', instance: '/api/v1/home', code: 'UNAUTHORIZED', traceId: 'trace-expired' }
+    server.use(
+      http.get('/api/v1/home', () => HttpResponse.json(unauthorized, { status: 401 })),
+      http.post('/api/v1/auth/refresh', () => HttpResponse.json(unauthorized, { status: 401 })),
+    )
+
+    renderApp('/home')
+
+    expect(await screen.findByRole('heading', { name: '다시 만나서 반가워요' })).toBeInTheDocument()
+  })
+
   it('rejects an unconfirmed routine replacement without mutating the active build', async () => {
     const before = await apiGet<Schema['ActiveRoutineBuild']>('/routine-builds/active')
     for (const body of [{ adaptationId: 'adaptation-europe', candidateId: 'candidate-standard' }, { confirmReplacement: false }, null]) {
@@ -91,8 +115,8 @@ describe('FinMate representative flow', () => {
     const signup = await fetch('/api/v1/auth/signup', { method: 'POST' })
     expect(signup.status).toBe(201)
 
-    expect((await apiGet<HomeResponse>('/home')).raid.stage).toBe(0)
-    for (const expectedStage of [0, 1, 2]) await fetch('/api/v1/demo/timeline/advance', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fixtureId: 'EUROPE_TRAVEL_JANUARY', expectedStage }) })
+    expect((await apiGet<HomeResponse>('/home')).raid.stage).toBe(1)
+    for (const expectedStage of [0, 1, 2]) await apiRequest('/demo/timeline/advance', 'POST', { fixtureId: 'EUROPE_TRAVEL_JANUARY', expectedStage })
     const completedHome = await apiGet<HomeResponse>('/home')
 
     expect(completedHome.mainGoal.state).toBe('ACTIVE')

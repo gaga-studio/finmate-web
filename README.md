@@ -11,10 +11,21 @@ npm install
 npm run dev
 ```
 
+`.env.example` starts the app with MSW fixtures so the representative flow can
+run without the API. To use the real local API, set `VITE_USE_MOCKS=false` and
+start `finmate-api` on the URL configured by `VITE_API_BASE_URL`.
+
 ```bash
 npm run lint
+npm run typecheck
+npm test
 npm run build
+npm run test:e2e
+npm run test:e2e:api
 ```
+
+`test:e2e:api` starts PostgreSQL and the API `demo` profile, then verifies the
+full signup-to-goal-completion flow against the real HTTP contract.
 
 디자인 인수 원본은 운영 브랜치에 직접 병합하지 않습니다. 인수 절차와 분류 기준은
 [`HANDOFF.md`](HANDOFF.md)를 따릅니다.

@@ -4,8 +4,8 @@ import type { Schema } from '../api/client'
 const now = '2026-07-24T00:06:31Z'
 const initialGoal: Schema['UserGoal'] = { goalId: 'europe-trip', title: '유럽 여행', domain: 'SAVING', currentAmountKrw: 2000000, targetAmountKrw: 5000000, targetMonth: '2026-12', state: 'ACTIVE', confirmedAt: now, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }
 const groups: Schema['MateGroup'][] = [
-  { groupId: 'savers', name: '꾸준저축 원정대', memberCount: 18, syntheticDemo: false, eligibleForProductionAggregation: true },
-  { groupId: 'budget', name: '생활비 탐험대', memberCount: 12, syntheticDemo: false, eligibleForProductionAggregation: true },
+  { groupId: 'savers', name: '꾸준저축 원정대', memberCount: 34, syntheticDemo: false, eligibleForProductionAggregation: true },
+  { groupId: 'budget', name: '생활비 탐험대', memberCount: 31, syntheticDemo: false, eligibleForProductionAggregation: true },
 ]
 const syntheticGroup: Schema['MateGroup'] = { groupId: 'demo-europe', name: '유럽 여행 데모 원정대', memberCount: 10, syntheticDemo: true, eligibleForProductionAggregation: false }
 const baseRoutine: Schema['ActiveRoutineBuild'] = { buildId: 'build-current', candidateId: 'candidate-current', sourceRoutineId: 'routine-current', domain: 'SAVING', difficulty: 'LIGHT', status: 'ACTIVE', steps: ['월급날 자동저축'], activatedAt: now, replacesBuildId: null, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }
@@ -17,8 +17,17 @@ const adaptationSet: Schema['RoutineAdaptationSet'] = { adaptationId: 'adaptatio
 let activeRoutine: Schema['ActiveRoutineBuild'] = baseRoutine
 let demoStage = 0
 let activeGoal: Schema['UserGoal'] = initialGoal
+let questStatuses: Record<string, Schema['Quest']['status']> = { 'quest-routine': 'AVAILABLE', 'quest-etf': 'AVAILABLE' }
+const demoCommands = new Map<string, { expectedStage: number; response: Schema['DemoTimelineView'] }>()
 
-export function resetMockState() { activeRoutine = baseRoutine; demoStage = 0; activeGoal = initialGoal }
+export function resetMockState() { activeRoutine = baseRoutine; demoStage = 0; activeGoal = initialGoal; questStatuses = { 'quest-routine': 'AVAILABLE', 'quest-etf': 'AVAILABLE' }; demoCommands.clear() }
+
+const raidStage = () => Math.max(1, demoStage)
+const questItems = (): Schema['Quest'][] => [
+  { questId: 'quest-routine', title: '자동저축 입금 반영 확인하기', status: questStatuses['quest-routine'], verificationKind: 'SYNTHETIC_MYDATA', xpReward: 5, internalRewardCodes: ['badge-routine'], financialStatsChanged: false, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now },
+  { questId: 'quest-etf', title: 'ETF O/X 한 문제 풀기', status: questStatuses['quest-etf'], verificationKind: 'BEHAVIOR', xpReward: 3, internalRewardCodes: ['content-etf'], financialStatsChanged: false, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now },
+]
+const problem = (status: number, code: string, detail: string, instance: string) => HttpResponse.json({ type: `https://finmate.example/problems/${code.toLowerCase().replaceAll('_', '-')}`, title: 'Request failed', status, detail, instance, code, traceId: crypto.randomUUID() }, { status })
 
 const page = (groupId: string): Schema['RecommendedAdventurerPage'] => ({
   groupId,
@@ -35,20 +44,39 @@ export const handlers = [
   http.get('/api/v1/onboarding', () => HttpResponse.json({ status: 'DRAFT', displayName: '민지', mainGoal: activeGoal })),
   http.put('/api/v1/onboarding', () => HttpResponse.json({ status: 'COMPLETED', displayName: '민지', mainGoal: activeGoal })),
   http.get('/api/v1/goals/active', () => HttpResponse.json(activeGoal)),
-  http.get('/api/v1/home', () => HttpResponse.json({ mainGoal: activeGoal, raid: { raidId: 'raid-europe', goalId: activeGoal.goalId, stage: demoStage, bossHpBps: demoStage === 3 ? 0 : 5800, progressBps: demoStage === 3 ? 10000 : 4200, financialStats: { spendingBps: 6300, savingBps: 5800, investmentJudgmentBps: 5500 }, xp: 26, coachCopyKey: demoStage === 3 ? 'GOAL_COMPLETE' : 'SAVING_STEADY', calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }, activeRoutineBuild: activeRoutine, nextQuest: null, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now })),
-  http.get('/api/v1/raids/current', () => HttpResponse.json({ raidId: 'raid-europe', goalId: activeGoal.goalId, stage: demoStage, bossHpBps: demoStage === 3 ? 0 : 5800, progressBps: demoStage === 3 ? 10000 : 4200, financialStats: { spendingBps: 6300, savingBps: 5800, investmentJudgmentBps: 5500 }, xp: 26, coachCopyKey: demoStage === 3 ? 'GOAL_COMPLETE' : 'SAVING_STEADY', calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now })),
+  http.get('/api/v1/home', () => HttpResponse.json({ mainGoal: activeGoal, raid: { raidId: 'raid-europe', goalId: activeGoal.goalId, stage: raidStage(), bossHpBps: demoStage === 3 ? 0 : 5800, progressBps: demoStage === 3 ? 10000 : 4200, financialStats: { spendingBps: 6300, savingBps: 5800, investmentJudgmentBps: 5500 }, xp: 26, coachCopyKey: demoStage === 3 ? 'GOAL_COMPLETE' : 'SAVING_STEADY', calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }, activeRoutineBuild: activeRoutine, nextQuest: null, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now })),
+  http.get('/api/v1/raids/current', () => HttpResponse.json({ raidId: 'raid-europe', goalId: activeGoal.goalId, stage: raidStage(), bossHpBps: demoStage === 3 ? 0 : 5800, progressBps: demoStage === 3 ? 10000 : 4200, financialStats: { spendingBps: 6300, savingBps: 5800, investmentJudgmentBps: 5500 }, xp: 26, coachCopyKey: demoStage === 3 ? 'GOAL_COMPLETE' : 'SAVING_STEADY', calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now })),
   http.get('/api/v1/reports/monthly', () => HttpResponse.json({ month: '2026-07', goalProgressBps: 4000, financialStats: { spendingBps: 6300, savingBps: 5800, investmentJudgmentBps: 5500 }, xpEarned: 26, completedQuestCount: 4, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now })),
   http.get('/api/v1/mate/groups', () => HttpResponse.json({ items: groups })),
   http.get('/api/v1/mate/groups/:groupId/adventurers', ({ params }) => HttpResponse.json(page(String(params.groupId)))),
   http.get('/api/v1/mate/groups/:groupId/adventurers/:adventurerId/routines/:routineId', ({ params }) => HttpResponse.json({ routineId: String(params.routineId), adventurerId: String(params.adventurerId), groupId: String(params.groupId), title: String(params.routineId) === 'routine-budget' ? '하루 한 번 지출 점검' : '주 3회 저축 챌린지', description: '익명 모험가가 검증한 루틴을 내 생활에 맞게 조절해요.', availableDomains: ['SAVING'], maintainedDays: 42 })),
   http.post('/api/v1/routine-adaptations', () => HttpResponse.json({ adaptationId: 'adaptation-europe', sourceRoutineId: 'routine-savers', state: 'AWAITING_DOMAIN', availableDomains: ['SAVING'], calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }, { status: 201 })),
   http.put('/api/v1/routine-adaptations/:adaptationId/choice', () => HttpResponse.json(adaptationSet)),
-  http.post('/api/v1/routine-adaptations/:adaptationId/candidates/:candidateId/import', () => HttpResponse.json({ code: 'ACTIVE_BUILD_EXISTS' }, { status: 409 })),
+  http.post('/api/v1/routine-adaptations/:adaptationId/candidates/:candidateId/import', () => problem(409, 'ACTIVE_ROUTINE_BUILD_EXISTS', 'An active routine build already exists.', '/api/v1/routine-adaptations/import')),
   http.get('/api/v1/routine-builds/active', () => HttpResponse.json(activeRoutine)),
-  http.post('/api/v1/routine-builds/active/replacement', async ({ request }) => { const body = await request.json(); if (!body || typeof body !== 'object' || body.confirmReplacement !== true) return HttpResponse.json({ code: 'CONFIRMATION_REQUIRED' }, { status: 422 }); const archivedBuild = { ...activeRoutine, status: 'ARCHIVED' as const, archivedAt: now }; activeRoutine = { buildId: 'build-standard', candidateId: typeof body.candidateId === 'string' ? body.candidateId : standardCandidate.candidateId, sourceRoutineId: 'routine-savers', domain: 'SAVING', difficulty: 'STANDARD', status: 'ACTIVE', steps: standardCandidate.steps, activatedAt: now, replacesBuildId: archivedBuild.buildId, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }; return HttpResponse.json({ archivedBuild, activeBuild: activeRoutine, replacedAt: now }) }),
-  http.get('/api/v1/quests', () => HttpResponse.json({ items: [{ questId: 'quest-routine', title: '자동저축 입금 반영 확인하기', status: 'AVAILABLE', verificationKind: 'SYNTHETIC_MYDATA', xpReward: 5, internalRewardCodes: ['badge-routine'], financialStatsChanged: false, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }, { questId: 'quest-etf', title: 'ETF O/X 한 문제 풀기', status: 'AVAILABLE', verificationKind: 'BEHAVIOR', xpReward: 3, internalRewardCodes: ['content-etf'], financialStatsChanged: false, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }], totalXp: 26, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now })),
-  http.post('/api/v1/quests/:questId/complete', ({ params }) => HttpResponse.json({ quest: { questId: String(params.questId), title: String(params.questId) === 'quest-etf' ? 'ETF O/X 한 문제 풀기' : '자동저축 입금 반영 확인하기', status: 'COMPLETED', verificationKind: 'BEHAVIOR', xpReward: 5, internalRewardCodes: ['badge-routine'], financialStatsChanged: false, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }, xpAwarded: 5, internalRewardCodes: ['badge-routine'], financialStatsChanged: false })),
+  http.post('/api/v1/routine-builds/active/replacement', async ({ request }) => { const body = await request.json(); if (!body || typeof body !== 'object' || body.confirmReplacement !== true) return problem(422, 'CONFIRMATION_REQUIRED', 'Routine replacement requires explicit confirmation.', '/api/v1/routine-builds/active/replacement'); const archivedBuild = { ...activeRoutine, status: 'ARCHIVED' as const, archivedAt: now }; activeRoutine = { buildId: 'build-standard', candidateId: typeof body.candidateId === 'string' ? body.candidateId : standardCandidate.candidateId, sourceRoutineId: 'routine-savers', domain: 'SAVING', difficulty: 'STANDARD', status: 'ACTIVE', steps: standardCandidate.steps, activatedAt: now, replacesBuildId: archivedBuild.buildId, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }; return HttpResponse.json({ archivedBuild, activeBuild: activeRoutine, replacedAt: now }) }),
+  http.get('/api/v1/quests', () => HttpResponse.json({ items: questItems(), totalXp: 26, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now })),
+  http.post('/api/v1/quests/:questId/complete', ({ params }) => {
+    const questId = String(params.questId)
+    const pending = questId === 'quest-routine'
+    questStatuses[questId] = pending ? 'DATA_PENDING' : 'COMPLETED'
+    const quest = questItems().find((item) => item.questId === questId) ?? questItems()[0]
+    return HttpResponse.json({ quest, xpAwarded: pending ? 0 : quest.xpReward, internalRewardCodes: quest.internalRewardCodes, financialStatsChanged: false }, { status: pending ? 202 : 200 })
+  }),
   http.get('/api/v1/records', () => HttpResponse.json({ items: journey, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now })),
   http.get('/api/v1/records/:date', ({ params }) => HttpResponse.json(journey.find((record) => record.date === String(params.date)) ?? journey[0])),
-  http.post('/api/v1/demo/timeline/advance', () => { demoStage = Math.min(3, demoStage + 1); if (demoStage === 3) activeGoal = { ...activeGoal, currentAmountKrw: activeGoal.targetAmountKrw }; return HttpResponse.json({ fixtureId: 'EUROPE_TRAVEL_JANUARY', stage: demoStage, mainGoal: activeGoal, raid: { raidId: 'raid-europe', goalId: activeGoal.goalId, stage: demoStage, bossHpBps: demoStage === 3 ? 0 : 5800, progressBps: demoStage === 3 ? 10000 : 4200, financialStats: { spendingBps: 6300, savingBps: 5800, investmentJudgmentBps: 5500 }, xp: 26, coachCopyKey: demoStage === 3 ? 'GOAL_COMPLETE' : 'SAVING_STEADY', calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }, syntheticGroup }) }),
+  http.post('/api/v1/demo/timeline/advance', async ({ request }) => {
+    const key = request.headers.get('Idempotency-Key') ?? ''
+    const body = await request.json() as { fixtureId?: string; expectedStage?: number }
+    if (key.length < 16) return problem(400, 'VALIDATION_FAILED', 'Idempotency-Key is required.', '/api/v1/demo/timeline/advance')
+    const replay = demoCommands.get(key)
+    if (replay) return replay.expectedStage === body.expectedStage ? HttpResponse.json(replay.response) : problem(409, 'IDEMPOTENCY_KEY_CONFLICT', 'The command key was reused with another stage.', '/api/v1/demo/timeline/advance')
+    if (body.fixtureId !== 'EUROPE_TRAVEL_JANUARY' || body.expectedStage !== demoStage || demoStage >= 3) return problem(409, 'DEMO_TIMELINE_STALE', 'The demo timeline stage changed.', '/api/v1/demo/timeline/advance')
+    demoStage += 1
+    if (questStatuses['quest-routine'] === 'DATA_PENDING') questStatuses['quest-routine'] = 'COMPLETED'
+    if (demoStage === 3) activeGoal = { ...activeGoal, currentAmountKrw: activeGoal.targetAmountKrw }
+    const response: Schema['DemoTimelineView'] = { fixtureId: 'EUROPE_TRAVEL_JANUARY', stage: demoStage, mainGoal: activeGoal, raid: { raidId: 'raid-europe', goalId: activeGoal.goalId, stage: demoStage, bossHpBps: demoStage === 3 ? 0 : 5800, progressBps: demoStage === 3 ? 10000 : 4200, financialStats: { spendingBps: 6300, savingBps: 5800, investmentJudgmentBps: 5500 }, xp: 26, coachCopyKey: demoStage === 3 ? 'GOAL_COMPLETE' : 'SAVING_STEADY', calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }, syntheticGroup }
+    demoCommands.set(key, { expectedStage: body.expectedStage, response })
+    return HttpResponse.json(response)
+  }),
 ]
