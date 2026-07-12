@@ -46,4 +46,7 @@ export const useReplaceRoutine = () => {
 }
 export const useQuests = () => useQuery({ queryKey: ['quests'], queryFn: () => apiGet<QuestPage>('/quests') })
 export const useRecords = () => useQuery({ queryKey: ['records'], queryFn: () => apiGet<DailyRecordPage>('/records?from=2026-07-01&to=2026-07-30') })
-export const useAdvanceDemo = () => useMutation({ mutationFn: () => apiRequest<DemoTimeline>('/demo/timeline/advance', 'POST', { fixtureId: 'EUROPE_TRAVEL_JANUARY', expectedStage: 2 }) })
+export const useAdvanceDemo = () => {
+  const queryClient = useQueryClient()
+  return useMutation({ mutationFn: () => apiRequest<DemoTimeline>('/demo/timeline/advance', 'POST', { fixtureId: 'EUROPE_TRAVEL_JANUARY', expectedStage: 2 }), onSuccess: () => Promise.all([queryClient.invalidateQueries({ queryKey: ['home'] }), queryClient.invalidateQueries({ queryKey: ['goal'] }), queryClient.invalidateQueries({ queryKey: ['raid'] })]) })
+}

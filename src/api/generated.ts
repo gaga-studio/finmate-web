@@ -97,6 +97,8 @@ export interface components {
     BasisPoints: number;
     /** Format: date-time */
     Timestamp: string;
+    /** Format: date-time */
+    NullableTimestamp: string | null;
     /** @enum {string} */
     DataState: "FRESH" | "PENDING" | "STALE" | "INSUFFICIENT";
     /** @enum {string} */
@@ -105,8 +107,6 @@ export interface components {
     AdaptationDomain: "SPENDING" | "SAVING" | "INVESTMENT_JUDGMENT";
     /** @enum {string} */
     Difficulty: "LIGHT" | "STANDARD" | "CHALLENGE";
-    /** @enum {string} */
-    TargetKind: "AMOUNT_KRW" | "RATIO_BPS" | "BEHAVIOR";
     SignUpRequest: {
       /** Format: email */
       email: string;
@@ -159,13 +159,13 @@ export interface components {
       confirmedAt: components["schemas"]["Timestamp"];
       calculationVersion: string;
       dataState: components["schemas"]["DataState"];
-      lastSyncedAt: components["schemas"]["Timestamp"] | null;
+      lastSyncedAt: components["schemas"]["NullableTimestamp"];
     };
     OnboardingView: {
       /** @enum {string} */
       status: "DRAFT" | "COMPLETED";
       displayName: string | null;
-      mainGoal: components["schemas"]["UserGoal"] | null;
+      mainGoal?: components["schemas"]["UserGoal"];
     };
     FinancialStats: {
       spendingBps: components["schemas"]["BasisPoints"];
@@ -183,16 +183,16 @@ export interface components {
       coachCopyKey: string;
       calculationVersion: string;
       dataState: components["schemas"]["DataState"];
-      lastSyncedAt: components["schemas"]["Timestamp"] | null;
+      lastSyncedAt: components["schemas"]["NullableTimestamp"];
     };
     HomeResponse: {
       mainGoal: components["schemas"]["UserGoal"];
       raid: components["schemas"]["RaidView"];
-      activeRoutineBuild: components["schemas"]["ActiveRoutineBuild"] | null;
-      nextQuest: components["schemas"]["Quest"] | null;
+      activeRoutineBuild?: components["schemas"]["ActiveRoutineBuild"];
+      nextQuest?: components["schemas"]["Quest"];
       calculationVersion: string;
       dataState: components["schemas"]["DataState"];
-      lastSyncedAt: components["schemas"]["Timestamp"] | null;
+      lastSyncedAt: components["schemas"]["NullableTimestamp"];
     };
     MonthlyReport: {
       month: string;
@@ -202,7 +202,7 @@ export interface components {
       completedQuestCount: number;
       calculationVersion: string;
       dataState: components["schemas"]["DataState"];
-      lastSyncedAt: components["schemas"]["Timestamp"] | null;
+      lastSyncedAt: components["schemas"]["NullableTimestamp"];
     };
     MateGroup: OneOf<[{
       groupId: string;
@@ -243,7 +243,7 @@ export interface components {
       items: components["schemas"]["RecommendedAdventurerCard"][];
       calculationVersion: string;
       dataState: components["schemas"]["DataState"];
-      lastSyncedAt: components["schemas"]["Timestamp"] | null;
+      lastSyncedAt: components["schemas"]["NullableTimestamp"];
     };
     AdventurerRoutine: {
       routineId: string;
@@ -312,7 +312,7 @@ export interface components {
       };
       calculationVersion: string;
       dataState: components["schemas"]["DataState"];
-      lastSyncedAt: components["schemas"]["Timestamp"] | null;
+      lastSyncedAt: components["schemas"]["NullableTimestamp"];
     };
     ActiveRoutineBuild: {
       buildId: string;
@@ -324,12 +324,12 @@ export interface components {
       status: "ACTIVE" | "COMPLETED" | "ARCHIVED";
       steps: string[];
       activatedAt: components["schemas"]["Timestamp"];
-      archivedAt?: components["schemas"]["Timestamp"] | null;
+      archivedAt?: components["schemas"]["NullableTimestamp"];
       replacesBuildId: string | null;
       replacedByBuildId?: string | null;
       calculationVersion: string;
       dataState: components["schemas"]["DataState"];
-      lastSyncedAt: components["schemas"]["Timestamp"] | null;
+      lastSyncedAt: components["schemas"]["NullableTimestamp"];
     };
     ReplaceActiveRoutineBuildRequest: {
       adaptationId: string;
@@ -355,14 +355,14 @@ export interface components {
       financialStatsChanged: false;
       calculationVersion: string;
       dataState: components["schemas"]["DataState"];
-      lastSyncedAt: components["schemas"]["Timestamp"] | null;
+      lastSyncedAt: components["schemas"]["NullableTimestamp"];
     };
     QuestPage: {
       items: components["schemas"]["Quest"][];
       totalXp: number;
       calculationVersion: string;
       dataState: components["schemas"]["DataState"];
-      lastSyncedAt: components["schemas"]["Timestamp"] | null;
+      lastSyncedAt: components["schemas"]["NullableTimestamp"];
     };
     QuestCompletion: {
       quest: components["schemas"]["Quest"];
@@ -385,13 +385,13 @@ export interface components {
       reflection: string | null;
       calculationVersion: string;
       dataState: components["schemas"]["DataState"];
-      lastSyncedAt: components["schemas"]["Timestamp"] | null;
+      lastSyncedAt: components["schemas"]["NullableTimestamp"];
     };
     DailyRecordPage: {
       items: components["schemas"]["DailyRecord"][];
       calculationVersion: string;
       dataState: components["schemas"]["DataState"];
-      lastSyncedAt: components["schemas"]["Timestamp"] | null;
+      lastSyncedAt: components["schemas"]["NullableTimestamp"];
     };
     SaveReflectionRequest: {
       reflection: string;
@@ -689,7 +689,7 @@ export interface operations {
             availableDomains: components["schemas"]["AdaptationDomain"][];
             calculationVersion: string;
             dataState: components["schemas"]["DataState"];
-            lastSyncedAt: components["schemas"]["Timestamp"] | null;
+            lastSyncedAt: components["schemas"]["NullableTimestamp"];
           };
         };
       };

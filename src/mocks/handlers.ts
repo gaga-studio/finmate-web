@@ -2,7 +2,7 @@ import { delay, http, HttpResponse } from 'msw'
 import type { Schema } from '../api/client'
 
 const now = '2026-07-24T00:06:31Z'
-const goal: Schema['UserGoal'] = { goalId: 'europe-trip', title: '유럽 여행', domain: 'SAVING', currentAmountKrw: 2000000, targetAmountKrw: 5000000, targetMonth: '2026-12', state: 'ACTIVE', confirmedAt: now, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }
+const initialGoal: Schema['UserGoal'] = { goalId: 'europe-trip', title: '유럽 여행', domain: 'SAVING', currentAmountKrw: 2000000, targetAmountKrw: 5000000, targetMonth: '2026-12', state: 'ACTIVE', confirmedAt: now, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }
 const groups: Schema['MateGroup'][] = [
   { groupId: 'savers', name: '꾸준저축 원정대', memberCount: 18, syntheticDemo: false, eligibleForProductionAggregation: true },
   { groupId: 'budget', name: '생활비 탐험대', memberCount: 12, syntheticDemo: false, eligibleForProductionAggregation: true },
@@ -16,8 +16,9 @@ const adaptationSet: Schema['RoutineAdaptationSet'] = { adaptationId: 'adaptatio
 
 let activeRoutine: Schema['ActiveRoutineBuild'] = baseRoutine
 let demoStage = 1
+let activeGoal: Schema['UserGoal'] = initialGoal
 
-export function resetMockState() { activeRoutine = baseRoutine; demoStage = 1 }
+export function resetMockState() { activeRoutine = baseRoutine; demoStage = 1; activeGoal = initialGoal }
 
 const page = (groupId: string): Schema['RecommendedAdventurerPage'] => ({
   groupId,
@@ -27,12 +28,12 @@ const page = (groupId: string): Schema['RecommendedAdventurerPage'] => ({
 const journey: Schema['DailyRecord'][] = Array.from({ length: 30 }, (_, index) => ({ date: `2026-07-${String(index + 1).padStart(2, '0')}`, events: index < 18 ? [{ eventType: 'ROUTINE_BUILD', occurredAt: now, title: '자동저축 루틴을 지켰어요.' }] : [], xpEarned: index < 18 ? 5 : 0, reflection: null, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }))
 
 export const handlers = [
-  http.post('/api/v1/auth/signup', async () => { await delay(100); return HttpResponse.json({ accessToken: 'access-token', refreshToken: 'refresh-token', expiresAt: now, userId: 'member-minji', authMethod: 'EMAIL_PASSWORD' }) }),
+  http.post('/api/v1/auth/signup', async () => { await delay(100); return HttpResponse.json({ accessToken: 'access-token', refreshToken: 'refresh-token', expiresAt: now, userId: 'member-minji', authMethod: 'EMAIL_PASSWORD' }, { status: 201 }) }),
   http.post('/api/v1/auth/login', () => HttpResponse.json({ accessToken: 'access-token', refreshToken: 'refresh-token', expiresAt: now, userId: 'member-minji', authMethod: 'EMAIL_PASSWORD' })),
-  http.get('/api/v1/onboarding', () => HttpResponse.json({ status: 'DRAFT', displayName: '민지', mainGoal: goal })),
-  http.put('/api/v1/onboarding', () => HttpResponse.json({ status: 'COMPLETED', displayName: '민지', mainGoal: goal })),
-  http.get('/api/v1/goals/active', () => HttpResponse.json(goal)),
-  http.get('/api/v1/home', () => HttpResponse.json({ mainGoal: goal, raid: { raidId: 'raid-europe', goalId: goal.goalId, stage: demoStage + 1, bossHpBps: 5800, progressBps: 4200, financialStats: { spendingBps: 6300, savingBps: 5800, investmentJudgmentBps: 5500 }, xp: 26, coachCopyKey: 'SAVING_STEADY', calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }, activeRoutineBuild: activeRoutine, nextQuest: null, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now })),
+  http.get('/api/v1/onboarding', () => HttpResponse.json({ status: 'DRAFT', displayName: '민지', mainGoal: activeGoal })),
+  http.put('/api/v1/onboarding', () => HttpResponse.json({ status: 'COMPLETED', displayName: '민지', mainGoal: activeGoal })),
+  http.get('/api/v1/goals/active', () => HttpResponse.json(activeGoal)),
+  http.get('/api/v1/home', () => HttpResponse.json({ mainGoal: activeGoal, raid: { raidId: 'raid-europe', goalId: activeGoal.goalId, stage: demoStage, bossHpBps: demoStage === 3 ? 0 : 5800, progressBps: demoStage === 3 ? 10000 : 4200, financialStats: { spendingBps: 6300, savingBps: 5800, investmentJudgmentBps: 5500 }, xp: 26, coachCopyKey: demoStage === 3 ? 'GOAL_COMPLETE' : 'SAVING_STEADY', calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }, activeRoutineBuild: activeRoutine, nextQuest: null, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now })),
   http.get('/api/v1/reports/monthly', () => HttpResponse.json({ month: '2026-07', goalProgressBps: 4000, financialStats: { spendingBps: 6300, savingBps: 5800, investmentJudgmentBps: 5500 }, xpEarned: 26, completedQuestCount: 4, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now })),
   http.get('/api/v1/mate/groups', () => HttpResponse.json({ items: groups })),
   http.get('/api/v1/mate/groups/:groupId/adventurers', ({ params }) => HttpResponse.json(page(String(params.groupId)))),
@@ -41,8 +42,8 @@ export const handlers = [
   http.put('/api/v1/routine-adaptations/:adaptationId/choice', () => HttpResponse.json(adaptationSet)),
   http.post('/api/v1/routine-adaptations/:adaptationId/candidates/:candidateId/import', () => HttpResponse.json({ code: 'ACTIVE_BUILD_EXISTS' }, { status: 409 })),
   http.get('/api/v1/routine-builds/active', () => HttpResponse.json(activeRoutine)),
-  http.post('/api/v1/routine-builds/active/replacement', async ({ request }) => { const body = await request.json() as Schema['ReplaceActiveRoutineBuildRequest']; const archivedBuild = { ...activeRoutine, status: 'ARCHIVED' as const, archivedAt: now }; activeRoutine = { buildId: 'build-standard', candidateId: body.candidateId, sourceRoutineId: 'routine-savers', domain: 'SAVING', difficulty: 'STANDARD', status: 'ACTIVE', steps: standardCandidate.steps, activatedAt: now, replacesBuildId: archivedBuild.buildId, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }; return HttpResponse.json({ archivedBuild, activeBuild: activeRoutine, replacedAt: now }) }),
+  http.post('/api/v1/routine-builds/active/replacement', async ({ request }) => { const body = await request.json(); if (!body || typeof body !== 'object' || body.confirmReplacement !== true) return HttpResponse.json({ code: 'CONFIRMATION_REQUIRED' }, { status: 422 }); const archivedBuild = { ...activeRoutine, status: 'ARCHIVED' as const, archivedAt: now }; activeRoutine = { buildId: 'build-standard', candidateId: typeof body.candidateId === 'string' ? body.candidateId : standardCandidate.candidateId, sourceRoutineId: 'routine-savers', domain: 'SAVING', difficulty: 'STANDARD', status: 'ACTIVE', steps: standardCandidate.steps, activatedAt: now, replacesBuildId: archivedBuild.buildId, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }; return HttpResponse.json({ archivedBuild, activeBuild: activeRoutine, replacedAt: now }) }),
   http.get('/api/v1/quests', () => HttpResponse.json({ items: [{ questId: 'quest-routine', title: '자동저축 입금 반영 확인하기', status: 'AVAILABLE', verificationKind: 'SYNTHETIC_MYDATA', xpReward: 5, internalRewardCodes: ['badge-routine'], financialStatsChanged: false, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }, { questId: 'quest-etf', title: 'ETF O/X 한 문제 풀기', status: 'AVAILABLE', verificationKind: 'BEHAVIOR', xpReward: 3, internalRewardCodes: ['content-etf'], financialStatsChanged: false, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }], totalXp: 26, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now })),
   http.get('/api/v1/records', () => HttpResponse.json({ items: journey, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now })),
-  http.post('/api/v1/demo/timeline/advance', () => { demoStage = 30; return HttpResponse.json({ fixtureId: 'EUROPE_TRAVEL_JANUARY', stage: demoStage, mainGoal: { ...goal, state: 'COMPLETED' }, raid: { raidId: 'raid-europe', goalId: goal.goalId, stage: demoStage, bossHpBps: 0, progressBps: 10000, financialStats: { spendingBps: 6300, savingBps: 5800, investmentJudgmentBps: 5500 }, xp: 26, coachCopyKey: 'GOAL_COMPLETE', calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }, syntheticGroup }) }),
+  http.post('/api/v1/demo/timeline/advance', () => { demoStage = 3; activeGoal = { ...activeGoal, currentAmountKrw: activeGoal.targetAmountKrw, state: 'COMPLETED' }; return HttpResponse.json({ fixtureId: 'EUROPE_TRAVEL_JANUARY', stage: demoStage, mainGoal: activeGoal, raid: { raidId: 'raid-europe', goalId: activeGoal.goalId, stage: demoStage, bossHpBps: 0, progressBps: 10000, financialStats: { spendingBps: 6300, savingBps: 5800, investmentJudgmentBps: 5500 }, xp: 26, coachCopyKey: 'GOAL_COMPLETE', calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }, syntheticGroup }) }),
 ]

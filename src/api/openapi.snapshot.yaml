@@ -186,7 +186,7 @@ paths:
           required: true
           schema:
             type: string
-            pattern: ^\\d{4}-(0[1-9]|1[0-2])$
+            pattern: ^\d{4}-(0[1-9]|1[0-2])$
       responses:
         "200":
           description: Monthly financial and activity report
@@ -300,9 +300,7 @@ paths:
                   dataState:
                     $ref: "#/components/schemas/DataState"
                   lastSyncedAt:
-                    allOf:
-                      - $ref: "#/components/schemas/Timestamp"
-                    nullable: true
+                    $ref: "#/components/schemas/NullableTimestamp"
         default:
           $ref: "#/components/responses/ProblemResponse"
   /routine-adaptations/{adaptationId}/choice:
@@ -690,6 +688,10 @@ components:
     Timestamp:
       type: string
       format: date-time
+    NullableTimestamp:
+      type: string
+      format: date-time
+      nullable: true
     DataState:
       type: string
       enum:
@@ -714,12 +716,6 @@ components:
         - LIGHT
         - STANDARD
         - CHALLENGE
-    TargetKind:
-      type: string
-      enum:
-        - AMOUNT_KRW
-        - RATIO_BPS
-        - BEHAVIOR
     SignUpRequest:
       type: object
       additionalProperties: false
@@ -837,7 +833,7 @@ components:
           $ref: "#/components/schemas/KrwAmount"
         targetMonth:
           type: string
-          pattern: ^\\d{4}-(0[1-9]|1[0-2])$
+          pattern: ^\d{4}-(0[1-9]|1[0-2])$
     UserGoal:
       type: object
       additionalProperties: false
@@ -866,7 +862,7 @@ components:
           $ref: "#/components/schemas/KrwAmount"
         targetMonth:
           type: string
-          pattern: ^\\d{4}-(0[1-9]|1[0-2])$
+          pattern: ^\d{4}-(0[1-9]|1[0-2])$
         state:
           type: string
           enum:
@@ -880,16 +876,13 @@ components:
         dataState:
           $ref: "#/components/schemas/DataState"
         lastSyncedAt:
-          allOf:
-            - $ref: "#/components/schemas/Timestamp"
-          nullable: true
+          $ref: "#/components/schemas/NullableTimestamp"
     OnboardingView:
       type: object
       additionalProperties: false
       required:
         - status
         - displayName
-        - mainGoal
       properties:
         status:
           type: string
@@ -900,9 +893,7 @@ components:
           type: string
           nullable: true
         mainGoal:
-          allOf:
-            - $ref: "#/components/schemas/UserGoal"
-          nullable: true
+          $ref: "#/components/schemas/UserGoal"
     FinancialStats:
       type: object
       additionalProperties: false
@@ -957,17 +948,13 @@ components:
         dataState:
           $ref: "#/components/schemas/DataState"
         lastSyncedAt:
-          allOf:
-            - $ref: "#/components/schemas/Timestamp"
-          nullable: true
+          $ref: "#/components/schemas/NullableTimestamp"
     HomeResponse:
       type: object
       additionalProperties: false
       required:
         - mainGoal
         - raid
-        - activeRoutineBuild
-        - nextQuest
         - calculationVersion
         - dataState
         - lastSyncedAt
@@ -977,21 +964,15 @@ components:
         raid:
           $ref: "#/components/schemas/RaidView"
         activeRoutineBuild:
-          allOf:
-            - $ref: "#/components/schemas/ActiveRoutineBuild"
-          nullable: true
+          $ref: "#/components/schemas/ActiveRoutineBuild"
         nextQuest:
-          allOf:
-            - $ref: "#/components/schemas/Quest"
-          nullable: true
+          $ref: "#/components/schemas/Quest"
         calculationVersion:
           type: string
         dataState:
           $ref: "#/components/schemas/DataState"
         lastSyncedAt:
-          allOf:
-            - $ref: "#/components/schemas/Timestamp"
-          nullable: true
+          $ref: "#/components/schemas/NullableTimestamp"
     MonthlyReport:
       type: object
       additionalProperties: false
@@ -1022,9 +1003,7 @@ components:
         dataState:
           $ref: "#/components/schemas/DataState"
         lastSyncedAt:
-          allOf:
-            - $ref: "#/components/schemas/Timestamp"
-          nullable: true
+          $ref: "#/components/schemas/NullableTimestamp"
     MateGroup:
       oneOf:
         - title: OperationalMateGroup
@@ -1156,9 +1135,7 @@ components:
         dataState:
           $ref: "#/components/schemas/DataState"
         lastSyncedAt:
-          allOf:
-            - $ref: "#/components/schemas/Timestamp"
-          nullable: true
+          $ref: "#/components/schemas/NullableTimestamp"
     AdventurerRoutine:
       type: object
       additionalProperties: false
@@ -1377,9 +1354,7 @@ components:
         dataState:
           $ref: "#/components/schemas/DataState"
         lastSyncedAt:
-          allOf:
-            - $ref: "#/components/schemas/Timestamp"
-          nullable: true
+          $ref: "#/components/schemas/NullableTimestamp"
     ActiveRoutineBuild:
       type: object
       additionalProperties: false
@@ -1421,9 +1396,7 @@ components:
         activatedAt:
           $ref: "#/components/schemas/Timestamp"
         archivedAt:
-          allOf:
-            - $ref: "#/components/schemas/Timestamp"
-          nullable: true
+          $ref: "#/components/schemas/NullableTimestamp"
         replacesBuildId:
           type: string
           nullable: true
@@ -1435,9 +1408,7 @@ components:
         dataState:
           $ref: "#/components/schemas/DataState"
         lastSyncedAt:
-          allOf:
-            - $ref: "#/components/schemas/Timestamp"
-          nullable: true
+          $ref: "#/components/schemas/NullableTimestamp"
     ReplaceActiveRoutineBuildRequest:
       type: object
       additionalProperties: false
@@ -1517,9 +1488,7 @@ components:
         dataState:
           $ref: "#/components/schemas/DataState"
         lastSyncedAt:
-          allOf:
-            - $ref: "#/components/schemas/Timestamp"
-          nullable: true
+          $ref: "#/components/schemas/NullableTimestamp"
     QuestPage:
       type: object
       additionalProperties: false
@@ -1542,9 +1511,7 @@ components:
         dataState:
           $ref: "#/components/schemas/DataState"
         lastSyncedAt:
-          allOf:
-            - $ref: "#/components/schemas/Timestamp"
-          nullable: true
+          $ref: "#/components/schemas/NullableTimestamp"
     QuestCompletion:
       type: object
       additionalProperties: false
@@ -1615,9 +1582,7 @@ components:
         dataState:
           $ref: "#/components/schemas/DataState"
         lastSyncedAt:
-          allOf:
-            - $ref: "#/components/schemas/Timestamp"
-          nullable: true
+          $ref: "#/components/schemas/NullableTimestamp"
     DailyRecordPage:
       type: object
       additionalProperties: false
@@ -1636,9 +1601,7 @@ components:
         dataState:
           $ref: "#/components/schemas/DataState"
         lastSyncedAt:
-          allOf:
-            - $ref: "#/components/schemas/Timestamp"
-          nullable: true
+          $ref: "#/components/schemas/NullableTimestamp"
     SaveReflectionRequest:
       type: object
       additionalProperties: false

@@ -41,3 +41,32 @@
 | `npm run test` | Exit 0; 1 test file and 3 tests passed. |
 | `npm run build` | Exit 0; PWA service worker generated. |
 | `npm run test:e2e` | Exit 0; 1 full representative mobile flow passed. |
+
+## Second review fixes
+
+- MSW now rejects every routine replacement body unless `confirmReplacement` is literally `true`, returning 422 without changing the active build.
+- Signup now returns HTTP 201. Demo advancement is constrained to stage 3, updates the shared goal to `COMPLETED`, and updates the home raid projection. The demo mutation invalidates `home`, `goal`, and `raid` query keys.
+- Unit/integration coverage verifies the rejected replacement leaves the active build untouched, signup returns 201, and demo advancement produces a completed goal and stage 3.
+- Playwright now verifies the home state after routine replacement, and after completion CTA navigation it verifies the completed goal and `RAID STAGE 3`.
+
+| Command | Result |
+| --- | --- |
+| `npm run generate:api` | Exit 0. |
+| `npm run typecheck` | Exit 0. |
+| `npm run lint` | Exit 0. |
+| `npm run test` | Exit 0; 1 test file and 5 tests passed. |
+| `npm run build` | Exit 0; PWA service worker generated. |
+| `npm run test:e2e` | Exit 0; 1 expanded representative mobile flow passed. |
+
+## Follow-up verification
+
+- The replacement guard was extended to reject omitted, `false`, and `null` `confirmReplacement` bodies with 422 while retaining the original active build.
+
+| Command | Result |
+| --- | --- |
+| `npm run generate:api` | Exit 0. |
+| `npm run typecheck` | Exit 0. |
+| `npm run lint` | Exit 0. |
+| `npm run test` | Exit 0; 1 test file and 5 tests passed. |
+| `npm run build` | Exit 0; PWA service worker generated. |
+| `npm run test:e2e` | Exit 0; 1 expanded representative mobile flow passed. |

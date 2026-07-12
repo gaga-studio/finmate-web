@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import App from './App'
+import { apiGet, type HomeResponse, type Schema } from './api/client'
 
 function renderApp(initialEntry = '/signup') {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
@@ -54,5 +55,31 @@ describe('FinMate representative flow', () => {
     renderApp('/mates/group/budget')
 
     expect(await screen.findByRole('heading', { name: '생활비 탐험대' })).toBeInTheDocument()
+  })
+
+  it('rejects an unconfirmed routine replacement without mutating the active build', async () => {
+    const before = await apiGet<Schema['ActiveRoutineBuild']>('/routine-builds/active')
+    for (const body of [{ adaptationId: 'adaptation-europe', candidateId: 'candidate-standard' }, { confirmReplacement: false }, null]) {
+      const response = await fetch('/api/v1/routine-builds/active/replacement', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      expect(response.status).toBe(422)
+    }
+
+    expect(await apiGet<Schema['ActiveRoutineBuild']>('/routine-builds/active')).toEqual(before)
+  })
+
+  it('returns 201 for signup and advances the global demo projection to completed stage 3', async () => {
+    const signup = await fetch('/api/v1/auth/signup', { method: 'POST' })
+    expect(signup.status).toBe(201)
+
+    expect((await apiGet<HomeResponse>('/home')).raid.stage).toBe(1)
+    await fetch('/api/v1/demo/timeline/advance', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fixtureId: 'EUROPE_TRAVEL_JANUARY', expectedStage: 2 }) })
+    const completedHome = await apiGet<HomeResponse>('/home')
+
+    expect(completedHome.mainGoal.state).toBe('COMPLETED')
+    expect(completedHome.raid.stage).toBe(3)
   })
 })
