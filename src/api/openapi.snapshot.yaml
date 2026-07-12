@@ -63,12 +63,9 @@ paths:
       tags:
         - Auth
       operationId: refreshSession
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/RefreshRequest"
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/RefreshCookie"
       responses:
         "200":
           $ref: "#/components/responses/AuthSessionResponse"
@@ -79,9 +76,14 @@ paths:
       tags:
         - Auth
       operationId: logOut
+      parameters:
+        - $ref: "#/components/parameters/RefreshCookie"
       responses:
         "204":
-          description: Session revoked
+          description: Refresh session revoked and cookie cleared
+          headers:
+            Set-Cookie:
+              $ref: "#/components/headers/ClearedRefreshCookie"
         default:
           $ref: "#/components/responses/ProblemResponse"
   /onboarding:
@@ -268,7 +270,39 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/RoutineAdaptationSet"
+                type: object
+                additionalProperties: false
+                required:
+                  - adaptationId
+                  - sourceRoutineId
+                  - state
+                  - availableDomains
+                  - calculationVersion
+                  - dataState
+                  - lastSyncedAt
+                properties:
+                  adaptationId:
+                    type: string
+                  sourceRoutineId:
+                    type: string
+                  state:
+                    type: string
+                    enum:
+                      - AWAITING_DOMAIN
+                  availableDomains:
+                    type: array
+                    minItems: 1
+                    uniqueItems: true
+                    items:
+                      $ref: "#/components/schemas/AdaptationDomain"
+                  calculationVersion:
+                    type: string
+                  dataState:
+                    $ref: "#/components/schemas/DataState"
+                  lastSyncedAt:
+                    allOf:
+                      - $ref: "#/components/schemas/Timestamp"
+                    nullable: true
         default:
           $ref: "#/components/responses/ProblemResponse"
   /routine-adaptations/{adaptationId}/choice:
@@ -525,6 +559,15 @@ components:
         type: string
         minLength: 16
         maxLength: 128
+    RefreshCookie:
+      name: finmate_refresh
+      in: cookie
+      required: true
+      description: Opaque 30-day refresh token. Sent only as an HttpOnly, SameSite=Lax
+        cookie scoped to /api/v1/auth.
+      schema:
+        type: string
+        minLength: 32
     GroupId:
       name: groupId
       in: path
@@ -568,9 +611,28 @@ components:
       schema:
         type: string
         format: date
+  headers:
+    RefreshCookie:
+      description: Rotated opaque refresh token; HttpOnly, SameSite=Lax,
+        Path=/api/v1/auth, Max-Age=2592000. Secure is enabled outside local
+        development.
+      schema:
+        type: string
+      example: finmate_refresh=opaque-token; Path=/api/v1/auth; Max-Age=2592000;
+        HttpOnly; SameSite=Lax; Secure
+    ClearedRefreshCookie:
+      description: Revokes the browser cookie with Max-Age=0 using the same attributes
+        and path.
+      schema:
+        type: string
+      example: finmate_refresh=; Path=/api/v1/auth; Max-Age=0; HttpOnly; SameSite=Lax;
+        Secure
   responses:
     AuthSessionResponse:
       description: Authenticated email/password session
+      headers:
+        Set-Cookie:
+          $ref: "#/components/headers/RefreshCookie"
       content:
         application/json:
           schema:
@@ -664,14 +726,20 @@ components:
       required:
         - email
         - password
+        - displayName
       properties:
         email:
           type: string
           format: email
+          maxLength: 254
         password:
           type: string
-          minLength: 10
+          minLength: 12
           maxLength: 72
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 30
     LoginRequest:
       type: object
       additionalProperties: false
@@ -682,38 +750,55 @@ components:
         email:
           type: string
           format: email
+          maxLength: 254
         password:
           type: string
-    RefreshRequest:
+          minLength: 1
+          maxLength: 72
+    UserSummary:
       type: object
       additionalProperties: false
       required:
-        - refreshToken
+        - userId
+        - email
+        - displayName
+        - onboardingStatus
       properties:
-        refreshToken:
+        userId:
           type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        displayName:
+          type: string
+          minLength: 1
+          maxLength: 30
+        onboardingStatus:
+          type: string
+          enum:
+            - NOT_STARTED
+            - IN_PROGRESS
+            - COMPLETED
     AuthSession:
       type: object
       additionalProperties: false
       required:
         - accessToken
-        - refreshToken
+        - tokenType
         - expiresAt
-        - userId
-        - authMethod
+        - user
       properties:
         accessToken:
           type: string
-        refreshToken:
-          type: string
-        expiresAt:
-          $ref: "#/components/schemas/Timestamp"
-        userId:
-          type: string
-        authMethod:
+        tokenType:
           type: string
           enum:
-            - EMAIL_PASSWORD
+            - Bearer
+        expiresAt:
+          $ref: "#/components/schemas/Timestamp"
+        user:
+          $ref: "#/components/schemas/UserSummary"
     CompleteOnboardingRequest:
       type: object
       additionalProperties: false
@@ -941,26 +1026,58 @@ components:
             - $ref: "#/components/schemas/Timestamp"
           nullable: true
     MateGroup:
-      type: object
-      additionalProperties: false
-      required:
-        - groupId
-        - name
-        - memberCount
-        - syntheticDemo
-        - eligibleForProductionAggregation
-      properties:
-        groupId:
-          type: string
-        name:
-          type: string
-        memberCount:
-          type: integer
-          minimum: 10
-        syntheticDemo:
-          type: boolean
-        eligibleForProductionAggregation:
-          type: boolean
+      oneOf:
+        - title: OperationalMateGroup
+          type: object
+          additionalProperties: false
+          required:
+            - groupId
+            - name
+            - memberCount
+            - syntheticDemo
+            - eligibleForProductionAggregation
+          properties:
+            groupId:
+              type: string
+            name:
+              type: string
+            memberCount:
+              type: integer
+              minimum: 30
+            syntheticDemo:
+              type: boolean
+              enum:
+                - false
+            eligibleForProductionAggregation:
+              type: boolean
+              enum:
+                - true
+        - title: SyntheticDemoMateGroup
+          type: object
+          additionalProperties: false
+          required:
+            - groupId
+            - name
+            - memberCount
+            - syntheticDemo
+            - eligibleForProductionAggregation
+          properties:
+            groupId:
+              type: string
+            name:
+              type: string
+            memberCount:
+              type: integer
+              enum:
+                - 10
+            syntheticDemo:
+              type: boolean
+              enum:
+                - true
+            eligibleForProductionAggregation:
+              type: boolean
+              enum:
+                - false
     MateGroupPage:
       type: object
       additionalProperties: false
@@ -1096,42 +1213,107 @@ components:
         domain:
           $ref: "#/components/schemas/AdaptationDomain"
     RoutineAdaptationCandidate:
-      type: object
-      additionalProperties: false
-      required:
-        - candidateId
-        - difficulty
-        - domain
-        - title
-        - targetKind
-        - steps
-      properties:
-        candidateId:
-          type: string
-        difficulty:
-          $ref: "#/components/schemas/Difficulty"
-        domain:
-          $ref: "#/components/schemas/AdaptationDomain"
-        title:
-          type: string
-        targetKind:
-          $ref: "#/components/schemas/TargetKind"
-        targetAmountKrw:
-          allOf:
-            - $ref: "#/components/schemas/KrwAmount"
-          nullable: true
-        targetRatioBps:
-          allOf:
-            - $ref: "#/components/schemas/BasisPoints"
-          nullable: true
-        behaviorTarget:
-          type: string
-          nullable: true
-        steps:
-          type: array
-          minItems: 1
-          items:
-            type: string
+      oneOf:
+        - title: AmountRoutineAdaptationCandidate
+          type: object
+          additionalProperties: false
+          required:
+            - candidateId
+            - difficulty
+            - domain
+            - title
+            - targetKind
+            - targetAmountKrw
+            - steps
+          properties:
+            candidateId:
+              type: string
+            difficulty:
+              $ref: "#/components/schemas/Difficulty"
+            domain:
+              type: string
+              enum:
+                - SPENDING
+                - SAVING
+            title:
+              type: string
+            targetKind:
+              type: string
+              enum:
+                - AMOUNT_KRW
+            targetAmountKrw:
+              $ref: "#/components/schemas/KrwAmount"
+            steps:
+              type: array
+              minItems: 1
+              items:
+                type: string
+        - title: RatioRoutineAdaptationCandidate
+          type: object
+          additionalProperties: false
+          required:
+            - candidateId
+            - difficulty
+            - domain
+            - title
+            - targetKind
+            - targetRatioBps
+            - steps
+          properties:
+            candidateId:
+              type: string
+            difficulty:
+              $ref: "#/components/schemas/Difficulty"
+            domain:
+              type: string
+              enum:
+                - SPENDING
+                - SAVING
+            title:
+              type: string
+            targetKind:
+              type: string
+              enum:
+                - RATIO_BPS
+            targetRatioBps:
+              $ref: "#/components/schemas/BasisPoints"
+            steps:
+              type: array
+              minItems: 1
+              items:
+                type: string
+        - title: BehaviorRoutineAdaptationCandidate
+          type: object
+          additionalProperties: false
+          required:
+            - candidateId
+            - difficulty
+            - domain
+            - title
+            - targetKind
+            - behaviorTarget
+            - steps
+          properties:
+            candidateId:
+              type: string
+            difficulty:
+              $ref: "#/components/schemas/Difficulty"
+            domain:
+              $ref: "#/components/schemas/AdaptationDomain"
+            title:
+              type: string
+            targetKind:
+              type: string
+              enum:
+                - BEHAVIOR
+            behaviorTarget:
+              type: string
+              minLength: 1
+            steps:
+              type: array
+              minItems: 1
+              items:
+                type: string
     RoutineAdaptationSet:
       type: object
       additionalProperties: false
@@ -1140,7 +1322,9 @@ components:
         - sourceRoutineId
         - state
         - selectedDomain
-        - candidates
+        - light
+        - standard
+        - challenge
         - calculationVersion
         - dataState
         - lastSyncedAt
@@ -1152,18 +1336,42 @@ components:
         state:
           type: string
           enum:
-            - AWAITING_DOMAIN
             - CANDIDATES_READY
         selectedDomain:
+          $ref: "#/components/schemas/AdaptationDomain"
+        light:
           allOf:
-            - $ref: "#/components/schemas/AdaptationDomain"
-          nullable: true
-        candidates:
-          type: array
-          minItems: 0
-          maxItems: 3
-          items:
-            $ref: "#/components/schemas/RoutineAdaptationCandidate"
+            - $ref: "#/components/schemas/RoutineAdaptationCandidate"
+            - type: object
+              required:
+                - difficulty
+              properties:
+                difficulty:
+                  type: string
+                  enum:
+                    - LIGHT
+        standard:
+          allOf:
+            - $ref: "#/components/schemas/RoutineAdaptationCandidate"
+            - type: object
+              required:
+                - difficulty
+              properties:
+                difficulty:
+                  type: string
+                  enum:
+                    - STANDARD
+        challenge:
+          allOf:
+            - $ref: "#/components/schemas/RoutineAdaptationCandidate"
+            - type: object
+              required:
+                - difficulty
+              properties:
+                difficulty:
+                  type: string
+                  enum:
+                    - CHALLENGE
         calculationVersion:
           type: string
         dataState:
@@ -1521,6 +1729,8 @@ components:
           enum:
             - VALIDATION_FAILED
             - UNAUTHORIZED
+            - INVALID_CREDENTIALS
+            - DUPLICATE_EMAIL
             - NOT_FOUND
             - DATA_STALE
             - DATA_INSUFFICIENT

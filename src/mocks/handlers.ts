@@ -1,40 +1,48 @@
 import { delay, http, HttpResponse } from 'msw'
+import type { Schema } from '../api/client'
 
-const journey = Array.from({ length: 30 }, (_, index) => ({
-  day: index + 1,
-  label: `${index + 1}일`,
-  complete: index < 18,
-  note: index < 18 ? '자동저축 루틴을 지켰어요.' : '내일의 기록을 기다리고 있어요.',
-}))
+const now = '2026-07-24T00:06:31Z'
+const goal: Schema['UserGoal'] = { goalId: 'europe-trip', title: '유럽 여행', domain: 'SAVING', currentAmountKrw: 2000000, targetAmountKrw: 5000000, targetMonth: '2026-12', state: 'ACTIVE', confirmedAt: now, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }
+const groups: Schema['MateGroup'][] = [
+  { groupId: 'savers', name: '꾸준저축 원정대', memberCount: 18, syntheticDemo: false, eligibleForProductionAggregation: true },
+  { groupId: 'budget', name: '생활비 탐험대', memberCount: 12, syntheticDemo: false, eligibleForProductionAggregation: true },
+]
+const syntheticGroup: Schema['MateGroup'] = { groupId: 'demo-europe', name: '유럽 여행 데모 원정대', memberCount: 10, syntheticDemo: true, eligibleForProductionAggregation: false }
+const baseRoutine: Schema['ActiveRoutineBuild'] = { buildId: 'build-current', candidateId: 'candidate-current', sourceRoutineId: 'routine-current', domain: 'SAVING', difficulty: 'LIGHT', status: 'ACTIVE', steps: ['월급날 자동저축'], activatedAt: now, replacesBuildId: null, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }
+const lightCandidate = { candidateId: 'candidate-light', difficulty: 'LIGHT', domain: 'SAVING', title: '주 1회 저축 확인', targetKind: 'BEHAVIOR', behaviorTarget: '주 1회 자동저축 확인', steps: ['월요일 저축 확인'] } satisfies Schema['RoutineAdaptationCandidate']
+const standardCandidate = { candidateId: 'candidate-standard', difficulty: 'STANDARD', domain: 'SAVING', title: '주 3회 저축 챌린지', targetKind: 'BEHAVIOR', behaviorTarget: '주 3회 10,000원 자동저축 확인', steps: ['월요일 저축 확인', '수요일 저축 확인', '금요일 저축 확인'] } satisfies Schema['RoutineAdaptationCandidate']
+const challengeCandidate = { candidateId: 'candidate-challenge', difficulty: 'CHALLENGE', domain: 'SAVING', title: '주 5회 저축 챌린지', targetKind: 'BEHAVIOR', behaviorTarget: '주 5회 자동저축 확인', steps: ['평일 저축 확인'] } satisfies Schema['RoutineAdaptationCandidate']
+const adaptationSet: Schema['RoutineAdaptationSet'] = { adaptationId: 'adaptation-europe', sourceRoutineId: 'routine-savers', state: 'CANDIDATES_READY', selectedDomain: 'SAVING', light: lightCandidate, standard: standardCandidate, challenge: challengeCandidate, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }
+
+let activeRoutine: Schema['ActiveRoutineBuild'] = baseRoutine
+let demoStage = 1
+
+export function resetMockState() { activeRoutine = baseRoutine; demoStage = 1 }
+
+const page = (groupId: string): Schema['RecommendedAdventurerPage'] => ({
+  groupId,
+  items: [{ adventurerId: groupId === 'budget' ? 'adventurer-budget' : 'adventurer-saver', groupId, alias: groupId === 'budget' ? '남쪽의 모험가' : '북쪽의 모험가', similarityReasons: ['익명 저축 루틴을 꾸준히 유지했어요.'], routines: [{ routineId: groupId === 'budget' ? 'routine-budget' : 'routine-savers', title: groupId === 'budget' ? '하루 한 번 지출 점검' : '주 3회 저축 챌린지', availableDomains: ['SAVING'] }], approvedAt: now }],
+  calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now,
+})
+const journey: Schema['DailyRecord'][] = Array.from({ length: 30 }, (_, index) => ({ date: `2026-07-${String(index + 1).padStart(2, '0')}`, events: index < 18 ? [{ eventType: 'ROUTINE_BUILD', occurredAt: now, title: '자동저축 루틴을 지켰어요.' }] : [], xpEarned: index < 18 ? 5 : 0, reflection: null, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }))
 
 export const handlers = [
-  http.post('/api/auth/signup', async () => {
-    await delay(100)
-    return HttpResponse.json({ memberId: 'member-minji', nickname: '민지' })
-  }),
-  http.post('/api/auth/login', () => HttpResponse.json({ memberId: 'member-minji', nickname: '민지' })),
-  http.get('/api/home', () => HttpResponse.json({
-    greeting: '민지님, 저축 루틴이 1단계를 지나고 있어요.',
-    activeGoal: { title: '유럽 여행', targetKrw: 5000000, savedKrw: 2000000 },
-    raid: { stage: 2, boss: '생활비 드래곤', hp: 58 },
-    dataFreshness: { state: 'FRESH', label: 'MyData 기준 오늘 08:30 반영' },
-  })),
-  http.get('/api/goals/active', () => HttpResponse.json({
-    goalId: 'europe-trip', title: '유럽 여행', targetKrw: 5000000, savedKrw: 2000000, state: 'ACTIVE',
-  })),
-  http.get('/api/animal-report', () => HttpResponse.json({
-    title: '오늘의 동물 리포트', animal: '해달', summary: '저축 HP가 지난주보다 안정적으로 자랐어요.', action: '자동저축 입금 반영 확인하기',
-  })),
-  http.get('/api/mate-groups', () => HttpResponse.json([
-    { id: 'savers', name: '꾸준저축 원정대', members: 18, routine: '주 3회 저축 챌린지', description: '작은 금액도 끊기지 않게, 익명으로 서로의 루틴을 응원해요.' },
-    { id: 'budget', name: '생활비 탐험대', members: 12, routine: '하루 한 번 지출 점검', description: '소비를 기록하고 다음 날의 선택을 가볍게 정리해요.' },
-  ])),
-  http.get('/api/adventurers/anonymous-minji', () => HttpResponse.json({
-    alias: '북쪽의 모험가', level: 12, routine: '주 3회 저축 챌린지', insight: '급여일 다음 날 자동저축을 설정했어요.',
-  })),
-  http.get('/api/quests', () => HttpResponse.json([
-    { id: 'routine', title: '자동저축 입금 반영 확인하기', description: 'MyData에서 이번 주 저축 흐름을 확인해요.', status: 'READY' },
-    { id: 'etf', title: 'ETF O/X 한 문제 풀기', description: '투자는 상품 추천이 아니라 위험 이해부터 시작해요.', status: 'READY' },
-  ])),
-  http.get('/api/journey', () => HttpResponse.json(journey)),
+  http.post('/api/v1/auth/signup', async () => { await delay(100); return HttpResponse.json({ accessToken: 'access-token', refreshToken: 'refresh-token', expiresAt: now, userId: 'member-minji', authMethod: 'EMAIL_PASSWORD' }) }),
+  http.post('/api/v1/auth/login', () => HttpResponse.json({ accessToken: 'access-token', refreshToken: 'refresh-token', expiresAt: now, userId: 'member-minji', authMethod: 'EMAIL_PASSWORD' })),
+  http.get('/api/v1/onboarding', () => HttpResponse.json({ status: 'DRAFT', displayName: '민지', mainGoal: goal })),
+  http.put('/api/v1/onboarding', () => HttpResponse.json({ status: 'COMPLETED', displayName: '민지', mainGoal: goal })),
+  http.get('/api/v1/goals/active', () => HttpResponse.json(goal)),
+  http.get('/api/v1/home', () => HttpResponse.json({ mainGoal: goal, raid: { raidId: 'raid-europe', goalId: goal.goalId, stage: demoStage + 1, bossHpBps: 5800, progressBps: 4200, financialStats: { spendingBps: 6300, savingBps: 5800, investmentJudgmentBps: 5500 }, xp: 26, coachCopyKey: 'SAVING_STEADY', calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }, activeRoutineBuild: activeRoutine, nextQuest: null, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now })),
+  http.get('/api/v1/reports/monthly', () => HttpResponse.json({ month: '2026-07', goalProgressBps: 4000, financialStats: { spendingBps: 6300, savingBps: 5800, investmentJudgmentBps: 5500 }, xpEarned: 26, completedQuestCount: 4, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now })),
+  http.get('/api/v1/mate/groups', () => HttpResponse.json({ items: groups })),
+  http.get('/api/v1/mate/groups/:groupId/adventurers', ({ params }) => HttpResponse.json(page(String(params.groupId)))),
+  http.get('/api/v1/mate/groups/:groupId/adventurers/:adventurerId/routines/:routineId', ({ params }) => HttpResponse.json({ routineId: String(params.routineId), adventurerId: String(params.adventurerId), groupId: String(params.groupId), title: String(params.routineId) === 'routine-budget' ? '하루 한 번 지출 점검' : '주 3회 저축 챌린지', description: '익명 모험가가 검증한 루틴을 내 생활에 맞게 조절해요.', availableDomains: ['SAVING'], maintainedDays: 42 })),
+  http.post('/api/v1/routine-adaptations', () => HttpResponse.json({ adaptationId: 'adaptation-europe', sourceRoutineId: 'routine-savers', state: 'AWAITING_DOMAIN', availableDomains: ['SAVING'], calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }, { status: 201 })),
+  http.put('/api/v1/routine-adaptations/:adaptationId/choice', () => HttpResponse.json(adaptationSet)),
+  http.post('/api/v1/routine-adaptations/:adaptationId/candidates/:candidateId/import', () => HttpResponse.json({ code: 'ACTIVE_BUILD_EXISTS' }, { status: 409 })),
+  http.get('/api/v1/routine-builds/active', () => HttpResponse.json(activeRoutine)),
+  http.post('/api/v1/routine-builds/active/replacement', async ({ request }) => { const body = await request.json() as Schema['ReplaceActiveRoutineBuildRequest']; const archivedBuild = { ...activeRoutine, status: 'ARCHIVED' as const, archivedAt: now }; activeRoutine = { buildId: 'build-standard', candidateId: body.candidateId, sourceRoutineId: 'routine-savers', domain: 'SAVING', difficulty: 'STANDARD', status: 'ACTIVE', steps: standardCandidate.steps, activatedAt: now, replacesBuildId: archivedBuild.buildId, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }; return HttpResponse.json({ archivedBuild, activeBuild: activeRoutine, replacedAt: now }) }),
+  http.get('/api/v1/quests', () => HttpResponse.json({ items: [{ questId: 'quest-routine', title: '자동저축 입금 반영 확인하기', status: 'AVAILABLE', verificationKind: 'SYNTHETIC_MYDATA', xpReward: 5, internalRewardCodes: ['badge-routine'], financialStatsChanged: false, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }, { questId: 'quest-etf', title: 'ETF O/X 한 문제 풀기', status: 'AVAILABLE', verificationKind: 'BEHAVIOR', xpReward: 3, internalRewardCodes: ['content-etf'], financialStatsChanged: false, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }], totalXp: 26, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now })),
+  http.get('/api/v1/records', () => HttpResponse.json({ items: journey, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now })),
+  http.post('/api/v1/demo/timeline/advance', () => { demoStage = 30; return HttpResponse.json({ fixtureId: 'EUROPE_TRAVEL_JANUARY', stage: demoStage, mainGoal: { ...goal, state: 'COMPLETED' }, raid: { raidId: 'raid-europe', goalId: goal.goalId, stage: demoStage, bossHpBps: 0, progressBps: 10000, financialStats: { spendingBps: 6300, savingBps: 5800, investmentJudgmentBps: 5500 }, xp: 26, coachCopyKey: 'GOAL_COMPLETE', calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }, syntheticGroup }) }),
 ]

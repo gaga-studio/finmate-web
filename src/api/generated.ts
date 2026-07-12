@@ -5,6 +5,11 @@
  */
 
 
+/** OneOf type helpers */
+type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never };
+type XOR<T, U> = (T | U) extends object ? (Without<T, U> & U) | (Without<U, T> & T) : T | U;
+type OneOf<T extends any[]> = T extends [infer Only] ? Only : T extends [infer A, infer B, ...infer Rest] ? OneOf<[XOR<A, B>, ...Rest]> : never;
+
 export interface paths {
   "/auth/signup": {
     post: operations["signUp"];
@@ -106,22 +111,28 @@ export interface components {
       /** Format: email */
       email: string;
       password: string;
+      displayName: string;
     };
     LoginRequest: {
       /** Format: email */
       email: string;
       password: string;
     };
-    RefreshRequest: {
-      refreshToken: string;
+    UserSummary: {
+      /** Format: uuid */
+      userId: string;
+      /** Format: email */
+      email: string;
+      displayName: string;
+      /** @enum {string} */
+      onboardingStatus: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
     };
     AuthSession: {
       accessToken: string;
-      refreshToken: string;
-      expiresAt: components["schemas"]["Timestamp"];
-      userId: string;
       /** @enum {string} */
-      authMethod: "EMAIL_PASSWORD";
+      tokenType: "Bearer";
+      expiresAt: components["schemas"]["Timestamp"];
+      user: components["schemas"]["UserSummary"];
     };
     CompleteOnboardingRequest: {
       displayName: string;
@@ -193,13 +204,24 @@ export interface components {
       dataState: components["schemas"]["DataState"];
       lastSyncedAt: components["schemas"]["Timestamp"] | null;
     };
-    MateGroup: {
+    MateGroup: OneOf<[{
       groupId: string;
       name: string;
       memberCount: number;
-      syntheticDemo: boolean;
-      eligibleForProductionAggregation: boolean;
-    };
+      /** @enum {boolean} */
+      syntheticDemo: false;
+      /** @enum {boolean} */
+      eligibleForProductionAggregation: true;
+    }, {
+      groupId: string;
+      name: string;
+      /** @enum {integer} */
+      memberCount: 10;
+      /** @enum {boolean} */
+      syntheticDemo: true;
+      /** @enum {boolean} */
+      eligibleForProductionAggregation: false;
+    }]>;
     MateGroupPage: {
       items: components["schemas"]["MateGroup"][];
     };
@@ -240,24 +262,54 @@ export interface components {
     ChooseAdaptationDomainRequest: {
       domain: components["schemas"]["AdaptationDomain"];
     };
-    RoutineAdaptationCandidate: {
+    RoutineAdaptationCandidate: OneOf<[{
+      candidateId: string;
+      difficulty: components["schemas"]["Difficulty"];
+      /** @enum {string} */
+      domain: "SPENDING" | "SAVING";
+      title: string;
+      /** @enum {string} */
+      targetKind: "AMOUNT_KRW";
+      targetAmountKrw: components["schemas"]["KrwAmount"];
+      steps: string[];
+    }, {
+      candidateId: string;
+      difficulty: components["schemas"]["Difficulty"];
+      /** @enum {string} */
+      domain: "SPENDING" | "SAVING";
+      title: string;
+      /** @enum {string} */
+      targetKind: "RATIO_BPS";
+      targetRatioBps: components["schemas"]["BasisPoints"];
+      steps: string[];
+    }, {
       candidateId: string;
       difficulty: components["schemas"]["Difficulty"];
       domain: components["schemas"]["AdaptationDomain"];
       title: string;
-      targetKind: components["schemas"]["TargetKind"];
-      targetAmountKrw?: components["schemas"]["KrwAmount"] | null;
-      targetRatioBps?: components["schemas"]["BasisPoints"] | null;
-      behaviorTarget?: string | null;
+      /** @enum {string} */
+      targetKind: "BEHAVIOR";
+      behaviorTarget: string;
       steps: string[];
-    };
+    }]>;
     RoutineAdaptationSet: {
       adaptationId: string;
       sourceRoutineId: string;
       /** @enum {string} */
-      state: "AWAITING_DOMAIN" | "CANDIDATES_READY";
-      selectedDomain: components["schemas"]["AdaptationDomain"] | null;
-      candidates: components["schemas"]["RoutineAdaptationCandidate"][];
+      state: "CANDIDATES_READY";
+      selectedDomain: components["schemas"]["AdaptationDomain"];
+      light: components["schemas"]["RoutineAdaptationCandidate"] & {
+        /** @enum {string} */
+        difficulty: "LIGHT";
+      };
+      standard: components["schemas"]["RoutineAdaptationCandidate"] & {
+        /** @enum {string} */
+        difficulty: "STANDARD";
+      };
+      challenge: components["schemas"]["RoutineAdaptationCandidate"] & {
+        /** @enum {string} */
+        difficulty: "CHALLENGE";
+      };
       calculationVersion: string;
       dataState: components["schemas"]["DataState"];
       lastSyncedAt: components["schemas"]["Timestamp"] | null;
@@ -369,7 +421,7 @@ export interface components {
       detail: string;
       instance: string;
       /** @enum {string} */
-      code: "VALIDATION_FAILED" | "UNAUTHORIZED" | "NOT_FOUND" | "DATA_STALE" | "DATA_INSUFFICIENT" | "ACTIVE_ROUTINE_BUILD_EXISTS" | "ADAPTATION_DOMAIN_REQUIRED" | "DEMO_PROFILE_REQUIRED";
+      code: "VALIDATION_FAILED" | "UNAUTHORIZED" | "INVALID_CREDENTIALS" | "DUPLICATE_EMAIL" | "NOT_FOUND" | "DATA_STALE" | "DATA_INSUFFICIENT" | "ACTIVE_ROUTINE_BUILD_EXISTS" | "ADAPTATION_DOMAIN_REQUIRED" | "DEMO_PROFILE_REQUIRED";
       traceId: string;
       fieldErrors?: components["schemas"]["FieldError"][];
     };
@@ -377,6 +429,9 @@ export interface components {
   responses: {
     /** @description Authenticated email/password session */
     AuthSessionResponse: {
+      headers: {
+        "Set-Cookie": components["headers"]["RefreshCookie"];
+      };
       content: {
         "application/json": components["schemas"]["AuthSession"];
       };
@@ -408,6 +463,8 @@ export interface components {
   };
   parameters: {
     IdempotencyKey: string;
+    /** @description Opaque 30-day refresh token. Sent only as an HttpOnly, SameSite=Lax cookie scoped to /api/v1/auth. */
+    RefreshCookie: string;
     GroupId: string;
     AdventurerId: string;
     RoutineId: string;
@@ -417,7 +474,18 @@ export interface components {
     RecordDate: string;
   };
   requestBodies: never;
-  headers: never;
+  headers: {
+    /**
+     * @description Rotated opaque refresh token; HttpOnly, SameSite=Lax, Path=/api/v1/auth, Max-Age=2592000. Secure is enabled outside local development.
+     * @example finmate_refresh=opaque-token; Path=/api/v1/auth; Max-Age=2592000; HttpOnly; SameSite=Lax; Secure
+     */
+    RefreshCookie: string;
+    /**
+     * @description Revokes the browser cookie with Max-Age=0 using the same attributes and path.
+     * @example finmate_refresh=; Path=/api/v1/auth; Max-Age=0; HttpOnly; SameSite=Lax; Secure
+     */
+    ClearedRefreshCookie: string;
+  };
   pathItems: never;
 }
 
@@ -450,9 +518,9 @@ export interface operations {
     };
   };
   refreshSession: {
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["RefreshRequest"];
+    parameters: {
+      cookie: {
+        finmate_refresh: components["parameters"]["RefreshCookie"];
       };
     };
     responses: {
@@ -461,9 +529,17 @@ export interface operations {
     };
   };
   logOut: {
+    parameters: {
+      cookie: {
+        finmate_refresh: components["parameters"]["RefreshCookie"];
+      };
+    };
     responses: {
-      /** @description Session revoked */
+      /** @description Refresh session revoked and cookie cleared */
       204: {
+        headers: {
+          "Set-Cookie": components["headers"]["ClearedRefreshCookie"];
+        };
         content: never;
       };
       default: components["responses"]["ProblemResponse"];
@@ -605,7 +681,16 @@ export interface operations {
       /** @description Adaptation awaiting the user's single domain choice */
       201: {
         content: {
-          "application/json": components["schemas"]["RoutineAdaptationSet"];
+          "application/json": {
+            adaptationId: string;
+            sourceRoutineId: string;
+            /** @enum {string} */
+            state: "AWAITING_DOMAIN";
+            availableDomains: components["schemas"]["AdaptationDomain"][];
+            calculationVersion: string;
+            dataState: components["schemas"]["DataState"];
+            lastSyncedAt: components["schemas"]["Timestamp"] | null;
+          };
         };
       };
       default: components["responses"]["ProblemResponse"];
