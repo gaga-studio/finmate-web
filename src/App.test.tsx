@@ -22,12 +22,28 @@ describe('FinMate representative flow', () => {
     const user = userEvent.setup()
     renderApp()
 
+    await user.type(screen.getByLabelText('이름'), '민지')
     await user.type(screen.getByLabelText('이메일'), 'minji@example.com')
-    await user.type(screen.getByLabelText('비밀번호'), 'finmate1234')
+    await user.type(screen.getByLabelText('비밀번호'), 'finmate12345')
     await user.click(screen.getByRole('button', { name: '시작하기' }))
 
     expect(await screen.findByText('금융 습관을 알아볼게요')).toBeInTheDocument()
     expect(screen.getByText('1 / 6')).toBeInTheDocument()
+  })
+
+  it('retains onboarding choices locally and opens an editable Europe travel goal draft', async () => {
+    const user = userEvent.setup()
+    renderApp('/onboarding/1')
+
+    const choice = screen.getByRole('button', { name: '자동저축부터 만들고 싶어요' })
+    await user.click(choice)
+    expect(choice).toHaveAttribute('aria-pressed', 'true')
+
+    for (let step = 0; step < 5; step += 1) await user.click(screen.getByRole('button', { name: '다음' }))
+    await user.click(screen.getByRole('button', { name: '여행 목표 보기' }))
+
+    expect(await screen.findByLabelText('목표 이름')).toHaveValue('유럽 여행 자금')
+    expect(screen.getByLabelText('목표 금액')).toHaveValue(5000000)
   })
 
   it('persists a confirmed routine replacement while preserving the active main goal', async () => {
@@ -75,11 +91,11 @@ describe('FinMate representative flow', () => {
     const signup = await fetch('/api/v1/auth/signup', { method: 'POST' })
     expect(signup.status).toBe(201)
 
-    expect((await apiGet<HomeResponse>('/home')).raid.stage).toBe(1)
-    await fetch('/api/v1/demo/timeline/advance', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fixtureId: 'EUROPE_TRAVEL_JANUARY', expectedStage: 2 }) })
+    expect((await apiGet<HomeResponse>('/home')).raid.stage).toBe(0)
+    for (const expectedStage of [0, 1, 2]) await fetch('/api/v1/demo/timeline/advance', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ fixtureId: 'EUROPE_TRAVEL_JANUARY', expectedStage }) })
     const completedHome = await apiGet<HomeResponse>('/home')
 
-    expect(completedHome.mainGoal.state).toBe('COMPLETED')
+    expect(completedHome.mainGoal.state).toBe('ACTIVE')
     expect(completedHome.raid.stage).toBe(3)
   })
 })

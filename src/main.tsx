@@ -2,11 +2,12 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter } from 'react-router-dom'
+import { isMockMode } from './api/runtime'
 import './index.css'
 import App from './App.tsx'
 
 async function enableMocking() {
-  if (import.meta.env.MODE === 'test') return
+  if (import.meta.env.MODE === 'test' || !isMockMode()) return
   const { worker } = await import('./mocks/browser')
   return worker.start({ onUnhandledRequest: 'bypass' })
 }

@@ -2,15 +2,16 @@ import { expect, test } from '@playwright/test'
 
 test('moves through the representative FinMate mobile flow', async ({ page }) => {
   await page.goto('/signup')
+  await page.getByLabel('이름').fill('민지')
   await page.getByLabel('이메일').fill('minji@example.com')
-  await page.getByLabel('비밀번호').fill('finmate1234')
+  await page.getByLabel('비밀번호').fill('finmate12345')
   await page.getByRole('button', { name: '시작하기' }).click()
 
   for (let step = 0; step < 5; step += 1) {
     await page.getByRole('button', { name: '다음' }).click()
   }
   await page.getByRole('button', { name: '여행 목표 보기' }).click()
-  await page.getByRole('button', { name: '유럽 여행 목표 만들기' }).click()
+  await page.getByRole('button', { name: '유럽 여행 자금 목표 만들기' }).click()
   await expect(page.getByRole('heading', { name: '여행까지 한 걸음' })).toBeVisible()
   await page.getByRole('button', { name: '홈으로 가기' }).click()
   await expect(page.getByRole('heading', { name: '유럽 여행 목표를 향해 가고 있어요.' })).toBeVisible()
@@ -32,7 +33,9 @@ test('moves through the representative FinMate mobile flow', async ({ page }) =>
   await expect(page.getByText('유럽 여행', { exact: true })).toBeVisible()
   await expect(page.getByText('2,000,000 KRW')).toBeVisible()
   await page.getByRole('link', { name: '퀘스트' }).click()
-  await page.getByRole('button', { name: '자동저축 입금 반영 확인하기 시작' }).click()
+  await page.getByRole('button', { name: '자동저축 입금 반영 확인하기 완료' }).click()
+  await expect(page.getByRole('status')).toContainText('XP 5')
+  await page.getByRole('link', { name: '기록' }).click()
   await page.getByRole('button', { name: '2026-07-01 기록' }).click()
   await expect(page.getByRole('heading', { name: '루틴을 지킨 날이에요' })).toBeVisible()
   await page.getByRole('button', { name: '닫기' }).click()

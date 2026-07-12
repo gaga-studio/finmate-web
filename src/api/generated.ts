@@ -292,7 +292,7 @@ export interface components {
       behaviorTarget: string;
       steps: string[];
     }]>;
-    RoutineAdaptationSet: {
+    RoutineAdaptationSet: ({
       adaptationId: string;
       sourceRoutineId: string;
       /** @enum {string} */
@@ -313,7 +313,52 @@ export interface components {
       calculationVersion: string;
       dataState: components["schemas"]["DataState"];
       lastSyncedAt: components["schemas"]["NullableTimestamp"];
-    };
+    }) & (OneOf<[{
+      /** @enum {string} */
+      selectedDomain?: "SPENDING";
+      light?: components["schemas"]["RoutineAdaptationCandidate"] & {
+        /** @enum {string} */
+        domain: "SPENDING";
+      };
+      standard?: components["schemas"]["RoutineAdaptationCandidate"] & {
+        /** @enum {string} */
+        domain: "SPENDING";
+      };
+      challenge?: components["schemas"]["RoutineAdaptationCandidate"] & {
+        /** @enum {string} */
+        domain: "SPENDING";
+      };
+    }, {
+      /** @enum {string} */
+      selectedDomain?: "SAVING";
+      light?: components["schemas"]["RoutineAdaptationCandidate"] & {
+        /** @enum {string} */
+        domain: "SAVING";
+      };
+      standard?: components["schemas"]["RoutineAdaptationCandidate"] & {
+        /** @enum {string} */
+        domain: "SAVING";
+      };
+      challenge?: components["schemas"]["RoutineAdaptationCandidate"] & {
+        /** @enum {string} */
+        domain: "SAVING";
+      };
+    }, {
+      /** @enum {string} */
+      selectedDomain?: "INVESTMENT_JUDGMENT";
+      light?: components["schemas"]["RoutineAdaptationCandidate"] & {
+        /** @enum {string} */
+        domain: "INVESTMENT_JUDGMENT";
+      };
+      standard?: components["schemas"]["RoutineAdaptationCandidate"] & {
+        /** @enum {string} */
+        domain: "INVESTMENT_JUDGMENT";
+      };
+      challenge?: components["schemas"]["RoutineAdaptationCandidate"] & {
+        /** @enum {string} */
+        domain: "INVESTMENT_JUDGMENT";
+      };
+    }]>);
     ActiveRoutineBuild: {
       buildId: string;
       candidateId: string;
@@ -421,7 +466,7 @@ export interface components {
       detail: string;
       instance: string;
       /** @enum {string} */
-      code: "VALIDATION_FAILED" | "UNAUTHORIZED" | "INVALID_CREDENTIALS" | "DUPLICATE_EMAIL" | "NOT_FOUND" | "DATA_STALE" | "DATA_INSUFFICIENT" | "ACTIVE_ROUTINE_BUILD_EXISTS" | "ADAPTATION_DOMAIN_REQUIRED" | "DEMO_PROFILE_REQUIRED";
+      code: "VALIDATION_FAILED" | "UNAUTHORIZED" | "INVALID_CREDENTIALS" | "DUPLICATE_EMAIL" | "NOT_FOUND" | "ACTIVE_MAIN_GOAL_EXISTS" | "DATA_STALE" | "DATA_INSUFFICIENT" | "ACTIVE_ROUTINE_BUILD_EXISTS" | "ADAPTATION_DOMAIN_REQUIRED" | "DEMO_PROFILE_REQUIRED";
       traceId: string;
       fieldErrors?: components["schemas"]["FieldError"][];
     };
