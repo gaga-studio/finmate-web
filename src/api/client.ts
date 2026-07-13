@@ -3,19 +3,26 @@ import { apiBaseUrl } from './runtime'
 
 export type Schema = components['schemas']
 export type OnboardingView = paths['/onboarding']['get']['responses'][200]['content']['application/json']
+export type UserGoal = paths['/goals']['post']['responses'][201]['content']['application/json']
 export type HomeResponse = paths['/home']['get']['responses'][200]['content']['application/json']
 export type RaidView = paths['/raids/current']['get']['responses'][200]['content']['application/json']
+export type CharacterReport = paths['/reports/characters/{reportType}']['get']['responses'][200]['content']['application/json']
 export type MonthlyReport = paths['/reports/monthly']['get']['responses'][200]['content']['application/json']
 export type MateGroupPage = paths['/mate/groups']['get']['responses'][200]['content']['application/json']
+export type MateGroupReport = paths['/mate/groups/{groupId}/report']['get']['responses'][200]['content']['application/json']
 export type AdventurerPage = paths['/mate/groups/{groupId}/adventurers']['get']['responses'][200]['content']['application/json']
+export type Adventurer = paths['/mate/groups/{groupId}/adventurers/{adventurerId}']['get']['responses'][200]['content']['application/json']
+export type AdventurerReport = paths['/mate/groups/{groupId}/adventurers/{adventurerId}/report']['get']['responses'][200]['content']['application/json']
 export type AdventurerRoutine = paths['/mate/groups/{groupId}/adventurers/{adventurerId}/routines/{routineId}']['get']['responses'][200]['content']['application/json']
-export type RoutineAdaptationDraft = paths['/routine-adaptations']['post']['responses'][201]['content']['application/json']
-export type RoutineAdaptationSet = paths['/routine-adaptations/{adaptationId}/choice']['put']['responses'][200]['content']['application/json']
+export type RoutineRecommendation = paths['/routine-adaptations']['post']['responses'][201]['content']['application/json']
 export type ActiveRoutineBuild = paths['/routine-builds/active']['get']['responses'][200]['content']['application/json']
 export type RoutineReplacement = paths['/routine-builds/active/replacement']['post']['responses'][200]['content']['application/json']
+export type HanaProductInfo = paths['/hana-products/{productId}']['get']['responses'][200]['content']['application/json']
 export type QuestPage = paths['/quests']['get']['responses'][200]['content']['application/json']
+export type QuestAcceptance = paths['/quests/{questId}/accept']['post']['responses'][200]['content']['application/json']
 export type QuestCompletion = paths['/quests/{questId}/complete']['post']['responses'][200]['content']['application/json']
 export type DailyRecordPage = paths['/records']['get']['responses'][200]['content']['application/json']
+export type DailyJourneyMonth = paths['/records/journey']['get']['responses'][200]['content']['application/json']
 export type DailyRecord = paths['/records/{date}']['get']['responses'][200]['content']['application/json']
 export type DemoTimeline = paths['/demo/timeline/advance']['post']['responses'][200]['content']['application/json']
 
@@ -91,8 +98,10 @@ function isProtected(path: string): boolean {
 function needsIdempotencyKey(path: string, method: string): boolean {
   return method !== 'GET' && (
     path === '/onboarding'
+    || path === '/goals'
     || path.includes('/candidates/')
     || path === '/routine-builds/active/replacement'
+    || path.endsWith('/accept')
     || path.endsWith('/complete')
     || path === '/demo/timeline/advance'
   )

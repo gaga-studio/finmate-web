@@ -99,6 +99,21 @@ describe('authenticated API requests', () => {
     expect(fetchMock.mock.calls[0][1].headers['Idempotency-Key']).toBe(fetchMock.mock.calls[1][1].headers['Idempotency-Key'])
   })
 
+  it('adds idempotency keys to goal confirmation, quest acceptance, and routine import commands', async () => {
+    saveSession({ accessToken: 'active-token', tokenType: 'Bearer', expiresAt: '2026-07-13T12:00:00Z', user: { userId: '7ac43790-7c8d-4e52-a031-1d6f0a527f89', email: 'minji@example.com', displayName: '민지', onboardingStatus: 'COMPLETED' } })
+    const fetchMock = vi.fn().mockImplementation(async () => new Response(JSON.stringify({ ok: true }), { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await apiRequest('/goals', 'POST', { goal: { title: '유럽여행경비' }, confirm: true })
+    await apiRequest('/quests/quest-saving-capacity/accept', 'POST')
+    await apiRequest('/routine-adaptations/adapt-payday-save/candidates/candidate-standard/import', 'POST')
+
+    expect(fetchMock).toHaveBeenCalledTimes(3)
+    for (const [, options] of fetchMock.mock.calls) {
+      expect(options.headers['Idempotency-Key']).toEqual(expect.any(String))
+    }
+  })
+
   it('sends the generated signup request shape including displayName', async () => {
     const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ accessToken: 'access-token', tokenType: 'Bearer', expiresAt: '2026-07-13T12:00:00Z', user: { userId: '7ac43790-7c8d-4e52-a031-1d6f0a527f89', email: 'minji@example.com', displayName: '민지', onboardingStatus: 'NOT_STARTED' } }), { status: 201 }))
     vi.stubGlobal('fetch', fetchMock)

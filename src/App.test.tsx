@@ -48,13 +48,45 @@ describe('FinMate representative flow', () => {
     expect(screen.getByLabelText('목표 금액')).toHaveValue(5000000)
   })
 
+  it('completes onboarding in explore mode before confirming the goal with a separate command', async () => {
+    const user = userEvent.setup()
+    const requests: string[] = []
+    server.use(
+      http.put('/api/v1/onboarding', async ({ request }) => {
+        requests.push('onboarding')
+        expect(await request.json()).toMatchObject({ finishMode: 'EXPLORE_ONLY' })
+        return HttpResponse.json({ status: 'COMPLETED', onboardingState: 'EXPLORE_ONLY', displayName: '민지', context: { incomeRegularity: 'REGULAR', housingType: 'RENT', fixedCostBurden: 'MEDIUM' }, baseline: { disposableIncomeKrw: 1100000, spendingRateBps: 5200, savingRateBps: 1800, investmentJudgmentBps: 4000 }, calculationVersion: 'baseline-calc-v2', dataState: 'FRESH', lastSyncedAt: '2026-07-13T09:00:00+09:00' })
+      }),
+      http.post('/api/v1/goals', async ({ request }) => {
+        requests.push('goal')
+        expect(await request.json()).toMatchObject({ goal: { title: '유럽 여행 자금' }, confirm: true })
+        return HttpResponse.json({ goalId: 'goal-europe-2027', title: '유럽 여행 자금', domain: 'SAVING', currentAmountKrw: 2000000, targetAmountKrw: 5000000, targetMonth: '2027-01', state: 'ACTIVE', confirmedAt: '2026-07-13T09:10:00+09:00', calculationVersion: 'goal-calc-v2', dataState: 'FRESH', lastSyncedAt: '2026-07-13T09:00:00+09:00' }, { status: 201 })
+      }),
+    )
+    renderApp('/goal/confirm')
+
+    await user.click(await screen.findByRole('button', { name: '유럽 여행 자금 목표 만들기' }))
+
+    expect(await screen.findByRole('heading', { name: '여행까지 한 걸음' })).toBeInTheDocument()
+    expect(requests).toEqual(['onboarding', 'goal'])
+  })
+
+  it('renders an explore-only home without assuming a goal or raid exists', async () => {
+    server.use(http.get('/api/v1/home', () => HttpResponse.json({ mode: 'EXPLORE_ONLY', totalAssetsKrw: 4280000, financialStats: { spendingDefenseBps: 5200, savingHpBps: 1800, investmentJudgmentBps: 4000, questXp: 0 }, lockedActions: ['RAID', 'QUEST_ACCEPT', 'ROUTINE_IMPORT', 'PERSONALIZED_PRODUCT_INFO'], calculationVersion: 'home-calc-v2', dataState: 'FRESH', lastSyncedAt: '2026-07-13T09:00:00+09:00' })))
+
+    renderApp('/home')
+
+    expect(await screen.findByRole('heading', { name: '목표를 정하면 레이드가 시작돼요' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '목표 설정' })).toHaveAttribute('href', '/goal/confirm')
+  })
+
   it('persists a confirmed routine replacement while preserving the active main goal', async () => {
     const user = userEvent.setup()
     renderApp('/mates/group/savers')
 
     await user.click(await screen.findByRole('link', { name: /북쪽의 모험가/ }))
     await user.click(await screen.findByRole('link', { name: '루틴을 내 생활에 맞추기' }))
-    await user.click(await screen.findByRole('button', { name: 'STANDARD 후보 선택' }))
+    await user.click(await screen.findByRole('button', { name: '내 기준으로 추천 받기' }))
     await user.click(await screen.findByRole('button', { name: 'STANDARD · 주 3회 저축 챌린지' }))
     await user.click(screen.getByRole('button', { name: '이 루틴으로 바꾸기' }))
     expect(screen.getByRole('dialog', { name: '루틴 변경 확인' })).toBeInTheDocument()
@@ -79,6 +111,7 @@ describe('FinMate representative flow', () => {
     const user = userEvent.setup()
     renderApp('/quests')
 
+    await user.click(await screen.findByRole('button', { name: '자동저축 입금 반영 확인하기 수락' }))
     await user.click(await screen.findByRole('button', { name: '자동저축 입금 반영 확인하기 완료' }))
 
     expect(await screen.findByRole('status')).toHaveTextContent('MyData 반영을 기다리고 있어요')
@@ -115,11 +148,11 @@ describe('FinMate representative flow', () => {
     const signup = await fetch('/api/v1/auth/signup', { method: 'POST' })
     expect(signup.status).toBe(201)
 
-    expect((await apiGet<HomeResponse>('/home')).raid.stage).toBe(1)
-    for (const expectedStage of [0, 1, 2]) await apiRequest('/demo/timeline/advance', 'POST', { fixtureId: 'EUROPE_TRAVEL_JANUARY', expectedStage })
+    expect((await apiGet<HomeResponse>('/home')).raid?.stage).toBe(1)
+    for (const expectedFrameIndex of [0, 1, 2, 3, 4, 5]) await apiRequest('/demo/timeline/advance', 'POST', { fixtureId: 'EUROPE_TRAVEL_JANUARY', expectedFrameIndex })
     const completedHome = await apiGet<HomeResponse>('/home')
 
-    expect(completedHome.mainGoal.state).toBe('ACTIVE')
-    expect(completedHome.raid.stage).toBe(3)
+    expect(completedHome.mainGoal?.state).toBe('COMPLETED')
+    expect(completedHome.raid?.stage).toBe(3)
   })
 })
