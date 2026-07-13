@@ -1,0 +1,158 @@
+[
+  {
+    "persona_id": "P0002",
+    "synthetic_name": "가상청년 P0002",
+    "age": 24,
+    "archetype": "대학생/알바",
+    "job": "대학생",
+    "invest_participation": false,
+    "joined_at": "2026-02-02",
+    "lifestyle_tags": [
+      "간편결제선호",
+      "무지출챌린지"
+    ]
+  },
+  {
+    "persona_id": "P0003",
+    "synthetic_name": "가상청년 P0003",
+    "age": 23,
+    "archetype": "대학생/알바",
+    "job": "대학생(휴학)",
+    "invest_participation": false,
+    "joined_at": "2026-03-13",
+    "lifestyle_tags": [
+      "간편결제선호",
+      "캠퍼스생활"
+    ]
+  },
+  {
+    "persona_id": "P0004",
+    "synthetic_name": "가상청년 P0004",
+    "age": 21,
+    "archetype": "대학생/알바",
+    "job": "대학생/편의점 아르바이트",
+    "invest_participation": false,
+    "joined_at": "2026-02-04",
+    "lifestyle_tags": [
+      "배달선호",
+      "캠퍼스생활"
+    ]
+  },
+  {
+    "persona_id": "P0005",
+    "synthetic_name": "가상청년 P0005",
+    "age": 20,
+    "archetype": "대학생/알바",
+    "job": "대학생(휴학)",
+    "invest_participation": true,
+    "joined_at": "2026-03-21",
+    "lifestyle_tags": [
+      "배달선호",
+      "카페선호"
+    ]
+  },
+  {
+    "persona_id": "P0006",
+    "synthetic_name": "가상청년 P0006",
+    "age": 20,
+    "archetype": "대학생/알바",
+    "job": "대학생",
+    "invest_participation": false,
+    "joined_at": "2026-02-02",
+    "lifestyle_tags": [
+      "카페선호",
+      "캠퍼스생활"
+    ]
+  },
+  {
+    "persona_id": "P0007",
+    "synthetic_name": "가상청년 P0007",
+    "age": 24,
+    "archetype": "대학생/알바",
+    "job": "대학생/카페 아르바이트",
+    "invest_participation": true,
+    "joined_at": "2026-03-10",
+    "lifestyle_tags": [
+      "가성비",
+      "배달선호"
+    ]
+  },
+  {
+    "persona_id": "P0008",
+    "synthetic_name": "가상청년 P0008",
+    "age": 21,
+    "archetype": "대학생/알바",
+    "job": "대학생(휴학)",
+    "invest_participation": true,
+    "joined_at": "2026-02-07",
+    "lifestyle_tags": [
+      "간편결제선호",
+      "무지출챌린지"
+    ]
+  },
+  {
+    "persona_id": "P0009",
+    "synthetic_name": "가상청년 P0009",
+    "age": 19,
+    "archetype": "대학생/알바",
+    "job": "대학생/편의점 아르바이트",
+    "invest_participation": true,
+    "joined_at": "2026-02-07",
+    "lifestyle_tags": [
+      "무지출챌린지",
+      "캠퍼스생활"
+    ]
+  },
+  {
+    "persona_id": "P0010",
+    "synthetic_name": "가상청년 P0010",
+    "age": 23,
+    "archetype": "대학생/알바",
+    "job": "대학생/카페 아르바이트",
+    "invest_participation": true,
+    "joined_at": "2026-02-19",
+    "lifestyle_tags": [
+      "가성비",
+      "간편결제선호"
+    ]
+  },
+  {
+    "persona_id": "P0011",
+    "synthetic_name": "가상청년 P0011",
+    "age": 19,
+    "archetype": "대학생/알바",
+    "job": "대학생",
+    "invest_participation": true,
+    "joined_at": "2026-03-14",
+    "lifestyle_tags": [
+      "간편결제선호",
+      "무지출챌린지"
+    ]
+  },
+  {
+    "persona_id": "P0012",
+    "synthetic_name": "가상청년 P0012",
+    "age": 24,
+    "archetype": "대학생/알바",
+    "job": "대학생/편의점 아르바이트",
+    "invest_participation": false,
+    "joined_at": "2026-03-04",
+    "lifestyle_tags": [
+      "간편결제선호",
+      "무지출챌린지"
+    ]
+  },
+  {
+    "persona_id": "P0013",
+    "synthetic_name": "가상청년 P0013",
+    "age": 21,
+    "archetype": "대학생/알바",
+    "job": "대학생(휴학)",
+    "invest_participation": true,
+    "joined_at": "2026-04-22",
+    "lifestyle_tags": [
+      "무지출챌린지",
+      "캠퍼스생활"
+    ]
+  }
+]

@@ -1,0 +1,654 @@
+[
+  {
+    "questTemplateId": "QUEST-SUB-MEAL-15K",
+    "version": 1,
+    "active": true,
+    "title": "오늘 밥값 15,000원으로 끝내기",
+    "description": "오늘 식사에 쓴 돈을 15,000원 이하로 맞춰보는 하루짜리 퀘스트예요.",
+    "category": "소비",
+    "currentValueDefinition": "오늘 자정까지 식사(한식·외식) 결제 합계 금액",
+    "targetValueDefinition": "15,000원 이하",
+    "durationDays": 1,
+    "evidenceSource": "mydata_sync",
+    "reward": {
+      "xp": 15,
+      "point": 20,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend",
+      "build_follow"
+    ],
+    "buildFollowEligible": true
+  },
+  {
+    "questTemplateId": "QUEST-SUB-CLOTHES-30K",
+    "version": 1,
+    "active": true,
+    "title": "이번 달 옷값 30,000원 이내로 쓰기",
+    "description": "이번 달 옷 사는 데 쓰는 돈을 30,000원 이내로 유지해보는 퀘스트예요.",
+    "category": "소비",
+    "currentValueDefinition": "이번 달 1일부터 오늘까지 의류 카테고리 결제 누적액",
+    "targetValueDefinition": "30,000원 이내",
+    "durationDays": 30,
+    "evidenceSource": "mydata_sync",
+    "reward": {
+      "xp": 30,
+      "point": 40,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend",
+      "build_follow"
+    ],
+    "buildFollowEligible": true
+  },
+  {
+    "questTemplateId": "QUEST-SUB-TOTAL-20K",
+    "version": 1,
+    "active": true,
+    "title": "오늘 총 20,000원만 쓰기",
+    "description": "오늘 하루 전체 지출을 20,000원 이내로 맞춰보는 퀘스트예요.",
+    "category": "소비",
+    "currentValueDefinition": "오늘 전체 지출 합계",
+    "targetValueDefinition": "20,000원 이하",
+    "durationDays": 1,
+    "evidenceSource": "mydata_sync",
+    "reward": {
+      "xp": 15,
+      "point": 20,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend",
+      "build_follow"
+    ],
+    "buildFollowEligible": true
+  },
+  {
+    "questTemplateId": "QUEST-SUB-TRANSIT-ONLY",
+    "version": 1,
+    "active": true,
+    "title": "이번 달 교통비, 대중교통만 쓰기",
+    "description": "이번 달 이동은 지하철·버스 같은 대중교통으로만 해결해보는 퀘스트예요.",
+    "category": "소비",
+    "currentValueDefinition": "이번 달 교통 카테고리 결제 중 대중교통 외 결제(택시 등) 건수",
+    "targetValueDefinition": "대중교통 외 결제 0건",
+    "durationDays": 30,
+    "evidenceSource": "mydata_sync",
+    "reward": {
+      "xp": 30,
+      "point": 40,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend",
+      "build_follow"
+    ],
+    "buildFollowEligible": true
+  },
+  {
+    "questTemplateId": "QUEST-SUB-STOCK-ACCOUNT",
+    "version": 1,
+    "active": true,
+    "title": "주식 투자 계좌 개설하기",
+    "description": "증권사 계좌를 하나 만들어 투자를 시작할 준비를 해보는 퀘스트예요.",
+    "category": "투자",
+    "currentValueDefinition": "보유 중인 투자(증권) 계좌 수",
+    "targetValueDefinition": "1개 이상",
+    "durationDays": 14,
+    "evidenceSource": "mydata_sync",
+    "reward": {
+      "xp": 40,
+      "point": 60,
+      "box": "basic"
+    },
+    "allowedSources": [
+      "ai_recommend"
+    ],
+    "buildFollowEligible": false,
+    "note": "특정 증권사나 상품 가입을 강요하지 않는다."
+  },
+  {
+    "questTemplateId": "QUEST-SUB-ETF-QUIZ",
+    "version": 1,
+    "active": true,
+    "title": "ETF 개념 이해 OX 퀴즈 풀기",
+    "description": "ETF가 무엇인지 O/X 퀴즈로 가볍게 확인해보는 퀘스트예요.",
+    "category": "학습",
+    "currentValueDefinition": "ETF 관련 O/X 퀴즈 정답 수",
+    "targetValueDefinition": "제시된 문항 전체 정답",
+    "durationDays": 7,
+    "evidenceSource": "quiz",
+    "reward": {
+      "xp": 20,
+      "point": 30,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend"
+    ],
+    "buildFollowEligible": false
+  },
+  {
+    "questTemplateId": "QUEST-SUB-SAVE-50K",
+    "version": 1,
+    "active": true,
+    "title": "이번 주 절약한 5만원 저축하기",
+    "description": "이번 주에 아낀 돈 중 50,000원을 저축 계좌로 옮겨보는 퀘스트예요.",
+    "category": "저축",
+    "currentValueDefinition": "이번 주(월~일) 저축성 계좌 이체 합계",
+    "targetValueDefinition": "50,000원 이상",
+    "durationDays": 7,
+    "evidenceSource": "mydata_sync",
+    "reward": {
+      "xp": 35,
+      "point": 50,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend",
+      "build_follow"
+    ],
+    "buildFollowEligible": true
+  },
+  {
+    "questTemplateId": "QUEST-SUB-QUIZ-STREAK7",
+    "version": 1,
+    "active": true,
+    "title": "일주일 연속 퀴즈 풀기",
+    "description": "7일 동안 하루 한 번씩 금융 퀴즈를 풀어보는 퀘스트예요.",
+    "category": "학습",
+    "currentValueDefinition": "연속으로 퀴즈를 완료한 날짜 수",
+    "targetValueDefinition": "7일 연속",
+    "durationDays": 7,
+    "evidenceSource": "quiz",
+    "reward": {
+      "xp": 60,
+      "point": 100,
+      "box": "basic"
+    },
+    "allowedSources": [
+      "ai_recommend"
+    ],
+    "buildFollowEligible": false
+  },
+  {
+    "questTemplateId": "QUEST-SAVE-WEEKLY-DEPOSIT",
+    "version": 1,
+    "active": true,
+    "title": "이번 주 저축 1회 입금하기",
+    "description": "이번 주 안에 저축 계좌로 한 번 입금해보는 퀘스트예요.",
+    "category": "저축",
+    "currentValueDefinition": "이번 주 저축성 계좌 입금 횟수",
+    "targetValueDefinition": "1회 이상",
+    "durationDays": 7,
+    "evidenceSource": "mydata_sync",
+    "reward": {
+      "xp": 20,
+      "point": 30,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend",
+      "build_follow"
+    ],
+    "buildFollowEligible": true
+  },
+  {
+    "questTemplateId": "QUEST-SAVE-DEPOSIT-LOG",
+    "version": 1,
+    "active": true,
+    "title": "저축 입금 내역 확인하기",
+    "description": "최근 저축 계좌에 들어온 입금 내역을 확인해보는 퀘스트예요.",
+    "category": "저축",
+    "currentValueDefinition": "저축 입금 내역 화면 열람 여부",
+    "targetValueDefinition": "1회 확인",
+    "durationDays": 7,
+    "evidenceSource": "app_event",
+    "reward": {
+      "xp": 10,
+      "point": 15,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend",
+      "build_follow"
+    ],
+    "buildFollowEligible": true
+  },
+  {
+    "questTemplateId": "QUEST-SAVE-AUTOSET-NEXTDAY",
+    "version": 1,
+    "active": true,
+    "title": "수입 다음 날 먼저 저축 설정하기",
+    "description": "수입이 들어온 다음 날 자동으로 저축되도록 미리 설정해두는 퀘스트예요.",
+    "category": "저축",
+    "currentValueDefinition": "수입 다음 날 자동이체(저축) 설정 여부",
+    "targetValueDefinition": "설정 완료",
+    "durationDays": 14,
+    "evidenceSource": "app_event",
+    "reward": {
+      "xp": 30,
+      "point": 40,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend",
+      "build_follow"
+    ],
+    "buildFollowEligible": true
+  },
+  {
+    "questTemplateId": "QUEST-SAVE-RATE-CHECK",
+    "version": 1,
+    "active": true,
+    "title": "이번 달 저축률 확인하기",
+    "description": "이번 달 여윳돈 중 얼마를 저축했는지 리포트에서 확인해보는 퀘스트예요.",
+    "category": "저축",
+    "currentValueDefinition": "저축 리포트 화면 열람 여부",
+    "targetValueDefinition": "1회 확인",
+    "durationDays": 7,
+    "evidenceSource": "app_event",
+    "reward": {
+      "xp": 10,
+      "point": 15,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend",
+      "build_follow"
+    ],
+    "buildFollowEligible": true
+  },
+  {
+    "questTemplateId": "QUEST-SAVE-AUTO-DATE-CHECK",
+    "version": 1,
+    "active": true,
+    "title": "자동저축 날짜 확인하기",
+    "description": "설정해둔 자동저축이 언제 실행되는지 확인해보는 퀘스트예요.",
+    "category": "저축",
+    "currentValueDefinition": "자동저축 스케줄 화면 열람 여부",
+    "targetValueDefinition": "1회 확인",
+    "durationDays": 7,
+    "evidenceSource": "app_event",
+    "reward": {
+      "xp": 10,
+      "point": 15,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend",
+      "build_follow"
+    ],
+    "buildFollowEligible": true
+  },
+  {
+    "questTemplateId": "QUEST-SAVE-EMERGENCY-CHECK",
+    "version": 1,
+    "active": true,
+    "title": "비상금 목표 확인하기",
+    "description": "비상금이 얼마나 모였는지 진행률을 확인해보는 퀘스트예요.",
+    "category": "저축",
+    "currentValueDefinition": "비상금 목표 진행률 화면 열람 여부",
+    "targetValueDefinition": "1회 확인",
+    "durationDays": 7,
+    "evidenceSource": "app_event",
+    "reward": {
+      "xp": 10,
+      "point": 15,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend",
+      "build_follow"
+    ],
+    "buildFollowEligible": true
+  },
+  {
+    "questTemplateId": "QUEST-CONSUME-CAFE-CHECK",
+    "version": 1,
+    "active": true,
+    "title": "이번 주 카페비 확인하기",
+    "description": "이번 주에 카페에서 얼마나 썼는지 가볍게 확인해보는 퀘스트예요.",
+    "category": "소비",
+    "currentValueDefinition": "이번 주 카페 카테고리 결제 합계 조회 여부",
+    "targetValueDefinition": "1회 확인",
+    "durationDays": 7,
+    "evidenceSource": "app_event",
+    "reward": {
+      "xp": 10,
+      "point": 15,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend",
+      "build_follow"
+    ],
+    "buildFollowEligible": true
+  },
+  {
+    "questTemplateId": "QUEST-CONSUME-CAFE-RANGE",
+    "version": 1,
+    "active": true,
+    "title": "이번 주 카페비 3만원 이내로 유지하기",
+    "description": "카페 이용을 즐기면서도 이번 주 지출은 3만원 안에서 맞춰보는 퀘스트예요.",
+    "category": "소비",
+    "currentValueDefinition": "이번 주 카페 카테고리 결제 합계",
+    "targetValueDefinition": "30,000원 이내",
+    "durationDays": 7,
+    "evidenceSource": "mydata_sync",
+    "reward": {
+      "xp": 25,
+      "point": 35,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend",
+      "build_follow"
+    ],
+    "buildFollowEligible": true
+  },
+  {
+    "questTemplateId": "QUEST-CONSUME-DINING-BUDGET",
+    "version": 1,
+    "active": true,
+    "title": "외식비 예산 안에서 유지하기",
+    "description": "이번 달 외식비를 내가 정한 예산 범위 안에서 써보는 퀘스트예요.",
+    "category": "소비",
+    "currentValueDefinition": "이번 달 외식 카테고리 결제 누적액",
+    "targetValueDefinition": "설정한 외식 예산 이내",
+    "durationDays": 30,
+    "evidenceSource": "mydata_sync",
+    "reward": {
+      "xp": 30,
+      "point": 40,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend",
+      "build_follow"
+    ],
+    "buildFollowEligible": true
+  },
+  {
+    "questTemplateId": "QUEST-CONSUME-BUDGET-TODAY",
+    "version": 1,
+    "active": true,
+    "title": "오늘 예산 90% 이내로 마감하기",
+    "description": "오늘 하루 지출을 정해둔 예산의 90% 안에서 마무리해보는 퀘스트예요.",
+    "category": "소비",
+    "currentValueDefinition": "오늘 지출 합계 ÷ 오늘 예산",
+    "targetValueDefinition": "90% 이하",
+    "durationDays": 1,
+    "evidenceSource": "mydata_sync",
+    "reward": {
+      "xp": 15,
+      "point": 20,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend",
+      "build_follow"
+    ],
+    "buildFollowEligible": true
+  },
+  {
+    "questTemplateId": "QUEST-CONSUME-CLASSIFY3",
+    "version": 1,
+    "active": true,
+    "title": "이번 주 소비 3건 분류하기",
+    "description": "이번 주 지출 중 3건을 직접 카테고리로 분류해보는 퀘스트예요.",
+    "category": "소비",
+    "currentValueDefinition": "직접 분류 완료한 거래 건수",
+    "targetValueDefinition": "3건 이상",
+    "durationDays": 7,
+    "evidenceSource": "app_event",
+    "reward": {
+      "xp": 15,
+      "point": 20,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend",
+      "build_follow"
+    ],
+    "buildFollowEligible": true
+  },
+  {
+    "questTemplateId": "QUEST-CONSUME-SUB-CHECK",
+    "version": 1,
+    "active": true,
+    "title": "구독 서비스 1개 점검하기",
+    "description": "정기 결제 중인 구독 서비스 하나를 골라 계속 쓸지 점검해보는 퀘스트예요.",
+    "category": "소비",
+    "currentValueDefinition": "구독 점검 완료 여부",
+    "targetValueDefinition": "1건 점검",
+    "durationDays": 14,
+    "evidenceSource": "app_event",
+    "reward": {
+      "xp": 15,
+      "point": 20,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend",
+      "build_follow"
+    ],
+    "buildFollowEligible": true
+  },
+  {
+    "questTemplateId": "QUEST-CONSUME-SUB-CANCEL",
+    "version": 1,
+    "active": true,
+    "title": "이번 달 불필요한 구독 1건 해지하기",
+    "description": "점검해본 구독 중 더 이상 필요 없는 것 하나를 정리해보는 퀘스트예요.",
+    "category": "소비",
+    "currentValueDefinition": "이번 달 해지한 구독 서비스 수",
+    "targetValueDefinition": "1건 이상",
+    "durationDays": 30,
+    "evidenceSource": "mydata_sync",
+    "reward": {
+      "xp": 30,
+      "point": 50,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend"
+    ],
+    "buildFollowEligible": false
+  },
+  {
+    "questTemplateId": "QUEST-INVEST-FIRST-BUY",
+    "version": 1,
+    "active": true,
+    "title": "첫 투자 1회 실행하기",
+    "description": "소액이라도 첫 투자를 실행해보는 퀘스트예요.",
+    "category": "투자",
+    "currentValueDefinition": "투자 계좌 매수 거래 횟수",
+    "targetValueDefinition": "1회 이상",
+    "durationDays": 30,
+    "evidenceSource": "mydata_sync",
+    "reward": {
+      "xp": 40,
+      "point": 60,
+      "box": "basic"
+    },
+    "allowedSources": [
+      "ai_recommend"
+    ],
+    "buildFollowEligible": false,
+    "note": "특정 종목의 매수를 유도하지 않으며 수익을 보장하지 않는다."
+  },
+  {
+    "questTemplateId": "QUEST-INVEST-RISK-CHECK",
+    "version": 1,
+    "active": true,
+    "title": "내 위험성향 다시 확인하기",
+    "description": "지금 내 투자 위험성향이 맞는지 다시 점검해보는 퀘스트예요.",
+    "category": "투자",
+    "currentValueDefinition": "위험성향 점검 화면 열람·재진단 여부",
+    "targetValueDefinition": "1회 확인",
+    "durationDays": 14,
+    "evidenceSource": "app_event",
+    "reward": {
+      "xp": 15,
+      "point": 20,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend",
+      "build_follow"
+    ],
+    "buildFollowEligible": true
+  },
+  {
+    "questTemplateId": "QUEST-INVEST-QUIZ-BASIC",
+    "version": 1,
+    "active": true,
+    "title": "투자 기초 퀴즈 풀기",
+    "description": "투자를 시작하기 전에 알아두면 좋은 기초 퀴즈를 풀어보는 퀘스트예요.",
+    "category": "투자",
+    "currentValueDefinition": "투자 기초 퀴즈 정답 수",
+    "targetValueDefinition": "제시된 문항 전체 정답",
+    "durationDays": 7,
+    "evidenceSource": "quiz",
+    "reward": {
+      "xp": 20,
+      "point": 30,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend"
+    ],
+    "buildFollowEligible": false
+  },
+  {
+    "questTemplateId": "QUEST-INVEST-DIVERSIFY-CHECK",
+    "version": 1,
+    "active": true,
+    "title": "투자 포트폴리오 분산 상태 확인하기",
+    "description": "내 투자 자산이 한쪽으로 쏠려있지 않은지 확인해보는 퀘스트예요.",
+    "category": "투자",
+    "currentValueDefinition": "분산 점검 화면 열람 여부",
+    "targetValueDefinition": "1회 확인",
+    "durationDays": 14,
+    "evidenceSource": "app_event",
+    "reward": {
+      "xp": 15,
+      "point": 20,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend",
+      "build_follow"
+    ],
+    "buildFollowEligible": true
+  },
+  {
+    "questTemplateId": "QUEST-INVEST-REPORT-READ",
+    "version": 1,
+    "active": true,
+    "title": "이번 주 투자 리포트 읽기",
+    "description": "이번 주 내 투자 현황 리포트를 읽어보는 퀘스트예요.",
+    "category": "투자",
+    "currentValueDefinition": "투자 리포트 열람 여부",
+    "targetValueDefinition": "1회 확인",
+    "durationDays": 7,
+    "evidenceSource": "app_event",
+    "reward": {
+      "xp": 10,
+      "point": 15,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend",
+      "build_follow"
+    ],
+    "buildFollowEligible": true
+  },
+  {
+    "questTemplateId": "QUEST-LEARN-QUIZ3",
+    "version": 1,
+    "active": true,
+    "title": "금융 퀴즈 3문제 풀기",
+    "description": "가벼운 금융 퀴즈 3개를 풀어보는 퀘스트예요.",
+    "category": "학습",
+    "currentValueDefinition": "완료한 퀴즈 문항 수",
+    "targetValueDefinition": "3문항 이상",
+    "durationDays": 7,
+    "evidenceSource": "quiz",
+    "reward": {
+      "xp": 20,
+      "point": 30,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend"
+    ],
+    "buildFollowEligible": false
+  },
+  {
+    "questTemplateId": "QUEST-LEARN-SAVING-VS-DEPOSIT",
+    "version": 1,
+    "active": true,
+    "title": "적금과 예금 차이 확인하기",
+    "description": "적금과 예금이 어떻게 다른지 퀴즈로 확인해보는 퀘스트예요.",
+    "category": "학습",
+    "currentValueDefinition": "관련 퀴즈 정답 여부",
+    "targetValueDefinition": "정답",
+    "durationDays": 7,
+    "evidenceSource": "quiz",
+    "reward": {
+      "xp": 15,
+      "point": 20,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend"
+    ],
+    "buildFollowEligible": false
+  },
+  {
+    "questTemplateId": "QUEST-LEARN-WEEKLY-RETRO",
+    "version": 1,
+    "active": true,
+    "title": "주간 금융습관 회고 작성하기",
+    "description": "이번 주 내 소비·저축 습관을 한 줄로 돌아보는 퀘스트예요.",
+    "category": "학습",
+    "currentValueDefinition": "주간 회고 작성 여부",
+    "targetValueDefinition": "1건 작성",
+    "durationDays": 7,
+    "evidenceSource": "app_event",
+    "reward": {
+      "xp": 20,
+      "point": 30,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend"
+    ],
+    "buildFollowEligible": false
+  },
+  {
+    "questTemplateId": "QUEST-LEARN-DAILY-RECORD",
+    "version": 1,
+    "active": true,
+    "title": "오늘 금융 기록 남기기",
+    "description": "오늘 있었던 금융 활동을 한 줄로 기록해보는 퀘스트예요.",
+    "category": "학습",
+    "currentValueDefinition": "오늘 기록 작성 여부",
+    "targetValueDefinition": "1건 작성",
+    "durationDays": 1,
+    "evidenceSource": "app_event",
+    "reward": {
+      "xp": 10,
+      "point": 15,
+      "box": "none"
+    },
+    "allowedSources": [
+      "ai_recommend"
+    ],
+    "buildFollowEligible": false
+  }
+]

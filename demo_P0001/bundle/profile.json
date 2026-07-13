@@ -1,0 +1,45 @@
+{
+  "persona_id": "P0001",
+  "synthetic_name": "가상청년 P0001",
+  "age": 21,
+  "birth_year": 2005,
+  "archetype": "대학생/알바",
+  "cohort": "20s",
+  "job": "대학생",
+  "region": "대전 서구",
+  "monthly_income_krw": 1200000,
+  "income_band": "150만원 미만",
+  "income_regularity": "불규칙",
+  "income_components": {
+    "allowance_range": [
+      500000,
+      500000
+    ],
+    "parttime_range": [
+      600000,
+      800000
+    ],
+    "parttime_prob": 1.0
+  },
+  "target_monthly_spend_krw": 1240000,
+  "target_saving_rate": 0.075,
+  "target_investment_rate": 0.0,
+  "invest_participation": false,
+  "risk_score": 2,
+  "risk_attitude": "안정추구형",
+  "household_type": "쉐어하우스",
+  "household_size": 3,
+  "lifestyle_tags": [
+    "간편결제선호",
+    "카페선호"
+  ],
+  "financial_goal": "등록금 완충",
+  "money_worry": "과소비 걱정",
+  "dependents": "없음",
+  "target_ledger_rows": 11,
+  "joined_at": "2026-07-13",
+  "data_month": "2026-07",
+  "data_range": "2026-01~2026-07",
+  "demo_date": "2026-07-13",
+  "is_synthetic": true
+}

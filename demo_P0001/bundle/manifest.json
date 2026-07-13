@@ -1,0 +1,58 @@
+{
+  "persona_id": "P0001",
+  "generated_at": "2026-07-13T23:59:59",
+  "seed": 20260713,
+  "ledger_rows": 449,
+  "invest_participation": false,
+  "savings_product": "국민은행 KB 청년도약계좌",
+  "housing_product": "경남은행 청년우대형 주택청약종합예금",
+  "joined_at": "2026-07-13",
+  "api_scope": [
+    "은행-001",
+    "은행-004",
+    "전금-001",
+    "전금-004",
+    "전금-101",
+    "전금-102",
+    "전금-103",
+    "정보제공-공통-002",
+    "카드-001",
+    "카드-008",
+    "카드-014"
+  ],
+  "files": {
+    "정보제공-공통-002": {
+      "file_name": "api/common/정보제공-공통-002.json"
+    },
+    "은행-001": {
+      "file_name": "api/bank/은행-001-계좌_목록_조회.json"
+    },
+    "은행-004": {
+      "file_name_pattern": "api/bank/은행-004-*.json"
+    },
+    "카드-001": {
+      "file_name": "api/card/카드-001-카드_목록_조회.json"
+    },
+    "카드-008": {
+      "file_name_pattern": "api/card/카드-008-*.json"
+    },
+    "카드-014": {
+      "file_name_pattern": "api/card/카드-014-*.json"
+    },
+    "전금-001": {
+      "file_name": "api/efinance/전금-001-선불전자지급수단_목록_조회.json"
+    },
+    "전금-004": {
+      "file_name_pattern": "api/efinance/전금-004-*.json"
+    },
+    "전금-101": {
+      "file_name": "api/efinance/전금-101-계정_목록_조회.json"
+    },
+    "전금-102": {
+      "file_name_pattern": "api/efinance/전금-102-*.json"
+    },
+    "전금-103": {
+      "file_name_pattern": "api/efinance/전금-103-*.json"
+    }
+  }
+}

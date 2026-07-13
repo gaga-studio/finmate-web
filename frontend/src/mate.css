@@ -1,0 +1,2401 @@
+/* ── 메이트 탭 리디자인 ─────────────────────────────────────────
+ * 참고: UI_메이트.png / UI_메이트_메이트찾기.png / UI_메이트_익명필터링.png / UI_메이트_빌드.png
+ * 기존 디자인 토큰(--teal, --r-lg, clay shadow, Paperlogy)을 그대로 쓰되
+ * 마스코트 일러스트 + 카드 톤을 참고 이미지에 맞춘다. 하단 탭바(BottomNav)는 손대지 않는다.
+ */
+
+.screen-mate-main {
+  background: linear-gradient(180deg, var(--teal-50) 0%, var(--paper) 260px);
+}
+
+.screen.screen-mate-main,
+.screen.mate-build-screen {
+  padding: 20px 16px calc(var(--bottom-nav-height) + 14px);
+}
+
+.screen.screen-mate-main {
+  position: relative;
+}
+
+.screen.screen-mate-main .screen-stack,
+.screen.mate-build-screen .screen-stack {
+  gap: 10px;
+}
+
+.screen-mate-main > .segmented-control {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mate-tab-stack {
+  display: grid;
+  gap: 10px;
+  padding-bottom: var(--space-6);
+  min-width: 0;
+}
+
+/* ── 상단 바 ─────────────────────────────────────────── */
+.mate-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  min-height: 52px;
+  padding-top: 0;
+}
+
+.mate-point-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 42px;
+  border-radius: var(--r-pill);
+  padding: 0 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-1);
+  color: var(--ink-800);
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.mate-point-pill i {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--teal-50);
+  color: var(--teal);
+  font-style: normal;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.mate-top-avatar-button {
+  border: none;
+  background: none;
+  padding: 0;
+  line-height: 0;
+}
+
+.mate-top-avatar {
+  border: 3px solid var(--surface);
+  box-shadow: 0 3px 10px rgba(21, 38, 35, .16);
+}
+
+.mate-hero-header {
+  display: grid;
+  gap: var(--space-1);
+  padding: 14px 6px 16px;
+}
+
+.mate-hero-header h1 {
+  margin: 0;
+  color: #102743;
+  font-size: 29px;
+  line-height: 1.05;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.mate-hero-header p {
+  margin: 8px 0 0;
+  color: #172332;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.25;
+  word-break: keep-all;
+  white-space: normal;
+}
+
+.mate-reference-status {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.mate-reference-topline {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+}
+
+.mate-reference-topline > div:first-child {
+  min-width: 0;
+}
+
+.screen-mate-main > .segmented-control,
+.screen-quest-main > .segmented-control {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  height: 50px;
+  border-radius: 26px;
+  padding: 2px;
+  background: rgba(255, 255, 255, .72);
+  border: 1px solid var(--line);
+  box-shadow: inset 0 1px 3px rgba(21, 38, 35, .04);
+}
+
+.screen-mate-main > .segmented-control button,
+.screen-quest-main > .segmented-control button {
+  border-radius: 24px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+/* ── 공용 카드 ───────────────────────────────────────── */
+.mate-card {
+  display: grid;
+  gap: 14px;
+  border-radius: 26px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  padding: 16px;
+  box-shadow: var(--shadow-2);
+}
+
+.mate-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.mate-card-head-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.mate-card-head-title h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--ink-800);
+  line-height: 1.35;
+  word-break: keep-all;
+}
+
+.mate-card-head-title p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-500);
+  word-break: keep-all;
+}
+
+.mate-card-link {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--teal-600);
+  font-size: 12px;
+  font-weight: 800;
+  background: none;
+  border: none;
+  padding: 4px 0;
+}
+
+/* ── 아바타 ──────────────────────────────────────────── */
+.mate-avatar {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: var(--shadow-1);
+}
+
+.mate-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.mate-avatar-fallback {
+  line-height: 1;
+}
+
+.mate-avatar.is-locked {
+  filter: grayscale(1) opacity(0.55);
+}
+
+.mate-avatar-badge {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  background: var(--teal);
+  color: #fff;
+}
+
+.mate-avatar-badge svg {
+  width: 11px;
+  height: 11px;
+}
+
+.rpg-icon {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: var(--r-md);
+  background: linear-gradient(160deg, #FFF8DF, #E5F7EF);
+  border: 1px solid rgba(37, 160, 139, 0.16);
+  box-shadow: 0 6px 14px rgba(27, 121, 107, 0.12);
+  overflow: hidden;
+}
+
+.rpg-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 4px;
+}
+
+.rpg-icon-fallback {
+  line-height: 1;
+}
+
+/* ── 친구 상태 요약 ──────────────────────────────────── */
+.mate-friend-summary {
+  flex-direction: row;
+  align-items: center;
+}
+
+.mate-friend-summary .mate-card-head {
+  width: 100%;
+  align-items: center;
+}
+
+.mate-friend-summary p {
+  margin: 2px 0 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--ink-800);
+}
+
+.mate-friend-summary p b {
+  color: var(--teal-600);
+}
+
+.mate-friend-slots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  flex: 0 0 auto;
+  max-width: 168px;
+}
+
+/* ── 금융 근황 피드 ──────────────────────────────────── */
+.mate-feed-list {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.mate-feed-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  border-radius: var(--r-md);
+  padding: var(--space-2) var(--space-3);
+  background: var(--paper);
+}
+
+.mate-feed-copy {
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 700;
+  color: var(--ink-800);
+  word-break: keep-all;
+}
+
+.mate-feed-copy b {
+  color: var(--ink-800);
+}
+
+.mate-feed-stat {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.mate-feed-stat.teal { color: var(--teal-600); }
+.mate-feed-stat.danger { color: var(--red-600); }
+.mate-feed-stat.warning { color: var(--warning); }
+
+/* ── VS 비교 카드 ────────────────────────────────────── */
+.mate-vs-card {
+  gap: var(--space-4);
+}
+
+.mate-vs-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.mate-vs-side {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  min-width: 76px;
+}
+
+.mate-vs-side strong {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink-800);
+}
+
+.mate-vs-level {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 var(--space-2);
+  border-radius: var(--r-pill);
+  background: var(--teal-50);
+  color: var(--teal-600);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.mate-vs-badge {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--surface-muted);
+  color: var(--ink-500);
+  font-size: 12px;
+  font-weight: 800;
+  border: 1px solid var(--line);
+}
+
+.mate-vs-gauges {
+  display: grid;
+  gap: var(--space-3);
+}
+
+/* ── 친구들과 나 비교: 1대1 대신 친구 행동 시그널 리포트 ───── */
+.mate-friend-compare-card {
+  overflow: hidden;
+}
+
+.mate-friend-compare-hero {
+  display: grid;
+  grid-template-columns: minmax(132px, .82fr) minmax(0, 1.18fr);
+  gap: var(--space-3);
+  align-items: stretch;
+}
+
+.mate-friend-compare-me,
+.mate-friend-compare-summary {
+  min-width: 0;
+  border: 1px solid color-mix(in srgb, var(--clay-stroke) 86%, transparent);
+  border-radius: var(--r-md);
+  background: linear-gradient(145deg, rgba(255, 255, 255, .94), rgba(239, 249, 247, .8));
+  box-shadow:
+    inset -2px -2px 8px rgba(255, 255, 255, .82),
+    inset 2px 2px 8px rgba(21, 38, 35, .05);
+}
+
+.mate-friend-compare-me {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 7px;
+  padding: 12px 10px;
+  text-align: center;
+}
+
+.mate-friend-compare-me > strong {
+  color: var(--ink-800);
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.mate-friend-me-avatar {
+  width: 104px !important;
+  height: 104px !important;
+  background: radial-gradient(circle, #F4FFF9 0%, #D9F6E8 62%, transparent 63%) !important;
+  box-shadow: none;
+}
+
+.mate-friend-me-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+}
+
+.mate-friend-me-tags span {
+  border-radius: var(--r-pill);
+  padding: 4px 7px;
+  background: rgba(255, 255, 255, .78);
+  color: var(--ink-600);
+  font-size: 9.5px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.mate-friend-compare-summary {
+  display: grid;
+  align-content: center;
+  gap: 7px;
+  padding: 16px;
+  text-align: left;
+}
+
+.mate-friend-compare-summary b {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--teal-600);
+}
+
+.mate-friend-compare-summary strong {
+  color: var(--ink-800);
+  font-size: 19px;
+  font-weight: 900;
+  line-height: 1.22;
+  word-break: keep-all;
+}
+
+.mate-friend-compare-summary p {
+  margin: 0;
+  color: var(--ink-500);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+
+.mate-friend-insight-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.mate-friend-insight-card {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 7px;
+  min-width: 0;
+  border-radius: var(--r-md);
+  padding: 10px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, .94), rgba(239, 249, 247, .78));
+  box-shadow: var(--clay-shadow-soft);
+}
+
+.mate-friend-insight-card .icon-badge {
+  width: 28px;
+  height: 28px;
+}
+
+.mate-friend-insight-card span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mate-friend-insight-card small {
+  color: var(--teal-600);
+  font-size: 9.5px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.mate-friend-insight-card strong {
+  color: var(--ink-800);
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.05;
+}
+
+.mate-friend-insight-card em {
+  color: var(--ink-500);
+  font-family: var(--font-sans);
+  font-size: 9.5px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.28;
+  word-break: keep-all;
+}
+
+.mate-friend-signal-list {
+  display: grid;
+  gap: 8px;
+}
+
+.mate-friend-signal-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--clay-stroke) 86%, transparent);
+  border-radius: var(--r-md);
+  padding: 9px 10px 15px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, .94), rgba(239, 249, 247, .78));
+  box-shadow: var(--clay-shadow-soft);
+  text-align: left;
+}
+
+.mate-friend-signal-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mate-friend-signal-copy strong {
+  overflow: hidden;
+  font-size: 12.5px;
+  font-weight: 800;
+  line-height: 1.2;
+  color: var(--ink-800);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mate-friend-signal-copy small {
+  overflow: hidden;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--ink-500);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mate-friend-signal-copy i {
+  margin-top: 2px;
+  color: var(--ink-500);
+  font-size: 10.5px;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.mate-friend-signal-copy i b {
+  color: var(--teal-700);
+}
+
+.mate-friend-signal-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  height: 24px;
+  border-radius: var(--r-pill);
+  padding: 0 8px;
+  background: var(--surface);
+  color: var(--ink-500);
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.mate-friend-signal-status.is-ready {
+  background: var(--teal-50);
+  color: var(--teal-700);
+}
+
+.mate-friend-signal-status.is-done {
+  background: #E8F7DD;
+  color: #2C8846;
+}
+
+.mate-friend-signal-track {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 8px;
+  height: 5px;
+  overflow: hidden;
+  border-radius: var(--r-pill);
+  background: rgba(26, 55, 57, .08);
+}
+
+.mate-friend-signal-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--teal-400), var(--teal));
+}
+
+.mate-friend-fomo {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  border-radius: var(--r-md);
+  padding: 10px;
+  background: linear-gradient(145deg, rgba(232, 250, 246, .96), rgba(255, 255, 255, .86));
+}
+
+.mate-friend-fomo p {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.38;
+  color: var(--ink-700);
+  word-break: keep-all;
+}
+
+.mate-friend-fomo button {
+  height: 34px;
+  border: none;
+  border-radius: var(--r-pill);
+  padding: 0 12px;
+  background: var(--teal);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+/* ── 게이지(비교 바) ─────────────────────────────────── */
+.mate-gauge-row {
+  display: grid;
+  gap: 6px;
+}
+
+.mate-gauge-row-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.mate-gauge-row-head span {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink-800);
+}
+
+.mate-gauge-row-head b {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--teal-600);
+  white-space: nowrap;
+}
+
+.mate-gauge-track {
+  position: relative;
+  height: 10px;
+  border-radius: var(--r-pill);
+  background: var(--surface-muted);
+  overflow: visible;
+}
+
+.mate-gauge-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: var(--r-pill);
+  transition: width var(--motion-base);
+}
+
+.mate-gauge-fill-other {
+  background: var(--ink-300);
+  opacity: 0.6;
+}
+
+.mate-gauge-fill-mine {
+  background: linear-gradient(90deg, var(--teal-400), var(--teal));
+}
+
+.mate-gauge-marker {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--teal-700);
+  border: 2px solid var(--surface);
+  transform: translate(-50%, -50%);
+  box-shadow: var(--shadow-1);
+}
+
+.mate-gauge-legend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ink-500);
+}
+
+.mate-gauge-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mate-gauge-legend i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.mate-gauge-legend i.mine { background: var(--teal); }
+.mate-gauge-legend i.other { background: var(--ink-300); }
+
+/* ── 연속기록 ────────────────────────────────────────── */
+.mate-streak-list {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.mate-streak-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+  border-radius: var(--r-md);
+  padding: var(--space-2) var(--space-3);
+  background: var(--paper);
+}
+
+.mate-streak-avatars {
+  position: relative;
+  width: 56px;
+  height: 40px;
+  flex: 0 0 auto;
+}
+
+.mate-streak-avatars .mate-avatar:first-child {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+.mate-streak-avatars .mate-avatar:last-child {
+  position: absolute;
+  left: 20px;
+  top: 0;
+}
+
+.mate-streak-copy strong {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink-800);
+}
+
+.mate-streak-copy span {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-500);
+}
+
+.mate-streak-note {
+  margin: 0;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-500);
+}
+
+/* ── 하단 배너 ───────────────────────────────────────── */
+.mate-banner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+  border-radius: var(--r-lg);
+  padding: var(--space-4);
+  background: linear-gradient(120deg, var(--teal-50), #F4FBF6);
+  border: 1px solid var(--teal-100);
+}
+
+.mate-banner p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.5;
+  color: var(--teal-700);
+  word-break: keep-all;
+}
+
+/* ── AI 코치 카드 ────────────────────────────────────── */
+.mate-coach-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-3);
+  border-radius: var(--r-lg);
+  padding: var(--space-4);
+  background: linear-gradient(120deg, #F2FBF5, #E7F6EE);
+  border: 1px solid var(--teal-100);
+}
+
+.mate-coach-avatar {
+  background: transparent !important;
+  box-shadow: none;
+}
+
+.mate-coach-name {
+  display: inline-block;
+  margin-bottom: 4px;
+  padding: 2px 10px;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  color: var(--teal-600);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.mate-coach-copy p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.5;
+  color: var(--ink-800);
+  word-break: keep-all;
+}
+
+/* ── 메이트 찾기: 나와 비슷한 그룹 ───────────────────── */
+.mate-group-card {
+  grid-template-columns: minmax(0, 1fr) auto;
+  display: grid;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.mate-group-copy {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.mate-group-copy p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-500);
+  word-break: keep-all;
+}
+
+.mate-group-trio {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 108px;
+  height: 68px;
+  flex: 0 0 auto;
+}
+
+.mate-group-trio .mate-avatar {
+  position: absolute;
+  bottom: 0;
+  border: 3px solid var(--surface);
+}
+
+.mate-group-trio .mate-avatar:nth-child(1) { left: 0; z-index: 1; }
+.mate-group-trio .mate-avatar:nth-child(2) { left: 26px; z-index: 3; }
+.mate-group-trio .mate-avatar:nth-child(3) { left: 52px; z-index: 2; }
+
+.mate-group-count {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: var(--r-pill);
+  padding: var(--space-2);
+  background: var(--teal-50);
+  color: var(--teal-700);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+/* ── 메이트 찾기: 내 위치는 어떤가요 ─────────────────── */
+.mate-position-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  padding-bottom: var(--space-1);
+}
+
+.mate-position-col {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+}
+
+.mate-position-col span {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ink-500);
+}
+
+.mate-position-level {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--teal-50);
+  color: var(--teal-700);
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+  line-height: 1.2;
+  border: 2px solid var(--teal-100);
+}
+
+.mate-position-group {
+  display: flex;
+}
+
+.mate-position-group .mate-avatar {
+  margin-left: -10px;
+  border: 2px solid var(--surface);
+}
+
+.mate-position-group .mate-avatar:first-child {
+  margin-left: 0;
+}
+
+/* ── 인기 장비 / 습관 요약 리스트 ─────────────────────── */
+.mate-gear-list {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.mate-gear-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  border-radius: var(--r-md);
+  padding: var(--space-2) var(--space-3);
+  background: var(--paper);
+  text-align: left;
+}
+
+.mate-gear-copy {
+  min-width: 0;
+}
+
+.mate-gear-copy strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink-800);
+}
+
+.mate-gear-copy small {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-500);
+}
+
+.mate-gear-usage {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--teal-600);
+  white-space: nowrap;
+}
+
+/* ── 인사이트 2칸 ────────────────────────────────────── */
+.mate-insight-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.mate-insight-card {
+  display: grid;
+  gap: var(--space-2);
+  border-radius: var(--r-lg);
+  padding: var(--space-3) var(--space-4);
+  background: var(--teal-50);
+}
+
+.mate-insight-card.alt {
+  background: var(--warning-tint);
+}
+
+.mate-insight-card p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.45;
+  color: var(--ink-800);
+  word-break: keep-all;
+}
+
+.mate-insight-card b {
+  color: var(--teal-700);
+}
+
+.mate-insight-card.alt b {
+  color: var(--warning);
+}
+
+/* ── 비교 탐색: 필터 카드 ────────────────────────────── */
+.mate-filter-card-head {
+  align-items: center;
+}
+
+.mate-filter-reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: none;
+  color: var(--ink-500);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.mate-filter-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.mate-filter-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 6px;
+  border-radius: var(--r-md);
+  padding: var(--space-2) var(--space-3);
+  background: var(--paper);
+  text-align: left;
+  border: 1px solid transparent;
+  color: inherit;
+}
+
+.mate-filter-field-label {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ink-500);
+}
+
+.mate-filter-field strong {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink-800);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mate-filter-field svg {
+  align-self: center;
+  color: var(--ink-400);
+}
+
+.mate-filter-field.is-open {
+  border-color: color-mix(in srgb, var(--teal) 44%, var(--clay-stroke));
+  background: linear-gradient(145deg, rgba(239, 253, 250, .98), rgba(255, 255, 255, .86));
+}
+
+.mate-filter-options {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding: 2px 1px 7px;
+  scrollbar-width: none;
+}
+
+.mate-filter-options::-webkit-scrollbar {
+  display: none;
+}
+
+.mate-filter-options button {
+  flex: 0 0 auto;
+  min-height: 34px;
+  border: 1px solid color-mix(in srgb, var(--clay-stroke) 80%, transparent);
+  border-radius: var(--r-pill);
+  padding: 0 12px;
+  background: rgba(255, 255, 255, .76);
+  color: var(--ink-600);
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.mate-filter-options button.is-active {
+  border-color: var(--teal);
+  background: var(--teal);
+  color: #fff;
+}
+
+.mate-filter-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  border-radius: var(--r-md);
+  padding: var(--space-3);
+  background: var(--teal-50);
+}
+
+.mate-filter-cta span {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--teal-700);
+  word-break: keep-all;
+}
+
+.mate-filter-cta button {
+  flex: 0 0 auto;
+  border: none;
+  border-radius: var(--r-pill);
+  padding: 0 var(--space-4);
+  height: 36px;
+  background: var(--teal);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* ── 비교 탐색: 결과/익명 프로필 상세 ───────────────────── */
+.mate-explore-results-stack,
+.mate-profile-detail-stack {
+  gap: 10px;
+}
+
+.mate-explore-results-head {
+  gap: 10px;
+}
+
+.mate-back-link {
+  justify-self: start;
+  padding: 0;
+}
+
+.mate-explore-results-head span {
+  display: block;
+  color: var(--teal-600);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.mate-explore-results-head h2 {
+  margin: 2px 0 0;
+  color: var(--ink-800);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.mate-explore-results-head p,
+.mate-empty-profile-card p,
+.mate-anonymous-build-summary {
+  margin: 4px 0 0;
+  font-family: var(--font-sans);
+  color: var(--ink-500);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.42;
+  word-break: keep-all;
+}
+
+.mate-anonymous-list {
+  display: grid;
+  gap: 10px;
+}
+
+.mate-anonymous-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 122px;
+  border: 1px solid color-mix(in srgb, var(--clay-stroke) 86%, transparent);
+  border-radius: var(--r-lg);
+  padding: 12px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, .96), rgba(239, 250, 248, .82));
+  box-shadow: var(--clay-shadow-soft);
+  color: inherit;
+  text-align: left;
+}
+
+.mate-anonymous-avatar {
+  background: radial-gradient(circle, #E9FFF2 0%, #E2F8F0 62%, transparent 63%) !important;
+  box-shadow: none;
+}
+
+.mate-anonymous-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.mate-anonymous-copy strong {
+  overflow: hidden;
+  color: var(--ink-800);
+  font-size: 14px;
+  font-weight: 800;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.mate-anonymous-copy small {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--ink-500);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.35;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.mate-anonymous-stat-strip {
+  display: flex;
+  gap: 5px;
+  overflow: hidden;
+}
+
+.mate-anonymous-stat-strip i {
+  flex: 0 0 auto;
+  border-radius: var(--r-pill);
+  padding: 3px 7px;
+  background: var(--teal-50);
+  color: var(--teal-700);
+  font-size: 9.5px;
+  font-style: normal;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.mate-profile-snapshot-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.mate-profile-snapshot-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  border-radius: 20px;
+  padding: 10px 12px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, .9), rgba(238, 250, 247, .72));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .86), 0 8px 18px rgba(23, 74, 70, .07);
+}
+
+.mate-profile-snapshot-item span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mate-profile-snapshot-item small {
+  color: var(--teal-600);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.mate-profile-snapshot-item strong {
+  color: var(--ink-800);
+  font-size: 17px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.mate-profile-snapshot-item em {
+  color: var(--ink-500);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.35;
+  word-break: keep-all;
+}
+
+.mate-asset-stack {
+  display: flex;
+  overflow: hidden;
+  height: 14px;
+  border-radius: var(--r-pill);
+  background: rgba(222, 236, 234, .76);
+  box-shadow: inset 0 2px 5px rgba(27, 62, 59, .09);
+}
+
+.mate-asset-stack-segment {
+  min-width: 8px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .58);
+}
+
+.mate-asset-stack-checking {
+  background: #62C9C4;
+}
+
+.mate-asset-stack-savings,
+.mate-asset-stack-travel {
+  background: #7FE1A4;
+}
+
+.mate-asset-stack-investment {
+  background: #9CB7FF;
+}
+
+.mate-asset-stack-deposit,
+.mate-asset-stack-pension {
+  background: #FFD979;
+}
+
+.mate-asset-breakdown,
+.mate-money-line-list {
+  display: grid;
+  gap: 8px;
+}
+
+.mate-asset-line,
+.mate-money-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  border-radius: 20px;
+  padding: 12px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, .94), rgba(245, 252, 250, .84));
+  box-shadow: var(--clay-shadow-soft);
+}
+
+.mate-asset-line span,
+.mate-money-line span {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.mate-asset-line b,
+.mate-money-line b {
+  color: var(--ink-800);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.mate-asset-line small,
+.mate-money-line small {
+  color: var(--ink-500);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.35;
+  word-break: keep-all;
+}
+
+.mate-asset-line strong,
+.mate-money-line strong {
+  color: var(--ink-800);
+  font-size: 13px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.mate-money-delta.is-up {
+  color: #0C8C76;
+}
+
+.mate-money-delta.is-down {
+  color: #D85C5C;
+}
+
+.mate-money-delta.is-flat {
+  color: var(--ink-500);
+}
+
+.mate-spending-chip-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.mate-spending-chip {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  min-width: 0;
+  border-radius: 20px;
+  padding: 12px 10px;
+  background: linear-gradient(145deg, rgba(244, 255, 252, .96), rgba(255, 255, 255, .88));
+  box-shadow: var(--clay-shadow-soft);
+}
+
+.mate-spending-chip span {
+  color: var(--teal-700);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.mate-spending-chip strong {
+  color: var(--ink-800);
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.12;
+}
+
+.mate-spending-chip small {
+  color: var(--ink-500);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.32;
+  word-break: keep-all;
+}
+
+.mate-empty-profile-card {
+  justify-items: center;
+  text-align: center;
+}
+
+.mate-empty-profile-card strong {
+  color: var(--ink-800);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.mate-anonymous-detail-card {
+  gap: 12px;
+}
+
+.mate-anonymous-detail-hero {
+  display: grid;
+  grid-template-columns: 138px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.mate-anonymous-detail-hero h2 {
+  margin: 8px 0 0;
+  color: var(--ink-800);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.mate-anonymous-detail-hero p {
+  margin: 5px 0 0;
+  color: var(--ink-500);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.38;
+  word-break: keep-all;
+}
+
+/* ── 비교 탐색: 추천 익명 모험가 ─────────────────────── */
+.mate-adventurer-card {
+  background: linear-gradient(150deg, #FFF7E6 0%, #FFF1CF 100%);
+  border-color: #FBE3A6;
+}
+
+.mate-adventurer-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mate-adventurer-match {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: var(--r-pill);
+  padding: 4px var(--space-3);
+  background: var(--surface);
+  color: var(--red-600);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.mate-adventurer-body {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.mate-adventurer-avatar {
+  width: 108px;
+  height: 108px;
+  background: transparent !important;
+  box-shadow: none;
+}
+
+.mate-adventurer-name {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--ink-800);
+}
+
+.mate-adventurer-tagline {
+  margin: 4px 0 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-500);
+  word-break: keep-all;
+}
+
+.mate-adventurer-badges {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.mate-stat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--r-pill);
+  padding: 4px var(--space-2) 4px 4px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ink-800);
+  white-space: nowrap;
+}
+
+.mate-stat-badge .icon-badge {
+  width: 22px;
+  height: 22px;
+}
+
+.mate-adventurer-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+.mate-profile-detail-stack > .mate-adventurer-actions {
+  grid-template-columns: 1fr;
+}
+
+.mate-adventurer-actions .app-button {
+  width: 100%;
+}
+
+.mate-adventurer-like {
+  grid-column: 1 / -1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 40px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--red-600);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* ── 습관 요약 3칸 ────────────────────────────────────── */
+.mate-habit-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.mate-habit-card {
+  display: grid;
+  gap: var(--space-2);
+  border-radius: var(--r-md);
+  padding: var(--space-3);
+  background: var(--paper);
+  text-align: center;
+  justify-items: center;
+}
+
+.mate-habit-card strong {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ink-800);
+  word-break: keep-all;
+}
+
+.mate-habit-card p {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-500);
+  line-height: 1.4;
+  word-break: keep-all;
+}
+
+.mate-habit-pill {
+  display: inline-flex;
+  border-radius: var(--r-pill);
+  padding: 2px var(--space-2);
+  background: var(--teal-50);
+  color: var(--teal-700);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+/* ── 토글 ────────────────────────────────────────────── */
+.mate-toggle {
+  position: relative;
+  flex: 0 0 auto;
+  width: 46px;
+  height: 26px;
+  border-radius: var(--r-pill);
+  border: none;
+  background: var(--ink-300);
+  transition: background var(--motion-fast);
+}
+
+.mate-toggle.is-on {
+  background: var(--teal);
+}
+
+.mate-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: var(--shadow-1);
+  transition: transform var(--motion-fast);
+}
+
+.mate-toggle.is-on .mate-toggle-knob {
+  transform: translateX(20px);
+}
+
+/* ── 빌드 따라하기 페이지 ────────────────────────────── */
+.mate-build-profile {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  border-radius: var(--r-lg);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-2);
+}
+
+.mate-build-profile-avatar {
+  width: 56px;
+  height: 56px;
+}
+
+.mate-build-profile strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--ink-800);
+}
+
+.mate-build-profile span {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-500);
+}
+
+.mate-option-list {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.mate-option-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  border-radius: var(--r-md);
+  padding: var(--space-3);
+  background: var(--paper);
+}
+
+.mate-option-row strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink-800);
+  word-break: keep-all;
+}
+
+.mate-option-row small {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-500);
+  word-break: keep-all;
+}
+
+.mate-chart-card-head {
+  align-items: center;
+}
+
+.mate-chart-badge {
+  flex: 0 0 auto;
+  display: grid;
+  justify-items: center;
+  border-radius: var(--r-md);
+  padding: 6px var(--space-3);
+  background: var(--red-50);
+  color: var(--red-600);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.mate-chart-badge b {
+  font-size: 15px;
+}
+
+.mate-chart-svg-wrap {
+  position: relative;
+}
+
+.mate-chart-svg-wrap svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.mate-chart-legend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ink-500);
+}
+
+.mate-chart-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mate-chart-legend i {
+  width: 16px;
+  height: 3px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.mate-chart-legend i.mine { background: var(--teal); }
+.mate-chart-legend i.other { background: var(--ink-300); }
+
+.mate-preview-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.mate-preview-col {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+
+.mate-preview-col span {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ink-500);
+}
+
+.mate-build-note {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-400);
+}
+
+/* ── 반응형 폭 좁을 때(작은 폰) 그리드 축소 ───────────── */
+@media (max-width: 360px) {
+  .mate-filter-grid,
+  .mate-adventurer-badges {
+    grid-template-columns: 1fr;
+  }
+  .mate-habit-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── UI_이미지 기준 보정 레이어 ───────────────────────────── */
+.mate-friend-summary .mate-card-head-title {
+  flex: 1 1 auto;
+}
+
+.mate-friend-summary .mate-card-head-title > .icon-badge {
+  width: 42px;
+  height: 42px;
+}
+
+.mate-friend-slots {
+  gap: 0;
+  max-width: 226px;
+}
+
+.mate-friend-slots .mate-avatar {
+  margin-left: -6px;
+  border: 2px solid #BDEBD8;
+}
+
+.mate-feed-item {
+  gap: 10px;
+  border-radius: 18px;
+  padding: 8px 10px;
+}
+
+.mate-feed-copy {
+  font-size: 14px;
+}
+
+.mate-feed-stat {
+  font-size: 14px;
+}
+
+.mate-vs-card {
+  overflow: hidden;
+}
+
+.mate-vs-row {
+  grid-template-columns: 114px minmax(0, 1fr) 114px;
+  gap: 8px;
+}
+
+.mate-vs-side {
+  min-width: 0;
+  gap: 4px;
+}
+
+.mate-vs-side .mate-avatar {
+  background: radial-gradient(circle, #E9FFF2 0%, #E2F8F0 62%, transparent 63%) !important;
+  box-shadow: none;
+}
+
+.mate-vs-badge {
+  align-self: start;
+  margin-top: 22px;
+}
+
+.mate-vs-gauges {
+  gap: 8px;
+}
+
+.mate-gauge-row {
+  gap: 4px;
+}
+
+.mate-gauge-row-head span {
+  font-size: 13px;
+}
+
+.mate-group-card {
+  grid-template-columns: minmax(0, 1fr) 178px;
+}
+
+.mate-group-trio {
+  width: 178px;
+  height: 116px;
+}
+
+.mate-group-trio .mate-avatar:nth-child(1) { left: 0; }
+.mate-group-trio .mate-avatar:nth-child(2) { left: 46px; }
+.mate-group-trio .mate-avatar:nth-child(3) { left: 92px; }
+
+.mate-group-count {
+  margin-left: auto;
+  width: 178px;
+}
+
+.mate-position-head {
+  gap: 22px;
+}
+
+.mate-position-level {
+  width: 66px;
+  height: 66px;
+  background: linear-gradient(160deg, #FFF6D9, #F4BA4D);
+  border-color: #FFE7A3;
+  color: #664200;
+  font-size: 12px;
+}
+
+.mate-position-group .mate-avatar {
+  margin-left: -18px;
+}
+
+.mate-gear-row {
+  border-radius: 18px;
+  padding: 8px 10px;
+}
+
+.mate-filter-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.mate-filter-field {
+  border-radius: 18px;
+  padding: 10px 12px;
+  border-color: var(--line);
+}
+
+.mate-filter-field:nth-child(1),
+.mate-filter-field:nth-child(4) {
+  background: #F3FBF7;
+}
+
+.mate-filter-field:nth-child(2) {
+  background: #F2F8FF;
+}
+
+.mate-filter-field:nth-child(3) {
+  background: #FFF8EA;
+}
+
+.mate-filter-field:nth-child(5) {
+  background: #F4FBF5;
+}
+
+.mate-filter-field:nth-child(6) {
+  background: #F6F2FF;
+}
+
+.mate-filter-cta {
+  border-radius: 22px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.mate-filter-cta button {
+  height: 42px;
+  min-width: 112px;
+}
+
+.mate-adventurer-card {
+  grid-template-columns: 1fr;
+  background: linear-gradient(150deg, #FFF8E8 0%, #FFF3D7 100%);
+}
+
+.mate-adventurer-body {
+  grid-template-columns: 162px minmax(0, 1fr);
+  gap: 10px;
+}
+
+.mate-adventurer-avatar {
+  width: 158px !important;
+  height: 158px !important;
+  margin: -8px 0 -14px;
+}
+
+.mate-adventurer-name {
+  font-size: 18px;
+  word-break: keep-all;
+}
+
+.mate-adventurer-badges {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.mate-adventurer-actions {
+  grid-template-columns: 1fr 1.28fr;
+}
+
+.mate-adventurer-like {
+  width: 126px;
+  justify-self: end;
+}
+
+.mate-habit-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mate-coach-card {
+  min-height: 104px;
+}
+
+.mate-coach-avatar {
+  align-self: end;
+  margin: -18px 0 -16px -8px;
+}
+
+.mate-build-screen {
+  background: linear-gradient(180deg, var(--teal-50) 0%, var(--paper) 260px);
+}
+
+.mate-build-screen .compare-flow-header {
+  min-height: 54px;
+  padding: 14px 6px 16px;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+}
+
+.mate-build-screen .compare-flow-header h1 {
+  color: #102743;
+  font-size: 29px;
+  line-height: 1.05;
+  font-weight: 900;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.mate-build-top-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mate-build-top-actions .mate-point-pill {
+  height: 42px;
+}
+
+.mate-build-profile {
+  min-height: 74px;
+  padding: 10px 14px;
+}
+
+.mate-build-profile-avatar {
+  width: 82px !important;
+  height: 82px !important;
+  margin: -18px 0 -10px;
+  background: transparent !important;
+  box-shadow: none;
+}
+
+.mate-option-row {
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+}
+
+.mate-option-row:last-child {
+  border-bottom: none;
+}
+
+.mate-toggle {
+  width: 58px;
+  height: 34px;
+}
+
+.mate-toggle-knob {
+  width: 28px;
+  height: 28px;
+}
+
+.mate-toggle.is-on .mate-toggle-knob {
+  transform: translateX(24px);
+}
+
+@media (max-width: 390px) {
+  .mate-filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mate-adventurer-body {
+    grid-template-columns: 145px minmax(0, 1fr);
+  }
+
+  .mate-adventurer-avatar {
+    width: 144px !important;
+    height: 144px !important;
+  }
+}
+
+/* ── readability pass: 메이트/퀘스트/로드맵 기준 화면 과대 폰트 보정 ── */
+.screen-mate-main .mate-hero-header h1,
+.screen-quest-main .mate-hero-header h1 {
+  font-size: 24px;
+  line-height: 1.12;
+}
+
+.screen-mate-main .mate-hero-header p,
+.screen-quest-main .mate-hero-header p {
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+.screen-mate-main > .segmented-control button,
+.quest-tab {
+  font-size: 14px;
+}
+
+.screen-mate-main .mate-card,
+.screen-quest-main .mate-card,
+.mate-build-screen .mate-card {
+  gap: 12px;
+}
+
+.screen-mate-main .mate-card-head-title h2,
+.screen-quest-main .mate-card-head-title h2,
+.mate-build-screen .mate-card-head-title h2 {
+  font-size: 15.5px;
+  line-height: 1.3;
+}
+
+.screen-mate-main .mate-card-link,
+.screen-quest-main .mate-card-link,
+.mate-build-screen .mate-card-link {
+  font-size: 12px;
+}
+
+.screen-mate-main .mate-feed-copy,
+.screen-mate-main .mate-feed-stat {
+  font-size: 12px;
+  line-height: 1.28;
+}
+
+.screen-mate-main .mate-friend-summary .mate-card-head-title h2 {
+  font-size: 16px;
+  line-height: 1.28;
+}
+
+.screen-mate-main .mate-vs-side strong,
+.screen-mate-main .mate-gear-copy strong,
+.screen-mate-main .mate-habit-card strong,
+.screen-mate-main .mate-filter-field strong,
+.screen-mate-main .mate-stat-badge,
+.mate-build-screen .mate-option-row strong {
+  font-size: 12px;
+}
+
+.screen-mate-main .mate-filter-field-label,
+.screen-mate-main .mate-gear-copy small,
+.screen-mate-main .mate-habit-card p,
+.screen-mate-main .mate-habit-pill,
+.mate-build-screen .mate-option-row small {
+  font-size: 10.5px;
+}
+
+.screen-mate-main .mate-adventurer-name {
+  font-size: 15px;
+}
+
+.screen-mate-main .mate-adventurer-tagline,
+.screen-mate-main .mate-coach-copy p {
+  font-size: 11.5px;
+}
+
+.mate-build-screen .compare-flow-header {
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+  gap: 6px;
+}
+
+.mate-build-screen .compare-flow-header h1 {
+  min-width: 0;
+  overflow: hidden;
+  font-size: 22px;
+  text-overflow: ellipsis;
+}
+
+.mate-build-screen .mate-chart-svg-wrap {
+  margin-bottom: 14px;
+}
+
+.mate-build-screen .compare-flow-bottom-cta {
+  padding-top: 8px;
+}
+
+.mate-build-top-actions .mate-point-pill {
+  height: 38px;
+  padding: 0 9px;
+  font-size: 14px;
+}
+
+.mate-build-top-actions .mate-top-avatar {
+  width: 46px !important;
+  height: 46px !important;
+}
+
+.rpg-icon img,
+.quest-icon img {
+  padding: 8px;
+}
+
+.screen-mate-main,
+.mate-build-screen {
+  padding-bottom: calc(var(--bottom-nav-height) + 40px);
+}
+
+.mate-build-screen .compare-flow-bottom-cta {
+  position: static;
+  padding: 0 var(--space-1) var(--space-3);
+  background: transparent;
+  pointer-events: auto;
+}
+
+.mate-build-screen .compare-flow-bottom-cta > * {
+  pointer-events: auto;
+}
+
+.mate-build-screen .compare-flow-primary {
+  min-height: 52px;
+}
+
+.screen-mate-main .mate-friend-summary .mate-card-head {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  align-items: center;
+  row-gap: 6px;
+}
+
+.screen-mate-main .mate-friend-summary .mate-card-head-title {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  align-items: center;
+  width: 100%;
+}
+
+.screen-mate-main .mate-friend-summary .mate-card-head-title h2,
+.screen-mate-main .mate-friend-summary .mate-card-head-title p {
+  white-space: normal;
+  word-break: keep-all;
+}
+
+.screen-mate-main .mate-friend-summary .mate-friend-slots {
+  grid-column: 1 / -1;
+  justify-self: end;
+  max-width: none;
+  margin-top: -4px;
+}
+
+/* ── small-copy tone: 상세프로필 AI 코치 본문처럼 얇은 Paperlogy 톤 ── */
+.screen-mate-main .mate-hero-header p,
+.screen-quest-main .mate-hero-header p,
+.screen-mate-main .mate-card-head-title p,
+.screen-quest-main .mate-card-head-title p,
+.mate-build-screen .mate-card-head-title p,
+.screen-mate-main .mate-feed-copy,
+.screen-mate-main .mate-filter-field-label,
+.screen-mate-main .mate-gear-copy small,
+.screen-mate-main .mate-habit-card p,
+.screen-mate-main .mate-adventurer-tagline,
+.screen-mate-main .mate-coach-copy p,
+.mate-build-screen .mate-option-row small,
+.mate-build-screen .mate-build-profile span,
+.mate-build-screen .mate-chart-legend,
+.mate-build-screen .mate-preview-col span,
+.mate-build-screen .mate-build-note {
+  font-family: var(--font-sans);
+  font-weight: 400;
+}
+
+.screen-mate-main .mate-feed-copy b,
+.screen-mate-main .mate-friend-summary .mate-card-head-title p b {
+  font-weight: 500;
+}
+
+/* ── claymorphism pass: 메이트/빌드 카드 재질 통일 ───────────── */
+.screen-mate-main .mate-point-pill,
+.screen-mate-main > .segmented-control,
+.screen-mate-main .mate-card,
+.screen-mate-main .mate-feed-item,
+.screen-mate-main .mate-streak-row,
+.screen-mate-main .mate-banner,
+.screen-mate-main .mate-coach-card,
+.screen-mate-main .mate-gear-row,
+.screen-mate-main .mate-insight-card,
+.screen-mate-main .mate-filter-field,
+.screen-mate-main .mate-filter-cta,
+.screen-mate-main .mate-stat-badge,
+.screen-mate-main .mate-adventurer-like,
+.screen-mate-main .mate-habit-card,
+.screen-mate-main .mate-group-count,
+.screen-mate-main .mate-position-level,
+.mate-build-screen .mate-card,
+.mate-build-screen .mate-build-profile,
+.mate-build-screen .mate-option-row,
+.mate-build-screen .mate-preview-card {
+  border: 1px solid color-mix(in srgb, var(--clay-stroke) 86%, transparent);
+  box-shadow: var(--clay-shadow-soft);
+}
+
+.screen-mate-main .mate-card,
+.mate-build-screen .mate-card,
+.mate-build-screen .mate-build-profile,
+.mate-build-screen .mate-preview-card {
+  background: linear-gradient(145deg, rgba(255, 255, 255, .98), rgba(239, 250, 248, .86));
+}
+
+.screen-mate-main .mate-point-pill,
+.screen-mate-main > .segmented-control,
+.screen-mate-main .mate-feed-item,
+.screen-mate-main .mate-streak-row,
+.screen-mate-main .mate-gear-row,
+.screen-mate-main .mate-filter-field,
+.screen-mate-main .mate-stat-badge,
+.screen-mate-main .mate-adventurer-like,
+.screen-mate-main .mate-habit-card,
+.mate-build-screen .mate-option-row {
+  background: linear-gradient(145deg, rgba(255, 255, 255, .94), rgba(239, 249, 247, .78));
+}
+
+.screen-mate-main .mate-banner,
+.screen-mate-main .mate-coach-card,
+.screen-mate-main .mate-filter-cta,
+.screen-mate-main .mate-group-count {
+  background: linear-gradient(145deg, rgba(241, 253, 250, .96), rgba(255, 255, 255, .82));
+}
+
+.screen-mate-main .mate-adventurer-card {
+  border-color: rgba(255, 245, 208, .9);
+  background: linear-gradient(145deg, #FFF9EA 0%, #FFF1CE 100%);
+  box-shadow:
+    -7px -7px 18px rgba(255, 255, 255, .88),
+    12px 14px 28px rgba(151, 109, 35, .13);
+}
+
+.screen-mate-main .mate-insight-card.alt {
+  background: linear-gradient(145deg, #FFF9E9, #FFF2D4);
+}
+
+.screen-mate-main .mate-option-row {
+  border-bottom-color: color-mix(in srgb, var(--clay-stroke) 72%, transparent);
+}
+
+.mate-build-screen .mate-option-row {
+  border-radius: var(--r-md);
+  border-color: color-mix(in srgb, var(--clay-stroke) 86%, transparent);
+}
+
+.mate-build-screen .mate-option-row + .mate-option-row {
+  margin-top: 2px;
+}

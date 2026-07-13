@@ -1,0 +1,182 @@
+{
+  "hero": {
+    "persona_id": "P0001",
+    "age": 21,
+    "archetype": "대학생/알바",
+    "job": "대학생",
+    "monthly_income_krw": 1200000,
+    "invest_participation": false,
+    "joined_at": "2026-07-13",
+    "financial_goal": "등록금 완충",
+    "lifestyle_tags": [
+      "간편결제선호",
+      "카페선호"
+    ],
+    "money_worry": "과소비 걱정",
+    "cohort": "20s"
+  },
+  "stats_latest": {
+    "month": "2026-07",
+    "defense_score": 100.0,
+    "saving_score": 54.1,
+    "invest_score": 0.0,
+    "level": 1,
+    "xp": 0.0
+  },
+  "friend_group": {
+    "friend_count": 12,
+    "scored_friend_count": 12,
+    "locked": false,
+    "top_savings_product": "하나은행 자유적금",
+    "top_savings_product_share": 0.25,
+    "avg_defense_score": 49.1,
+    "avg_saving_score": 51.2,
+    "avg_invest_score": 18.5
+  },
+  "main_quest_status": "none",
+  "lump_achiever_pool": 393,
+  "friends": [
+    "P0002",
+    "P0003",
+    "P0004",
+    "P0005",
+    "P0006",
+    "P0007",
+    "P0008",
+    "P0009",
+    "P0010",
+    "P0011",
+    "P0012",
+    "P0013"
+  ],
+  "table_row_counts": {
+    "stats": {
+      "rows_circle": 91,
+      "rows_hero": 7
+    },
+    "stats_history": {
+      "rows_circle": 2522,
+      "rows_hero": 194
+    },
+    "metrics_monthly": {
+      "rows_circle": 91,
+      "rows_hero": 7
+    },
+    "balance_monthly": {
+      "rows_circle": 91,
+      "rows_hero": 7
+    },
+    "budgets_monthly": {
+      "rows_circle": 91,
+      "rows_hero": 7
+    },
+    "budgets_daily": {
+      "rows_circle": 2522,
+      "rows_hero": 194
+    },
+    "friendships": {
+      "rows_circle": 165,
+      "rows_hero": 165
+    },
+    "friend_group_stats": {
+      "rows_circle": 13,
+      "rows_hero": 1
+    },
+    "feed_events": {
+      "rows_circle": 111,
+      "rows_hero": 111
+    },
+    "streaks": {
+      "rows_circle": 178,
+      "rows_hero": 2
+    },
+    "app_sessions": {
+      "rows_circle": 1326,
+      "rows_hero": 1
+    },
+    "sync_events": {
+      "rows_circle": 1150,
+      "rows_hero": 1
+    },
+    "active_goals": {
+      "rows_circle": 13,
+      "rows_hero": 1
+    },
+    "goal_history": {
+      "rows_circle": 12,
+      "rows_hero": 0
+    },
+    "goal_candidates": {
+      "rows_circle": 143,
+      "rows_hero": 11
+    },
+    "boss_instances": {
+      "rows_circle": 51,
+      "rows_hero": 0
+    },
+    "raid_log": {
+      "rows_circle": 127,
+      "rows_hero": 0
+    },
+    "quest_log": {
+      "rows_circle": 794,
+      "rows_hero": 0
+    },
+    "reward_boxes": {
+      "rows_circle": 38,
+      "rows_hero": 0
+    },
+    "point_ledger": {
+      "rows_circle": 532,
+      "rows_hero": 0
+    },
+    "quiz_log": {
+      "rows_circle": 98,
+      "rows_hero": 0
+    },
+    "titles_earned": {
+      "rows_circle": 87,
+      "rows_hero": 1
+    },
+    "routine_summaries": {
+      "rows_circle": 26,
+      "rows_hero": 2
+    },
+    "retrospectives": {
+      "rows_circle": 251,
+      "rows_hero": 1
+    },
+    "bookmarks": {
+      "rows_circle": 8,
+      "rows_hero": 2
+    },
+    "privacy_settings": {
+      "rows_circle": 13,
+      "rows_hero": 1
+    },
+    "features": {
+      "rows_circle": 13,
+      "rows_hero": 1
+    },
+    "cluster_profiles": {
+      "rows_circle": 10,
+      "rows_hero": "(전역)"
+    },
+    "level_rules": {
+      "rows_circle": 60,
+      "rows_hero": "(전역)"
+    },
+    "point_catalog": {
+      "rows_circle": 4,
+      "rows_hero": "(전역)"
+    },
+    "title_catalog": {
+      "rows_circle": 8,
+      "rows_hero": "(전역)"
+    },
+    "goal_history_lump_achievers": {
+      "rows_circle": 393,
+      "rows_hero": "(추천 풀)"
+    }
+  }
+}

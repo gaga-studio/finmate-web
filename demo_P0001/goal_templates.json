@@ -1,0 +1,937 @@
+[
+  {
+    "templateId": "GOAL-SAVE-LUMP",
+    "version": 1,
+    "active": true,
+    "title": "자금 모으기",
+    "description": "이름을 정하고 금액과 기간을 직접 설정해서 목돈을 모아보는 목표예요.",
+    "domain": "저축",
+    "goalType": "증가형",
+    "metricKey": "누적저축액",
+    "unit": "KRW",
+    "baselinePolicy": {
+      "basis": "목표 생성 시점의 목표 전용 저축 잔액(신규 목표면 0원)",
+      "periodMonths": 0,
+      "excludeRules": [
+        "목표 생성 이전에 이미 보유하던 예·적금 잔액은 기준값에 포함하지 않는다"
+      ]
+    },
+    "safeBounds": {
+      "min": 100000,
+      "max": 50000000,
+      "unit": "KRW",
+      "note": "온보딩 직접 입력 시에도 이 범위를 벗어난 금액은 생성할 수 없다"
+    },
+    "minimumData": {
+      "requiredMonths": 0,
+      "requiredTransactionCount": 0,
+      "note": "마이데이터 연동 이력이 없어도 생성 가능한 직접 설정형 목표. 진행률은 이후 저축 계좌 동기화로 반영된다."
+    },
+    "allowedDurations": [
+      30,
+      60,
+      90,
+      180,
+      270,
+      365
+    ],
+    "evidenceSource": "mydata_sync",
+    "difficultyPolicy": {
+      "mode": "user_direct_input",
+      "note": "온보딩(또는 홈 CTA)에서 사용자가 목표명·금액·기간을 safeBounds/allowedDurations 범위 내에서 직접 지정한다. 증가형 α보간(가볍게/표준/도전)은 적용하지 않으며, 코드는 입력값이 안전 범위 안인지만 검증한다."
+    },
+    "questTemplateIds": [
+      "QUEST-SUB-SAVE-50K",
+      "QUEST-SAVE-WEEKLY-DEPOSIT",
+      "QUEST-SAVE-DEPOSIT-LOG",
+      "QUEST-SAVE-AUTOSET-NEXTDAY"
+    ],
+    "bossTemplateIds": [
+      "BOSS-SAVE-LUMP-S1",
+      "BOSS-SAVE-LUMP-S2",
+      "BOSS-SAVE-LUMP-S3"
+    ],
+    "bossSet": [
+      {
+        "stage": 1,
+        "bossTemplateId": "BOSS-SAVE-LUMP-S1",
+        "name": "잔돈 도깨비",
+        "narrative": "동전 몇 개쯤이야 하며 슬쩍 흘러나가는 잔돈을 모으는 작은 도깨비예요. 목표를 향한 첫 상대!"
+      },
+      {
+        "stage": 2,
+        "bossTemplateId": "BOSS-SAVE-LUMP-S2",
+        "name": "지폐 도깨비",
+        "narrative": "잔돈 도깨비보다 몸집이 커졌어요. 저축이 쌓일수록 도깨비의 힘이 약해져요."
+      },
+      {
+        "stage": 3,
+        "bossTemplateId": "BOSS-SAVE-LUMP-S3",
+        "name": "여행 금고 수문장",
+        "narrative": "목표 금액을 지키고 선 마지막 수문장이에요. 저축액이 목표에 닿으면 문을 활짝 열어줘요."
+      }
+    ],
+    "exampleInstance": {
+      "userGivenName": "유럽여행경비",
+      "targetAmount": 5000000,
+      "durationDays": 180,
+      "note": "온보딩 직접 설정 경로의 예시 인스턴스(0713 시연 시나리오 메인퀘). 시연 계정 P0001은 온보딩에서 이 값으로 생성한다."
+    }
+  },
+  {
+    "templateId": "GOAL-SAVE-RATE",
+    "version": 1,
+    "active": true,
+    "title": "저축률 높이기",
+    "description": "여윳돈 중 저축으로 돌리는 비율을 지금보다 조금 더 높여보는 목표예요.",
+    "domain": "저축",
+    "goalType": "증가형",
+    "metricKey": "저축률",
+    "unit": "percent",
+    "baselinePolicy": {
+      "basis": "최근 3개월 저축률 평균(저축성 순유입 ÷ 여윳돈)",
+      "periodMonths": 3,
+      "excludeRules": [
+        "퇴직금·경조사비 등 일회성 목돈 입출금은 제외"
+      ]
+    },
+    "safeBounds": {
+      "minPercent": 0,
+      "maxPercent": 80
+    },
+    "minimumData": {
+      "requiredMonths": 2,
+      "requiredTransactionCount": 4,
+      "note": "최근 2개월 이상, 저축성 이체 4건 이상"
+    },
+    "allowedDurations": [
+      30,
+      60,
+      90
+    ],
+    "evidenceSource": "mydata_sync",
+    "difficultyPolicy": {
+      "mode": "alpha_interpolation",
+      "alpha": {
+        "light": 0.25,
+        "standard": 0.5,
+        "challenge": 0.75
+      },
+      "formula": "목표저축률 = clamp(기준 저축률 + α × (메이트 참고 저축률 - 기준 저축률), safeBounds)"
+    },
+    "questTemplateIds": [
+      "QUEST-SAVE-RATE-CHECK",
+      "QUEST-SAVE-AUTOSET-NEXTDAY",
+      "QUEST-SAVE-AUTO-DATE-CHECK"
+    ],
+    "bossTemplateIds": [
+      "BOSS-SAVE-RATE-S1",
+      "BOSS-SAVE-RATE-S2",
+      "BOSS-SAVE-RATE-S3"
+    ],
+    "bossSet": [
+      {
+        "stage": 1,
+        "bossTemplateId": "BOSS-SAVE-RATE-S1",
+        "name": "느긋한 관성 정령",
+        "narrative": "저축률을 지금 그대로 두고 싶어 하는 작은 정령이에요."
+      },
+      {
+        "stage": 2,
+        "bossTemplateId": "BOSS-SAVE-RATE-S2",
+        "name": "버티는 관성 정령",
+        "narrative": "저축 습관이 자리잡을수록 이 정령은 힘을 잃어가요."
+      },
+      {
+        "stage": 3,
+        "bossTemplateId": "BOSS-SAVE-RATE-S3",
+        "name": "관성 대정령",
+        "narrative": "이 상대를 넘으면 새로운 저축률이 내 습관으로 자리잡아요."
+      }
+    ]
+  },
+  {
+    "templateId": "GOAL-SAVE-EMERGENCY",
+    "version": 1,
+    "active": true,
+    "title": "비상금 만들기",
+    "description": "갑작스러운 지출에도 흔들리지 않도록 비상금을 채워가는 목표예요.",
+    "domain": "저축",
+    "goalType": "증가형",
+    "metricKey": "비상금커버개월수",
+    "unit": "개월",
+    "baselinePolicy": {
+      "basis": "현재 비상금 계좌 잔액 ÷ 최근 3개월 평균 필수지출",
+      "periodMonths": 3,
+      "excludeRules": []
+    },
+    "safeBounds": {
+      "min": 0,
+      "max": 6,
+      "unit": "개월",
+      "note": "6개월치를 초과하는 목표는 과도한 유보로 보아 생성하지 않는다"
+    },
+    "minimumData": {
+      "requiredMonths": 3,
+      "requiredTransactionCount": 0,
+      "note": "필수지출 산정을 위한 최근 3개월 거래 데이터 필요"
+    },
+    "allowedDurations": [
+      90,
+      180,
+      365
+    ],
+    "evidenceSource": "mydata_sync",
+    "difficultyPolicy": {
+      "mode": "alpha_interpolation",
+      "alpha": {
+        "light": 0.25,
+        "standard": 0.5,
+        "challenge": 0.75
+      },
+      "formula": "목표개월수 = clamp(기준 개월수 + α × (메이트 참고 개월수 - 기준 개월수), safeBounds)"
+    },
+    "questTemplateIds": [
+      "QUEST-SAVE-EMERGENCY-CHECK",
+      "QUEST-SAVE-WEEKLY-DEPOSIT",
+      "QUEST-SAVE-DEPOSIT-LOG"
+    ],
+    "bossTemplateIds": [
+      "BOSS-SAVE-EMERGENCY-S1",
+      "BOSS-SAVE-EMERGENCY-S2",
+      "BOSS-SAVE-EMERGENCY-S3"
+    ],
+    "bossSet": [
+      {
+        "stage": 1,
+        "bossTemplateId": "BOSS-SAVE-EMERGENCY-S1",
+        "name": "작은 소나기 그림자",
+        "narrative": "예상 못한 지출이 갑자기 쏟아질까 걱정하게 만드는 그림자예요."
+      },
+      {
+        "stage": 2,
+        "bossTemplateId": "BOSS-SAVE-EMERGENCY-S2",
+        "name": "먹구름 그림자",
+        "narrative": "비상금이 쌓일수록 그림자가 점점 옅어져요."
+      },
+      {
+        "stage": 3,
+        "bossTemplateId": "BOSS-SAVE-EMERGENCY-S3",
+        "name": "소나기 대장 그림자",
+        "narrative": "이 그림자를 걷어내면 갑작스러운 지출에도 마음이 든든해져요."
+      }
+    ]
+  },
+  {
+    "templateId": "GOAL-SAVE-AUTOSETUP",
+    "version": 1,
+    "active": true,
+    "title": "자동저축 설정하기",
+    "description": "수입이 들어오면 자동으로 저축되도록 한 번만 설정해두는 목표예요.",
+    "domain": "저축",
+    "goalType": "행동형",
+    "metricKey": "자동저축설정완료",
+    "unit": "회",
+    "baselinePolicy": {
+      "basis": "현재 자동저축 스케줄 설정 여부(0건)",
+      "periodMonths": 0,
+      "excludeRules": []
+    },
+    "safeBounds": {
+      "min": 1,
+      "max": 1,
+      "note": "설정 완료 1회로 고정하며 반복 목표가 아니다"
+    },
+    "minimumData": {
+      "requiredMonths": 0,
+      "requiredTransactionCount": 0
+    },
+    "allowedDurations": [
+      7,
+      14,
+      30
+    ],
+    "evidenceSource": "app_event",
+    "difficultyPolicy": {
+      "mode": "fixed_action_count",
+      "presets": {
+        "light": {
+          "count": 1,
+          "windowDays": 30
+        },
+        "standard": {
+          "count": 1,
+          "windowDays": 14
+        },
+        "challenge": {
+          "count": 1,
+          "windowDays": 7
+        }
+      },
+      "note": "설정 횟수는 1회로 고정하고, 난이도는 완료까지 허용하는 기간(일)으로 차등을 둔다."
+    },
+    "questTemplateIds": [
+      "QUEST-SAVE-AUTOSET-NEXTDAY",
+      "QUEST-SAVE-AUTO-DATE-CHECK"
+    ],
+    "bossTemplateIds": [
+      "BOSS-SAVE-AUTOSETUP-S1",
+      "BOSS-SAVE-AUTOSETUP-S2",
+      "BOSS-SAVE-AUTOSETUP-S3"
+    ],
+    "bossSet": [
+      {
+        "stage": 1,
+        "bossTemplateId": "BOSS-SAVE-AUTOSETUP-S1",
+        "name": "설정 미루기 요정",
+        "narrative": "자동저축 설정을 자꾸 다음으로 미루게 만드는 작은 요정이에요."
+      },
+      {
+        "stage": 2,
+        "bossTemplateId": "BOSS-SAVE-AUTOSETUP-S2",
+        "name": "번거로움 요정",
+        "narrative": "설정 화면을 괜히 복잡해 보이게 만드는 장난꾸러기예요."
+      },
+      {
+        "stage": 3,
+        "bossTemplateId": "BOSS-SAVE-AUTOSETUP-S3",
+        "name": "미루기 대요정",
+        "narrative": "설정을 마치고 나면 이 요정은 더 이상 나타나지 않아요."
+      }
+    ]
+  },
+  {
+    "templateId": "GOAL-SPEND-CAFE-RANGE",
+    "version": 1,
+    "active": true,
+    "title": "카페비 적정선 지키기",
+    "description": "카페 가는 즐거움은 유지하면서 이번 주 카페비를 적정 범위 안에서 맞춰보는 목표예요.",
+    "domain": "소비",
+    "goalType": "범위유지형",
+    "metricKey": "주간카페비",
+    "unit": "KRW",
+    "baselinePolicy": {
+      "basis": "최근 4주 카페 카테고리 소비 평균",
+      "periodMonths": 1,
+      "excludeRules": []
+    },
+    "safeBounds": {
+      "minPercentOfBaseline": 70,
+      "maxPercentOfBaseline": 110,
+      "note": "카페비를 0으로 만드는 것이 목표가 아니라 기준값의 70~110% 범위 안에서 유지하는 것이 목표"
+    },
+    "minimumData": {
+      "requiredMonths": 1,
+      "requiredTransactionCount": 4
+    },
+    "allowedDurations": [
+      7,
+      14,
+      30
+    ],
+    "evidenceSource": "mydata_sync",
+    "difficultyPolicy": {
+      "mode": "fixed_verified_units",
+      "presets": {
+        "light": {
+          "verifiedUnits": 3,
+          "totalUnits": 7,
+          "unit": "일"
+        },
+        "standard": {
+          "verifiedUnits": 5,
+          "totalUnits": 7,
+          "unit": "일"
+        },
+        "challenge": {
+          "verifiedUnits": 7,
+          "totalUnits": 7,
+          "unit": "일"
+        }
+      },
+      "note": "간격 보간을 사용하지 않고 검수된 유지 일수 세트만 사용한다(RPG §7-4)."
+    },
+    "questTemplateIds": [
+      "QUEST-CONSUME-CAFE-CHECK",
+      "QUEST-CONSUME-CAFE-RANGE"
+    ],
+    "bossTemplateIds": [
+      "BOSS-SPEND-CAFE-S1",
+      "BOSS-SPEND-CAFE-S2",
+      "BOSS-SPEND-CAFE-S3"
+    ],
+    "bossSet": [
+      {
+        "stage": 1,
+        "bossTemplateId": "BOSS-SPEND-CAFE-S1",
+        "name": "한 잔 유혹 요정",
+        "narrative": "커피 한 잔 정도야 하며 속삭이는 작은 요정이에요."
+      },
+      {
+        "stage": 2,
+        "bossTemplateId": "BOSS-SPEND-CAFE-S2",
+        "name": "연속 주문 요정",
+        "narrative": "며칠 연속으로 카페를 찾게 만드는 요정이에요."
+      },
+      {
+        "stage": 3,
+        "bossTemplateId": "BOSS-SPEND-CAFE-S3",
+        "name": "카페인 대요정",
+        "narrative": "적정 범위 안에서 카페 생활의 균형을 맞추면 이 요정도 만족하고 물러나요."
+      }
+    ]
+  },
+  {
+    "templateId": "GOAL-SPEND-DINING-RANGE",
+    "version": 1,
+    "active": true,
+    "title": "외식비 적정선 지키기",
+    "description": "외식은 즐기면서 이번 달 외식비를 적정 범위 안에서 맞춰보는 목표예요.",
+    "domain": "소비",
+    "goalType": "범위유지형",
+    "metricKey": "월외식비",
+    "unit": "KRW",
+    "baselinePolicy": {
+      "basis": "최근 3개월 외식 카테고리 소비 평균",
+      "periodMonths": 3,
+      "excludeRules": []
+    },
+    "safeBounds": {
+      "minPercentOfBaseline": 70,
+      "maxPercentOfBaseline": 110
+    },
+    "minimumData": {
+      "requiredMonths": 2,
+      "requiredTransactionCount": 6
+    },
+    "allowedDurations": [
+      30
+    ],
+    "evidenceSource": "mydata_sync",
+    "difficultyPolicy": {
+      "mode": "fixed_verified_units",
+      "presets": {
+        "light": {
+          "verifiedUnits": 20,
+          "totalUnits": 30,
+          "unit": "일"
+        },
+        "standard": {
+          "verifiedUnits": 25,
+          "totalUnits": 30,
+          "unit": "일"
+        },
+        "challenge": {
+          "verifiedUnits": 30,
+          "totalUnits": 30,
+          "unit": "일"
+        }
+      },
+      "note": "간격 보간을 사용하지 않고 검수된 유지 일수 세트만 사용한다(RPG §7-4)."
+    },
+    "questTemplateIds": [
+      "QUEST-CONSUME-DINING-BUDGET",
+      "QUEST-SUB-MEAL-15K"
+    ],
+    "bossTemplateIds": [
+      "BOSS-SPEND-DINING-S1",
+      "BOSS-SPEND-DINING-S2",
+      "BOSS-SPEND-DINING-S3"
+    ],
+    "bossSet": [
+      {
+        "stage": 1,
+        "bossTemplateId": "BOSS-SPEND-DINING-S1",
+        "name": "출출함 소환사",
+        "narrative": "출출한 밤, 배달앱을 슬쩍 열어보게 만드는 작은 소환사예요."
+      },
+      {
+        "stage": 2,
+        "bossTemplateId": "BOSS-SPEND-DINING-S2",
+        "name": "배달앱 소환사",
+        "narrative": "며칠 연속으로 야식을 부르고 싶게 만드는 소환사예요."
+      },
+      {
+        "stage": 3,
+        "bossTemplateId": "BOSS-SPEND-DINING-S3",
+        "name": "야식 대소환사",
+        "narrative": "이 상대와 균형을 맞추면 맛있는 한 끼와 예산을 함께 지킬 수 있어요."
+      }
+    ]
+  },
+  {
+    "templateId": "GOAL-SPEND-RATIO-RANGE",
+    "version": 1,
+    "active": true,
+    "title": "소비율 균형 잡기",
+    "description": "여윳돈 대비 소비 비율을 너무 높지도 낮지도 않은 적정 범위 안에서 유지해보는 목표예요.",
+    "domain": "소비",
+    "goalType": "범위유지형",
+    "metricKey": "소비율",
+    "unit": "percent",
+    "baselinePolicy": {
+      "basis": "최근 3개월 소비율 평균(재량지출 ÷ 여윳돈)",
+      "periodMonths": 3,
+      "excludeRules": []
+    },
+    "safeBounds": {
+      "minPercent": 40,
+      "maxPercent": 75,
+      "note": "소비율이 지나치게 낮은 것도 적정 범위 이탈로 보아 과도한 절제를 유도하지 않는다"
+    },
+    "minimumData": {
+      "requiredMonths": 2,
+      "requiredTransactionCount": 10
+    },
+    "allowedDurations": [
+      7,
+      30
+    ],
+    "evidenceSource": "mydata_sync",
+    "difficultyPolicy": {
+      "mode": "fixed_verified_units",
+      "presets": {
+        "light": {
+          "verifiedUnits": 3,
+          "totalUnits": 7,
+          "unit": "일"
+        },
+        "standard": {
+          "verifiedUnits": 5,
+          "totalUnits": 7,
+          "unit": "일"
+        },
+        "challenge": {
+          "verifiedUnits": 7,
+          "totalUnits": 7,
+          "unit": "일"
+        }
+      },
+      "note": "7일 기준 프리셋. 30일 목표 선택 시 코드가 동일 비율로 20/25/30일 프리셋을 적용한다."
+    },
+    "questTemplateIds": [
+      "QUEST-CONSUME-BUDGET-TODAY",
+      "QUEST-SUB-TOTAL-20K",
+      "QUEST-CONSUME-CLASSIFY3"
+    ],
+    "bossTemplateIds": [
+      "BOSS-SPEND-RATIO-S1",
+      "BOSS-SPEND-RATIO-S2",
+      "BOSS-SPEND-RATIO-S3"
+    ],
+    "bossSet": [
+      {
+        "stage": 1,
+        "bossTemplateId": "BOSS-SPEND-RATIO-S1",
+        "name": "기울어진 저울 요정",
+        "narrative": "소비 저울이 한쪽으로 살짝 기울어져 있는 작은 요정이에요."
+      },
+      {
+        "stage": 2,
+        "bossTemplateId": "BOSS-SPEND-RATIO-S2",
+        "name": "흔들리는 저울 요정",
+        "narrative": "저울이 계속 흔들려서 균형 잡기가 쉽지 않아요."
+      },
+      {
+        "stage": 3,
+        "bossTemplateId": "BOSS-SPEND-RATIO-S3",
+        "name": "저울 대요정",
+        "narrative": "소비율 저울의 균형을 맞추면 이 요정이 미소 지어요."
+      }
+    ]
+  },
+  {
+    "templateId": "GOAL-SPEND-BUDGET-RANGE",
+    "version": 1,
+    "active": true,
+    "title": "예산 범위 지키기",
+    "description": "내가 정한 일·월 예산 범위 안에서 지출을 맞춰가는 목표예요.",
+    "domain": "소비",
+    "goalType": "범위유지형",
+    "metricKey": "예산사용률",
+    "unit": "percent",
+    "baselinePolicy": {
+      "basis": "현재 설정된 일/월 예산 한도",
+      "periodMonths": 0,
+      "excludeRules": []
+    },
+    "safeBounds": {
+      "minPercent": 0,
+      "maxPercent": 100,
+      "note": "일·월 예산 한도를 초과하지 않는 범위"
+    },
+    "minimumData": {
+      "requiredMonths": 0,
+      "requiredTransactionCount": 0,
+      "note": "예산 설정 이벤트만 있으면 생성 가능"
+    },
+    "allowedDurations": [
+      7,
+      30
+    ],
+    "evidenceSource": "mydata_sync",
+    "difficultyPolicy": {
+      "mode": "fixed_verified_units",
+      "presets": {
+        "light": {
+          "verifiedUnits": 3,
+          "totalUnits": 7,
+          "unit": "일"
+        },
+        "standard": {
+          "verifiedUnits": 5,
+          "totalUnits": 7,
+          "unit": "일"
+        },
+        "challenge": {
+          "verifiedUnits": 7,
+          "totalUnits": 7,
+          "unit": "일"
+        }
+      },
+      "note": "간격 보간을 사용하지 않고 검수된 유지 일수 세트만 사용한다(RPG §7-4)."
+    },
+    "questTemplateIds": [
+      "QUEST-CONSUME-BUDGET-TODAY",
+      "QUEST-SUB-TOTAL-20K",
+      "QUEST-SUB-CLOTHES-30K",
+      "QUEST-SUB-TRANSIT-ONLY"
+    ],
+    "bossTemplateIds": [
+      "BOSS-SPEND-BUDGET-S1",
+      "BOSS-SPEND-BUDGET-S2",
+      "BOSS-SPEND-BUDGET-S3"
+    ],
+    "bossSet": [
+      {
+        "stage": 1,
+        "bossTemplateId": "BOSS-SPEND-BUDGET-S1",
+        "name": "신입 경비병",
+        "narrative": "예산 문을 살짝 열어두고 싶어 하는 신입 경비병이에요."
+      },
+      {
+        "stage": 2,
+        "bossTemplateId": "BOSS-SPEND-BUDGET-S2",
+        "name": "베테랑 경비병",
+        "narrative": "예산 범위를 지킬수록 점점 더 든든한 아군이 되어줘요."
+      },
+      {
+        "stage": 3,
+        "bossTemplateId": "BOSS-SPEND-BUDGET-S3",
+        "name": "예산성 대장",
+        "narrative": "예산 범위를 끝까지 지키면 예산성의 대장이 내 편이 되어줘요."
+      }
+    ]
+  },
+  {
+    "templateId": "GOAL-SPEND-SUBSCRIPTION-CUT",
+    "version": 1,
+    "active": true,
+    "title": "구독 서비스 정리하기",
+    "description": "정기 결제 중인 구독 서비스를 점검해서 불필요한 지출을 줄여보는 목표예요.",
+    "domain": "소비",
+    "goalType": "감소형",
+    "metricKey": "월구독비",
+    "unit": "KRW",
+    "baselinePolicy": {
+      "basis": "최근 1개월 구독성 정기결제 합계",
+      "periodMonths": 1,
+      "excludeRules": []
+    },
+    "safeBounds": {
+      "min": 0,
+      "note": "완전히 0으로 만드는 것을 강제하지 않으며, 필수 구독분에 대한 안전 하한은 코드가 계산한다"
+    },
+    "minimumData": {
+      "requiredMonths": 1,
+      "requiredTransactionCount": 2
+    },
+    "allowedDurations": [
+      30,
+      60
+    ],
+    "evidenceSource": "mydata_sync",
+    "difficultyPolicy": {
+      "mode": "alpha_interpolation",
+      "alpha": {
+        "light": 0.25,
+        "standard": 0.5,
+        "challenge": 0.75
+      },
+      "formula": "목표구독비 = clamp(기준 구독비 - α × (기준 구독비 - 메이트 참고 구독비), safeBounds)"
+    },
+    "questTemplateIds": [
+      "QUEST-CONSUME-SUB-CHECK",
+      "QUEST-CONSUME-SUB-CANCEL"
+    ],
+    "bossTemplateIds": [
+      "BOSS-SPEND-SUBCUT-S1",
+      "BOSS-SPEND-SUBCUT-S2",
+      "BOSS-SPEND-SUBCUT-S3"
+    ],
+    "bossSet": [
+      {
+        "stage": 1,
+        "bossTemplateId": "BOSS-SPEND-SUBCUT-S1",
+        "name": "작은 구독 유령",
+        "narrative": "언젠가 쓰겠지 하며 조용히 잠들어있는 구독이에요."
+      },
+      {
+        "stage": 2,
+        "bossTemplateId": "BOSS-SPEND-SUBCUT-S2",
+        "name": "겹치는 구독 유령",
+        "narrative": "비슷한 서비스가 여러 개 겹쳐서 몸집이 커진 유령이에요."
+      },
+      {
+        "stage": 3,
+        "bossTemplateId": "BOSS-SPEND-SUBCUT-S3",
+        "name": "구독 대유령",
+        "narrative": "정리할수록 이 유령들은 편안히 떠나가요."
+      }
+    ]
+  },
+  {
+    "templateId": "GOAL-INVEST-START",
+    "version": 1,
+    "active": true,
+    "title": "투자 시작하기",
+    "description": "투자 계좌를 만들고 첫걸음을 떼보는 목표예요. 특정 상품이나 수익을 약속하지 않아요.",
+    "domain": "투자",
+    "goalType": "행동형",
+    "metricKey": "투자시작완료",
+    "unit": "회",
+    "baselinePolicy": {
+      "basis": "투자 계좌 보유 여부(0)",
+      "periodMonths": 0,
+      "excludeRules": []
+    },
+    "safeBounds": {
+      "min": 1,
+      "max": 1
+    },
+    "minimumData": {
+      "requiredMonths": 0,
+      "requiredTransactionCount": 0
+    },
+    "allowedDurations": [
+      14,
+      30
+    ],
+    "evidenceSource": "mydata_sync",
+    "difficultyPolicy": {
+      "mode": "fixed_action_count",
+      "presets": {
+        "light": {
+          "count": 1,
+          "windowDays": 30
+        },
+        "standard": {
+          "count": 1,
+          "windowDays": 21
+        },
+        "challenge": {
+          "count": 1,
+          "windowDays": 14
+        }
+      },
+      "note": "계좌 개설·첫 투자 1회는 고정하고, 난이도는 완료까지 허용 기간으로 차등을 둔다."
+    },
+    "questTemplateIds": [
+      "QUEST-SUB-STOCK-ACCOUNT",
+      "QUEST-INVEST-FIRST-BUY",
+      "QUEST-INVEST-RISK-CHECK",
+      "QUEST-INVEST-QUIZ-BASIC"
+    ],
+    "bossTemplateIds": [
+      "BOSS-INVEST-START-S1",
+      "BOSS-INVEST-START-S2",
+      "BOSS-INVEST-START-S3"
+    ],
+    "bossSet": [
+      {
+        "stage": 1,
+        "bossTemplateId": "BOSS-INVEST-START-S1",
+        "name": "작은 망설임 안개",
+        "narrative": "처음이라 낯설어서 생기는 옅은 안개예요."
+      },
+      {
+        "stage": 2,
+        "bossTemplateId": "BOSS-INVEST-START-S2",
+        "name": "궁금증 안개",
+        "narrative": "이것저것 궁금한 게 많아 발걸음이 느려지는 안개예요."
+      },
+      {
+        "stage": 3,
+        "bossTemplateId": "BOSS-INVEST-START-S3",
+        "name": "망설임 대안개",
+        "narrative": "첫 걸음을 떼면 이 안개가 걷히고 투자 여정이 시작돼요."
+      }
+    ],
+    "guardrails": [
+      "특정 종목·상품의 매수를 유도하지 않는다",
+      "투자 수익을 보장하지 않는다",
+      "금융상품 가입을 강요하지 않는다"
+    ]
+  },
+  {
+    "templateId": "GOAL-INVEST-CHECKUP",
+    "version": 1,
+    "active": true,
+    "title": "투자 포트폴리오 점검하기",
+    "description": "내 위험성향과 자산 분산 상태를 주기적으로 점검해보는 목표예요.",
+    "domain": "투자",
+    "goalType": "행동형",
+    "metricKey": "점검완료횟수",
+    "unit": "회",
+    "baselinePolicy": {
+      "basis": "최근 3개월 내 위험성향·분산 점검 완료 횟수",
+      "periodMonths": 3,
+      "excludeRules": []
+    },
+    "safeBounds": {
+      "min": 1,
+      "max": 10
+    },
+    "minimumData": {
+      "requiredMonths": 0,
+      "requiredTransactionCount": 0,
+      "note": "투자 계좌 보유자만 대상"
+    },
+    "allowedDurations": [
+      7,
+      14,
+      30
+    ],
+    "evidenceSource": "app_event",
+    "difficultyPolicy": {
+      "mode": "fixed_action_count",
+      "presets": {
+        "light": {
+          "count": 1
+        },
+        "standard": {
+          "count": 2
+        },
+        "challenge": {
+          "count": 3
+        }
+      },
+      "note": "점검 횟수 자체를 난이도로 차등을 두며 임의의 수익률·금액 조건은 사용하지 않는다."
+    },
+    "questTemplateIds": [
+      "QUEST-INVEST-DIVERSIFY-CHECK",
+      "QUEST-INVEST-REPORT-READ",
+      "QUEST-INVEST-RISK-CHECK"
+    ],
+    "bossTemplateIds": [
+      "BOSS-INVEST-CHECKUP-S1",
+      "BOSS-INVEST-CHECKUP-S2",
+      "BOSS-INVEST-CHECKUP-S3"
+    ],
+    "bossSet": [
+      {
+        "stage": 1,
+        "bossTemplateId": "BOSS-INVEST-CHECKUP-S1",
+        "name": "작은 쏠림 그림자",
+        "narrative": "포트폴리오 한쪽으로 슬쩍 쏠리게 만드는 그림자예요."
+      },
+      {
+        "stage": 2,
+        "bossTemplateId": "BOSS-INVEST-CHECKUP-S2",
+        "name": "짙은 쏠림 그림자",
+        "narrative": "쏠림이 점점 짙어져서 눈에 띄기 시작해요."
+      },
+      {
+        "stage": 3,
+        "bossTemplateId": "BOSS-INVEST-CHECKUP-S3",
+        "name": "쏠림 대그림자",
+        "narrative": "점검을 마치면 내 포트폴리오를 스스로 이해하게 돼요."
+      }
+    ],
+    "guardrails": [
+      "특정 종목의 매수·매도를 유도하지 않는다",
+      "수익을 보장하지 않는다"
+    ]
+  },
+  {
+    "templateId": "GOAL-LEARN-FINANCE",
+    "version": 1,
+    "active": true,
+    "title": "금융지식 쌓기",
+    "description": "퀴즈와 짧은 기록으로 금융 기초 지식을 꾸준히 쌓아보는 목표예요.",
+    "domain": "학습",
+    "goalType": "행동형",
+    "metricKey": "학습활동완료횟수",
+    "unit": "회",
+    "baselinePolicy": {
+      "basis": "최근 30일 퀴즈·회고 완료 횟수",
+      "periodMonths": 1,
+      "excludeRules": []
+    },
+    "safeBounds": {
+      "min": 3,
+      "max": 20
+    },
+    "minimumData": {
+      "requiredMonths": 0,
+      "requiredTransactionCount": 0
+    },
+    "allowedDurations": [
+      7,
+      14,
+      30
+    ],
+    "evidenceSource": "quiz",
+    "difficultyPolicy": {
+      "mode": "fixed_action_count",
+      "presets": {
+        "light": {
+          "count": 3,
+          "windowDays": 7
+        },
+        "standard": {
+          "count": 5,
+          "windowDays": 7
+        },
+        "challenge": {
+          "count": 7,
+          "windowDays": 7
+        }
+      },
+      "note": "7일 기준 완료 횟수 프리셋. RPG §9-4 학습 퀘스트 예시와 동일한 검증 단위를 사용한다."
+    },
+    "questTemplateIds": [
+      "QUEST-LEARN-QUIZ3",
+      "QUEST-SUB-ETF-QUIZ",
+      "QUEST-SUB-QUIZ-STREAK7",
+      "QUEST-LEARN-SAVING-VS-DEPOSIT",
+      "QUEST-LEARN-WEEKLY-RETRO",
+      "QUEST-LEARN-DAILY-RECORD"
+    ],
+    "bossTemplateIds": [
+      "BOSS-LEARN-FINANCE-S1",
+      "BOSS-LEARN-FINANCE-S2",
+      "BOSS-LEARN-FINANCE-S3"
+    ],
+    "bossSet": [
+      {
+        "stage": 1,
+        "bossTemplateId": "BOSS-LEARN-FINANCE-S1",
+        "name": "작은 물음표 유령",
+        "narrative": "금융 용어가 헷갈릴 때 나타나는 귀여운 유령이에요."
+      },
+      {
+        "stage": 2,
+        "bossTemplateId": "BOSS-LEARN-FINANCE-S2",
+        "name": "복잡한 물음표 유령",
+        "narrative": "물음표가 여러 개 겹쳐 조금 더 커진 유령이에요."
+      },
+      {
+        "stage": 3,
+        "bossTemplateId": "BOSS-LEARN-FINANCE-S3",
+        "name": "물음표 대유령",
+        "narrative": "퀴즈를 풀수록 유령이 웃으며 지식을 나눠줘요."
+      }
+    ]
+  }
+]
