@@ -1,21 +1,24 @@
 openapi: 3.0.3
 info:
   title: FinMate vNext API
-  version: 2.0.0
-  description: Canonical contract for the FinMate RPG product. All financial data
-    is synthetic in the first release.
+  version: 3.1.0
+  description: Canonical contract for the synthetic-data FinMate RPG MVP.
 servers:
   - url: /api/v1
 security:
   - bearerAuth: []
 tags:
   - name: Auth
+  - name: Disclosure
   - name: Onboarding
+  - name: Goal
   - name: Home
   - name: Mate
   - name: Routine
+  - name: ProductInfo
   - name: Quest
   - name: Record
+  - name: Reward
   - name: Demo
 paths:
   /auth/signup:
@@ -80,10 +83,92 @@ paths:
         - $ref: "#/components/parameters/RefreshCookie"
       responses:
         "204":
-          description: Refresh session revoked and cookie cleared
+          description: Refresh session revoked and browser cookie cleared.
           headers:
             Set-Cookie:
               $ref: "#/components/headers/ClearedRefreshCookie"
+        default:
+          $ref: "#/components/responses/ProblemResponse"
+  /me/disclosures:
+    get:
+      tags:
+        - Disclosure
+      operationId: getDisclosureConsent
+      responses:
+        "200":
+          description: Current granular disclosure consent. New users are opted out by
+            default.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DisclosureConsent"
+              examples:
+                active:
+                  externalValue: examples/disclosure-consent-response.json
+        default:
+          $ref: "#/components/responses/ProblemResponse"
+    put:
+      tags:
+        - Disclosure
+      operationId: updateDisclosureConsent
+      description: Activates only the fields that were previewed and explicitly
+        confirmed as exact values.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DisclosureRequest"
+            examples:
+              selectedFields:
+                externalValue: examples/disclosure-request.json
+      responses:
+        "200":
+          description: Active versioned disclosure consent.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DisclosureConsent"
+              examples:
+                active:
+                  externalValue: examples/disclosure-consent-response.json
+        default:
+          $ref: "#/components/responses/ProblemResponse"
+    delete:
+      tags:
+        - Disclosure
+      operationId: withdrawDisclosureConsent
+      description: Immediately opts out and removes every selected field from
+        discovery and recommendation reads.
+      responses:
+        "204":
+          description: Disclosure withdrawn and version advanced.
+        default:
+          $ref: "#/components/responses/ProblemResponse"
+  /me/disclosures/preview:
+    post:
+      tags:
+        - Disclosure
+      operationId: previewDisclosure
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DisclosureRequest"
+            examples:
+              selectedFields:
+                externalValue: examples/disclosure-request.json
+      responses:
+        "200":
+          description: Exact-value preview plus fields that can never be disclosed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DisclosurePreview"
+              examples:
+                selectedFields:
+                  externalValue: examples/disclosure-preview-response.json
         default:
           $ref: "#/components/responses/ProblemResponse"
   /onboarding:
@@ -93,7 +178,7 @@ paths:
       operationId: getOnboarding
       responses:
         "200":
-          description: Current onboarding draft or completed state
+          description: Current onboarding draft or completed state.
           content:
             application/json:
               schema:
@@ -113,32 +198,65 @@ paths:
             schema:
               $ref: "#/components/schemas/CompleteOnboardingRequest"
             examples:
-              europeTravel:
+              exploreOnly:
                 externalValue: examples/onboarding-request.json
       responses:
         "200":
-          description: Onboarding completed with one confirmed goal
+          description: Onboarding completed in explore-only mode; a goal may be confirmed
+            later.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/OnboardingView"
               examples:
-                europeTravel:
+                exploreOnly:
                   externalValue: examples/onboarding-response.json
+        default:
+          $ref: "#/components/responses/ProblemResponse"
+  /goals:
+    post:
+      tags:
+        - Goal
+      operationId: confirmUserGoal
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConfirmUserGoalRequest"
+            examples:
+              europeTravel:
+                externalValue: examples/goal-confirm-request.json
+      responses:
+        "201":
+          description: The user's one active main goal.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserGoal"
+              examples:
+                europeTravel:
+                  externalValue: examples/goal-confirm-response.json
+        "409":
+          $ref: "#/components/responses/ActiveGoalConflict"
         default:
           $ref: "#/components/responses/ProblemResponse"
   /goals/active:
     get:
       tags:
-        - Home
+        - Goal
       operationId: getActiveUserGoal
       responses:
         "200":
-          description: The one active main goal
+          description: The one active main goal.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/UserGoal"
+        "404":
+          $ref: "#/components/responses/ProblemResponse"
         default:
           $ref: "#/components/responses/ProblemResponse"
   /home:
@@ -148,14 +266,16 @@ paths:
       operationId: getHome
       responses:
         "200":
-          description: Home tab projection
+          description: Explore-only or goal-active home projection.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/HomeResponse"
+                $ref: "#/components/schemas/HomeView"
               examples:
                 active:
                   externalValue: examples/home-response.json
+                exploreOnly:
+                  externalValue: examples/home-explore-response.json
         default:
           $ref: "#/components/responses/ProblemResponse"
   /raids/current:
@@ -165,7 +285,7 @@ paths:
       operationId: getCurrentRaid
       responses:
         "200":
-          description: Current raid projection from financial evidence
+          description: Current raid projection calculated from financial evidence.
           content:
             application/json:
               schema:
@@ -173,6 +293,27 @@ paths:
               examples:
                 active:
                   externalValue: examples/raid-response.json
+        "404":
+          $ref: "#/components/responses/ProblemResponse"
+        default:
+          $ref: "#/components/responses/ProblemResponse"
+  /reports/characters/{reportType}:
+    get:
+      tags:
+        - Home
+      operationId: getCharacterReport
+      parameters:
+        - $ref: "#/components/parameters/CharacterReportType"
+      responses:
+        "200":
+          description: One of the four character-backed financial reports.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CharacterReport"
+              examples:
+                saving:
+                  externalValue: examples/character-report-response.json
         default:
           $ref: "#/components/responses/ProblemResponse"
   /reports/monthly:
@@ -181,15 +322,10 @@ paths:
         - Record
       operationId: getMonthlyReport
       parameters:
-        - name: month
-          in: query
-          required: true
-          schema:
-            type: string
-            pattern: ^\d{4}-(0[1-9]|1[0-2])$
+        - $ref: "#/components/parameters/Month"
       responses:
         "200":
-          description: Monthly financial and activity report
+          description: Monthly financial and activity report.
           content:
             application/json:
               schema:
@@ -199,6 +335,55 @@ paths:
                   externalValue: examples/monthly-report-response.json
         default:
           $ref: "#/components/responses/ProblemResponse"
+  /mate/friends/overview:
+    get:
+      tags:
+        - Mate
+      operationId: getMateFriendOverview
+      responses:
+        "200":
+          description: Synthetic read-only friend progress and comparison summary.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MateFriendOverview"
+              examples:
+                default:
+                  externalValue: examples/mate-friend-overview-response.json
+        default:
+          $ref: "#/components/responses/ProblemResponse"
+  /mate/friends/feed:
+    get:
+      tags:
+        - Mate
+      operationId: getMateFriendFeed
+      responses:
+        "200":
+          description: Amount-free synthetic friend activity feed.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MateFriendFeed"
+        default:
+          $ref: "#/components/responses/ProblemResponse"
+  /mate/friends/streaks:
+    get:
+      tags:
+        - Mate
+      operationId: getMateFriendStreaks
+      responses:
+        "200":
+          description: Amount-free synthetic shared streaks. This resource is read-only in
+            MVP.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MateStreakPage"
+              examples:
+                default:
+                  externalValue: examples/mate-friend-streaks-response.json
+        default:
+          $ref: "#/components/responses/ProblemResponse"
   /mate/groups:
     get:
       tags:
@@ -206,7 +391,7 @@ paths:
       operationId: listMateGroups
       responses:
         "200":
-          description: Eligible operational groups and explicit synthetic demo group
+          description: Eligible groups and explicit synthetic demo groups.
           content:
             application/json:
               schema:
@@ -214,6 +399,25 @@ paths:
               examples:
                 groups:
                   externalValue: examples/mate-groups-response.json
+        default:
+          $ref: "#/components/responses/ProblemResponse"
+  /mate/groups/{groupId}/report:
+    get:
+      tags:
+        - Mate
+      operationId: getMateGroupReport
+      parameters:
+        - $ref: "#/components/parameters/GroupId"
+      responses:
+        "200":
+          description: Anonymous group ranges, distributions, and goal-achiever preview.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MateGroupReport"
+              examples:
+                default:
+                  externalValue: examples/mate-group-report-response.json
         default:
           $ref: "#/components/responses/ProblemResponse"
   /mate/groups/{groupId}/adventurers:
@@ -225,7 +429,7 @@ paths:
         - $ref: "#/components/parameters/GroupId"
       responses:
         "200":
-          description: Anonymous adventurers recommended inside the selected group
+          description: Anonymous adventurers recommended inside the selected group.
           content:
             application/json:
               schema:
@@ -233,6 +437,73 @@ paths:
               examples:
                 adventurers:
                   externalValue: examples/adventurers-response.json
+        default:
+          $ref: "#/components/responses/ProblemResponse"
+  /mate/groups/{groupId}/adventurers/{adventurerId}:
+    get:
+      tags:
+        - Mate
+      operationId: getRecommendedAdventurer
+      parameters:
+        - $ref: "#/components/parameters/GroupId"
+        - $ref: "#/components/parameters/AdventurerId"
+      responses:
+        "200":
+          description: One anonymous adventurer's approved public context.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecommendedAdventurerCard"
+        default:
+          $ref: "#/components/responses/ProblemResponse"
+  /mate/groups/{groupId}/adventurers/{adventurerId}/report:
+    get:
+      tags:
+        - Mate
+      operationId: getAdventurerReport
+      parameters:
+        - $ref: "#/components/parameters/GroupId"
+        - $ref: "#/components/parameters/AdventurerId"
+      responses:
+        "200":
+          description: Range-based comparison and evidence for the adventurer's routines.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdventurerReport"
+              examples:
+                default:
+                  externalValue: examples/adventurer-report-response.json
+        default:
+          $ref: "#/components/responses/ProblemResponse"
+  /mate/groups/{groupId}/adventurers/{adventurerId}/financial-profile:
+    get:
+      tags:
+        - Mate
+        - Disclosure
+      operationId: getPublicFinancialProfile
+      description: Exact synthetic financial values selected by an active, granular
+        disclosure consent.
+      parameters:
+        - $ref: "#/components/parameters/GroupId"
+        - $ref: "#/components/parameters/AdventurerId"
+      responses:
+        "200":
+          description: Only consented sections are present. Product and trade data are
+            information-only.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicFinancialProfile"
+              examples:
+                fullConsent:
+                  externalValue: examples/public-financial-profile-response.json
+        "404":
+          description: Profile missing or its disclosure consent has been withdrawn.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         default:
           $ref: "#/components/responses/ProblemResponse"
   /mate/groups/{groupId}/adventurers/{adventurerId}/routines/{routineId}:
@@ -246,88 +517,56 @@ paths:
         - $ref: "#/components/parameters/RoutineId"
       responses:
         "200":
-          description: Routine detail within group and anonymous adventurer context
+          description: Routine detail in group and anonymous adventurer context.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/AdventurerRoutine"
         default:
           $ref: "#/components/responses/ProblemResponse"
+  /mate/explore/search:
+    post:
+      tags:
+        - Mate
+      operationId: searchMateAdventurers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MateExploreSearchRequest"
+      responses:
+        "200":
+          description: Synthetic read-only adventurers for an approved filter combination.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RecommendedAdventurerPage"
+        default:
+          $ref: "#/components/responses/ProblemResponse"
   /routine-adaptations:
     post:
       tags:
         - Routine
-      operationId: createRoutineAdaptation
+      operationId: createRoutineRecommendation
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateRoutineAdaptationRequest"
+              $ref: "#/components/schemas/CreateRoutineRecommendationRequest"
       responses:
         "201":
-          description: Adaptation awaiting the user's single domain choice
+          description: One recommended candidate plus optional intensity alternatives.
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties: false
-                required:
-                  - adaptationId
-                  - sourceRoutineId
-                  - state
-                  - availableDomains
-                  - calculationVersion
-                  - dataState
-                  - lastSyncedAt
-                properties:
-                  adaptationId:
-                    type: string
-                  sourceRoutineId:
-                    type: string
-                  state:
-                    type: string
-                    enum:
-                      - AWAITING_DOMAIN
-                  availableDomains:
-                    type: array
-                    minItems: 1
-                    uniqueItems: true
-                    items:
-                      $ref: "#/components/schemas/AdaptationDomain"
-                  calculationVersion:
-                    type: string
-                  dataState:
-                    $ref: "#/components/schemas/DataState"
-                  lastSyncedAt:
-                    $ref: "#/components/schemas/NullableTimestamp"
-        default:
-          $ref: "#/components/responses/ProblemResponse"
-  /routine-adaptations/{adaptationId}/choice:
-    put:
-      tags:
-        - Routine
-      operationId: chooseRoutineAdaptationDomain
-      parameters:
-        - $ref: "#/components/parameters/AdaptationId"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/ChooseAdaptationDomainRequest"
-      responses:
-        "200":
-          description: Three candidates for the selected domain
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/RoutineAdaptationSet"
+                $ref: "#/components/schemas/RoutineRecommendation"
               examples:
                 saving:
-                  externalValue: examples/routine-adaptation-response.json
+                  externalValue: examples/routine-recommendation-response.json
         "409":
-          $ref: "#/components/responses/DataStale"
+          $ref: "#/components/responses/RoutineRecommendationConflict"
         "422":
           $ref: "#/components/responses/DataInsufficient"
         default:
@@ -343,13 +582,13 @@ paths:
         - $ref: "#/components/parameters/IdempotencyKey"
       responses:
         "201":
-          description: New global active routine build when none exists
+          description: New active routine build when none exists.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ActiveRoutineBuild"
         "409":
-          $ref: "#/components/responses/ActiveBuildConflict"
+          $ref: "#/components/responses/RoutineImportConflict"
         default:
           $ref: "#/components/responses/ProblemResponse"
   /routine-builds/active:
@@ -359,11 +598,13 @@ paths:
       operationId: getActiveRoutineBuild
       responses:
         "200":
-          description: The one global active routine build
+          description: The one global active routine build.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ActiveRoutineBuild"
+        "404":
+          $ref: "#/components/responses/ProblemResponse"
         default:
           $ref: "#/components/responses/ProblemResponse"
   /routine-builds/active/replacement:
@@ -381,7 +622,7 @@ paths:
               $ref: "#/components/schemas/ReplaceActiveRoutineBuildRequest"
       responses:
         "200":
-          description: Previous build archived and candidate build activated atomically
+          description: Previous build archived and candidate build activated atomically.
           content:
             application/json:
               schema:
@@ -391,6 +632,28 @@ paths:
                   externalValue: examples/routine-build-replacement-response.json
         default:
           $ref: "#/components/responses/ProblemResponse"
+  /hana-products/{productId}:
+    get:
+      tags:
+        - ProductInfo
+      operationId: getRelatedHanaProductInfo
+      parameters:
+        - $ref: "#/components/parameters/ProductId"
+      responses:
+        "200":
+          description: Reviewed informational catalog item, separate from peer and routine
+            data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RelatedHanaProductInfo"
+              examples:
+                default:
+                  externalValue: examples/hana-product-info-response.json
+        "409":
+          $ref: "#/components/responses/GoalRequired"
+        default:
+          $ref: "#/components/responses/ProblemResponse"
   /quests:
     get:
       tags:
@@ -398,7 +661,7 @@ paths:
       operationId: listQuests
       responses:
         "200":
-          description: Quest tab projection
+          description: Quest tab projection.
           content:
             application/json:
               schema:
@@ -417,11 +680,33 @@ paths:
         - $ref: "#/components/parameters/QuestId"
       responses:
         "200":
-          description: Quest detail
+          description: Quest detail and verification rule.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Quest"
+        default:
+          $ref: "#/components/responses/ProblemResponse"
+  /quests/{questId}/accept:
+    post:
+      tags:
+        - Quest
+      operationId: acceptQuest
+      parameters:
+        - $ref: "#/components/parameters/QuestId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          description: Available quest accepted without changing financial stats.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuestAcceptance"
+              examples:
+                default:
+                  externalValue: examples/quest-accept-response.json
+        "409":
+          $ref: "#/components/responses/GoalRequired"
         default:
           $ref: "#/components/responses/ProblemResponse"
   /quests/{questId}/complete:
@@ -434,14 +719,14 @@ paths:
         - $ref: "#/components/parameters/IdempotencyKey"
       responses:
         "200":
-          description: Completion grants XP/internal rewards without changing financial
-            stats
+          description: Behavior completion grants XP/internal rewards without
+            financial-stat change.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/QuestCompletion"
         "202":
-          description: Financial evidence awaits synthetic MyData recalculation
+          description: Financial evidence awaits synthetic MyData recalculation.
           content:
             application/json:
               schema:
@@ -468,11 +753,30 @@ paths:
             format: date
       responses:
         "200":
-          description: Daily record page
+          description: Daily record page.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/DailyRecordPage"
+        default:
+          $ref: "#/components/responses/ProblemResponse"
+  /records/journey:
+    get:
+      tags:
+        - Record
+      operationId: getDailyJourneyMonth
+      parameters:
+        - $ref: "#/components/parameters/Month"
+      responses:
+        "200":
+          description: Ordered monthly stepping-stone journey.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyJourneyMonth"
+              examples:
+                july:
+                  externalValue: examples/daily-journey-response.json
         default:
           $ref: "#/components/responses/ProblemResponse"
   /records/{date}:
@@ -484,7 +788,7 @@ paths:
         - $ref: "#/components/parameters/RecordDate"
       responses:
         "200":
-          description: One daily record
+          description: One daily record for the bottom sheet.
           content:
             application/json:
               schema:
@@ -508,11 +812,63 @@ paths:
               $ref: "#/components/schemas/SaveReflectionRequest"
       responses:
         "200":
-          description: Daily record with saved reflection; calculations are unchanged
+          description: Daily record with saved reflection; calculations are unchanged.
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/DailyRecord"
+        default:
+          $ref: "#/components/responses/ProblemResponse"
+  /rewards/points:
+    get:
+      tags:
+        - Reward
+      operationId: getPointLedger
+      responses:
+        "200":
+          description: Non-transferable internal point balance and ledger.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PointLedgerView"
+              examples:
+                default:
+                  externalValue: examples/point-ledger-response.json
+        default:
+          $ref: "#/components/responses/ProblemResponse"
+  /rewards/cosmetics:
+    get:
+      tags:
+        - Reward
+      operationId: listCosmetics
+      responses:
+        "200":
+          description: Fixed cosmetic items only; no cash, coupon, random box, or report
+            lock.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CosmeticCatalogView"
+              examples:
+                default:
+                  externalValue: examples/cosmetic-catalog-response.json
+        default:
+          $ref: "#/components/responses/ProblemResponse"
+  /rewards/cosmetics/{cosmeticId}/purchase:
+    post:
+      tags:
+        - Reward
+      operationId: purchaseCosmetic
+      parameters:
+        - $ref: "#/components/parameters/CosmeticId"
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "200":
+          description: Idempotent fixed cosmetic purchase with internal points.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CosmeticPurchase"
         default:
           $ref: "#/components/responses/ProblemResponse"
   /demo/timeline/advance:
@@ -520,8 +876,7 @@ paths:
       tags:
         - Demo
       operationId: advanceDemoTimeline
-      description: Registered only under the Spring demo profile. Never exposed in
-        production.
+      description: Registered only under the demo profile and for synthetic users.
       parameters:
         - $ref: "#/components/parameters/IdempotencyKey"
       requestBody:
@@ -532,7 +887,7 @@ paths:
               $ref: "#/components/schemas/AdvanceDemoTimelineRequest"
       responses:
         "200":
-          description: Advanced synthetic fixture stage and recalculated projections
+          description: Deterministic six-frame synthetic timeline and current projections.
           content:
             application/json:
               schema:
@@ -561,8 +916,7 @@ components:
       name: finmate_refresh
       in: cookie
       required: true
-      description: Opaque 30-day refresh token. Sent only as an HttpOnly, SameSite=Lax
-        cookie scoped to /api/v1/auth.
+      description: Opaque 30-day refresh token held only in a browser cookie.
       schema:
         type: string
         minLength: 32
@@ -596,6 +950,18 @@ components:
       required: true
       schema:
         type: string
+    ProductId:
+      name: productId
+      in: path
+      required: true
+      schema:
+        type: string
+    CosmeticId:
+      name: cosmeticId
+      in: path
+      required: true
+      schema:
+        type: string
     QuestId:
       name: questId
       in: path
@@ -609,11 +975,22 @@ components:
       schema:
         type: string
         format: date
+    CharacterReportType:
+      name: reportType
+      in: path
+      required: true
+      schema:
+        $ref: "#/components/schemas/CharacterReportType"
+    Month:
+      name: month
+      in: query
+      required: true
+      schema:
+        type: string
+        pattern: ^\d{4}-(0[1-9]|1[0-2])$
   headers:
     RefreshCookie:
-      description: Rotated opaque refresh token; HttpOnly, SameSite=Lax,
-        Path=/api/v1/auth, Max-Age=2592000. Secure is enabled outside local
-        development.
+      description: Rotated opaque refresh token with secure browser attributes.
       x-cookie-name: finmate_refresh
       x-http-only: true
       x-same-site: Lax
@@ -625,8 +1002,7 @@ components:
       example: finmate_refresh=opaque-token; Path=/api/v1/auth; Max-Age=2592000;
         HttpOnly; SameSite=Lax; Secure
     ClearedRefreshCookie:
-      description: Revokes the browser cookie with Max-Age=0 using the same attributes
-        and path.
+      description: Revokes the browser cookie with the same attributes and Max-Age=0.
       x-cookie-name: finmate_refresh
       x-http-only: true
       x-same-site: Lax
@@ -640,7 +1016,7 @@ components:
         Secure
   responses:
     AuthSessionResponse:
-      description: Authenticated email/password session
+      description: Authenticated email/password session.
       headers:
         Set-Cookie:
           $ref: "#/components/headers/RefreshCookie"
@@ -652,27 +1028,65 @@ components:
             default:
               externalValue: examples/auth-session-response.json
     ProblemResponse:
-      description: RFC 7807 problem
+      description: RFC 7807 problem.
       content:
         application/problem+json:
           schema:
             $ref: "#/components/schemas/Problem"
-    ActiveBuildConflict:
-      description: An active routine build exists and explicit replacement is required
+    GoalRequired:
+      description: An active goal is required for this command.
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          examples:
+            goalRequired:
+              externalValue: examples/goal-required-problem.json
+    ActiveGoalConflict:
+      description: A main goal is already active.
       content:
         application/problem+json:
           schema:
             $ref: "#/components/schemas/Problem"
           example:
-            type: https://finmate.example/problems/active-routine-build-exists
-            title: Active routine build exists
+            type: https://finmate.example/problems/active-main-goal-exists
+            title: Active main goal exists
             status: 409
-            detail: Confirm replacement through the replacement command.
-            instance: /api/v1/routine-adaptations/adapt-1/candidates/candidate-1/import
-            code: ACTIVE_ROUTINE_BUILD_EXISTS
-            traceId: trace-conflict-1
+            detail: Complete or cancel the current goal before confirming another.
+            instance: /api/v1/goals
+            code: ACTIVE_MAIN_GOAL_EXISTS
+            traceId: trace-goal-conflict
+    RoutineImportConflict:
+      description: Goal is missing or an active routine requires explicit replacement.
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          examples:
+            goalRequired:
+              externalValue: examples/goal-required-problem.json
+            activeBuild:
+              value:
+                type: https://finmate.example/problems/active-routine-build-exists
+                title: Active routine build exists
+                status: 409
+                detail: Confirm replacement through the replacement command.
+                instance: /api/v1/routine-adaptations/adapt-1/candidates/candidate-1/import
+                code: ACTIVE_ROUTINE_BUILD_EXISTS
+                traceId: trace-routine-conflict
+    RoutineRecommendationConflict:
+      description: A goal is missing or the synthetic source data is stale.
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+          examples:
+            goalRequired:
+              externalValue: examples/goal-required-problem.json
+            dataStale:
+              externalValue: examples/data-stale-problem.json
     DataStale:
-      description: The last synthetic calculation is too old for this command
+      description: The last synthetic calculation is too old for this command.
       content:
         application/problem+json:
           schema:
@@ -681,7 +1095,7 @@ components:
             stale:
               externalValue: examples/data-stale-problem.json
     DataInsufficient:
-      description: Synthetic source periods or classifications are insufficient
+      description: Synthetic source periods or classifications are insufficient.
       content:
         application/problem+json:
           schema:
@@ -693,7 +1107,12 @@ components:
     KrwAmount:
       type: integer
       format: int64
-      description: Whole Korean won
+      minimum: 0
+      description: Whole Korean won.
+    SignedKrwAmount:
+      type: integer
+      format: int64
+      description: Signed whole Korean won.
     BasisPoints:
       type: integer
       minimum: 0
@@ -712,6 +1131,11 @@ components:
         - PENDING
         - STALE
         - INSUFFICIENT
+    OnboardingState:
+      type: string
+      enum:
+        - EXPLORE_ONLY
+        - GOAL_ACTIVE
     GoalDomain:
       type: string
       enum:
@@ -729,6 +1153,111 @@ components:
         - LIGHT
         - STANDARD
         - CHALLENGE
+    CharacterReportType:
+      type: string
+      enum:
+        - SPENDING_DEFENSE
+        - SAVING_HP
+        - INVESTMENT_JUDGMENT
+        - QUEST_XP
+    DisclosureField:
+      type: string
+      enum:
+        - ASSETS
+        - INCOME
+        - SPENDING
+        - SAVING
+        - FINANCIAL_PRODUCTS
+        - INVESTMENT_HOLDINGS
+        - TRADES
+    PermanentlyExcludedDisclosureField:
+      type: string
+      enum:
+        - ACCOUNT_NUMBER
+        - RAW_TRANSACTION_MEMO
+        - DETAILED_EMPLOYER
+        - DETAILED_LOCATION
+        - AUTHENTICATION_IDENTIFIER
+    DisclosureRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - fields
+        - consentVersion
+        - confirmExactValues
+      properties:
+        fields:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            $ref: "#/components/schemas/DisclosureField"
+        consentVersion:
+          type: string
+          pattern: ^financial-disclosure-v[0-9]+\.[0-9]+$
+        confirmExactValues:
+          type: boolean
+          enum:
+            - true
+    DisclosureConsent:
+      type: object
+      additionalProperties: false
+      required:
+        - state
+        - exactValues
+        - fields
+        - consentVersion
+        - version
+        - updatedAt
+      properties:
+        state:
+          type: string
+          enum:
+            - ACTIVE
+            - OPTED_OUT
+        exactValues:
+          type: boolean
+        fields:
+          type: array
+          uniqueItems: true
+          items:
+            $ref: "#/components/schemas/DisclosureField"
+        consentVersion:
+          type: string
+        version:
+          type: integer
+          format: int64
+          minimum: 1
+        updatedAt:
+          $ref: "#/components/schemas/Timestamp"
+    DisclosurePreview:
+      type: object
+      additionalProperties: false
+      required:
+        - exactValues
+        - fields
+        - permanentlyExcludedFields
+        - consentVersion
+      properties:
+        exactValues:
+          type: boolean
+          enum:
+            - true
+        fields:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            $ref: "#/components/schemas/DisclosureField"
+        permanentlyExcludedFields:
+          type: array
+          minItems: 5
+          maxItems: 5
+          uniqueItems: true
+          items:
+            $ref: "#/components/schemas/PermanentlyExcludedDisclosureField"
+        consentVersion:
+          type: string
     SignUpRequest:
       type: object
       additionalProperties: false
@@ -764,7 +1293,7 @@ components:
           type: string
           minLength: 1
           maxLength: 72
-    UserSummary:
+    AuthUser:
       type: object
       additionalProperties: false
       required:
@@ -781,8 +1310,6 @@ components:
           format: email
         displayName:
           type: string
-          minLength: 1
-          maxLength: 30
         onboardingStatus:
           type: string
           enum:
@@ -807,25 +1334,133 @@ components:
         expiresAt:
           $ref: "#/components/schemas/Timestamp"
         user:
-          $ref: "#/components/schemas/UserSummary"
+          $ref: "#/components/schemas/AuthUser"
+    ProfileContext:
+      type: object
+      additionalProperties: false
+      required:
+        - incomeRegularity
+        - housingType
+        - fixedCostBurden
+      properties:
+        incomeRegularity:
+          type: string
+          enum:
+            - REGULAR
+            - IRREGULAR
+            - NONE
+        housingType:
+          type: string
+          enum:
+            - WITH_FAMILY
+            - RENT
+            - DORMITORY
+            - OTHER
+        fixedCostBurden:
+          type: string
+          enum:
+            - LOW
+            - MEDIUM
+            - HIGH
     CompleteOnboardingRequest:
       type: object
       additionalProperties: false
       required:
         - displayName
-        - mainGoal
-        - confirmMainGoal
+        - context
+        - moneyConcern
+        - financialTendency
+        - lifestyleTags
+        - anonymousShareConsent
+        - syntheticMyDataConsent
+        - finishMode
       properties:
         displayName:
           type: string
           minLength: 1
           maxLength: 30
-        mainGoal:
-          $ref: "#/components/schemas/UserGoalDraft"
-        confirmMainGoal:
+        context:
+          $ref: "#/components/schemas/ProfileContext"
+        moneyConcern:
+          type: string
+          enum:
+            - SPENDING
+            - SAVING
+            - EMERGENCY_FUND
+            - INVESTMENT_JUDGMENT
+            - UNSURE
+        financialTendency:
+          type: string
+          enum:
+            - CAUTIOUS
+            - BALANCED
+            - EXPLORING
+        lifestyleTags:
+          type: array
+          maxItems: 8
+          uniqueItems: true
+          items:
+            type: string
+            maxLength: 30
+        anonymousShareConsent:
+          type: boolean
+        syntheticMyDataConsent:
           type: boolean
           enum:
             - true
+        finishMode:
+          type: string
+          enum:
+            - EXPLORE_ONLY
+    BaselineSummary:
+      type: object
+      additionalProperties: false
+      required:
+        - disposableIncomeKrw
+        - spendingRateBps
+        - savingRateBps
+        - investmentJudgmentBps
+      properties:
+        disposableIncomeKrw:
+          $ref: "#/components/schemas/KrwAmount"
+        spendingRateBps:
+          $ref: "#/components/schemas/BasisPoints"
+        savingRateBps:
+          $ref: "#/components/schemas/BasisPoints"
+        investmentJudgmentBps:
+          $ref: "#/components/schemas/BasisPoints"
+    OnboardingView:
+      type: object
+      additionalProperties: false
+      required:
+        - status
+        - onboardingState
+        - baseline
+        - calculationVersion
+        - dataState
+        - lastSyncedAt
+      properties:
+        status:
+          type: string
+          enum:
+            - IN_PROGRESS
+            - COMPLETED
+        onboardingState:
+          $ref: "#/components/schemas/OnboardingState"
+        displayName:
+          type: string
+        context:
+          $ref: "#/components/schemas/ProfileContext"
+        baseline:
+          $ref: "#/components/schemas/BaselineSummary"
+        mainGoal:
+          $ref: "#/components/schemas/UserGoal"
+        calculationVersion:
+          type: string
+        dataState:
+          $ref: "#/components/schemas/DataState"
+        lastSyncedAt:
+          $ref: "#/components/schemas/NullableTimestamp"
     UserGoalDraft:
       type: object
       additionalProperties: false
@@ -849,6 +1484,19 @@ components:
         targetMonth:
           type: string
           pattern: ^\d{4}-(0[1-9]|1[0-2])$
+    ConfirmUserGoalRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - goal
+        - confirm
+      properties:
+        goal:
+          $ref: "#/components/schemas/UserGoalDraft"
+        confirm:
+          type: boolean
+          enum:
+            - true
     UserGoal:
       type: object
       additionalProperties: false
@@ -884,8 +1532,10 @@ components:
           type: string
           enum:
             - ACTIVE
+            - PAUSED
             - COMPLETED
-            - ARCHIVED
+            - CANCELLED
+            - EXPIRED
         confirmedAt:
           $ref: "#/components/schemas/Timestamp"
         calculationVersion:
@@ -894,37 +1544,24 @@ components:
           $ref: "#/components/schemas/DataState"
         lastSyncedAt:
           $ref: "#/components/schemas/NullableTimestamp"
-    OnboardingView:
-      type: object
-      additionalProperties: false
-      required:
-        - status
-        - displayName
-      properties:
-        status:
-          type: string
-          enum:
-            - DRAFT
-            - COMPLETED
-        displayName:
-          type: string
-          nullable: true
-        mainGoal:
-          $ref: "#/components/schemas/UserGoal"
     FinancialStats:
       type: object
       additionalProperties: false
       required:
-        - spendingBps
-        - savingBps
+        - spendingDefenseBps
+        - savingHpBps
         - investmentJudgmentBps
+        - questXp
       properties:
-        spendingBps:
+        spendingDefenseBps:
           $ref: "#/components/schemas/BasisPoints"
-        savingBps:
+        savingHpBps:
           $ref: "#/components/schemas/BasisPoints"
         investmentJudgmentBps:
           $ref: "#/components/schemas/BasisPoints"
+        questXp:
+          type: integer
+          minimum: 0
     RaidView:
       type: object
       additionalProperties: false
@@ -933,9 +1570,10 @@ components:
         - goalId
         - stage
         - bossHpBps
-        - progressBps
+        - currentProgressBps
+        - highestProgressBps
+        - status
         - financialStats
-        - xp
         - coachCopyKey
         - calculationVersion
         - dataState
@@ -951,13 +1589,18 @@ components:
           maximum: 3
         bossHpBps:
           $ref: "#/components/schemas/BasisPoints"
-        progressBps:
+        currentProgressBps:
           $ref: "#/components/schemas/BasisPoints"
+        highestProgressBps:
+          $ref: "#/components/schemas/BasisPoints"
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - WAITING_FOR_DATA
+            - COMPLETED
         financialStats:
           $ref: "#/components/schemas/FinancialStats"
-        xp:
-          type: integer
-          minimum: 0
         coachCopyKey:
           type: string
         calculationVersion:
@@ -966,24 +1609,130 @@ components:
           $ref: "#/components/schemas/DataState"
         lastSyncedAt:
           $ref: "#/components/schemas/NullableTimestamp"
-    HomeResponse:
+    HomeView:
       type: object
       additionalProperties: false
       required:
-        - mainGoal
-        - raid
+        - mode
+        - totalAssetsKrw
+        - financialStats
+        - lockedActions
         - calculationVersion
         - dataState
         - lastSyncedAt
       properties:
+        mode:
+          $ref: "#/components/schemas/OnboardingState"
+        totalAssetsKrw:
+          $ref: "#/components/schemas/KrwAmount"
         mainGoal:
           $ref: "#/components/schemas/UserGoal"
         raid:
           $ref: "#/components/schemas/RaidView"
+        financialStats:
+          $ref: "#/components/schemas/FinancialStats"
         activeRoutineBuild:
           $ref: "#/components/schemas/ActiveRoutineBuild"
         nextQuest:
           $ref: "#/components/schemas/Quest"
+        lockedActions:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - RAID
+              - QUEST_ACCEPT
+              - ROUTINE_IMPORT
+              - PERSONALIZED_PRODUCT_INFO
+        calculationVersion:
+          type: string
+        dataState:
+          $ref: "#/components/schemas/DataState"
+        lastSyncedAt:
+          $ref: "#/components/schemas/NullableTimestamp"
+      oneOf:
+        - title: ExploreOnlyHome
+          required:
+            - mode
+            - lockedActions
+          properties:
+            mode:
+              type: string
+              enum:
+                - EXPLORE_ONLY
+        - title: GoalActiveHome
+          required:
+            - mode
+            - mainGoal
+            - raid
+          properties:
+            mode:
+              type: string
+              enum:
+                - GOAL_ACTIVE
+    CharacterMetric:
+      type: object
+      additionalProperties: false
+      required:
+        - label
+        - displayValue
+        - reasonCopyKey
+      properties:
+        label:
+          type: string
+        displayValue:
+          type: string
+        reasonCopyKey:
+          type: string
+    TrendPoint:
+      type: object
+      additionalProperties: false
+      required:
+        - date
+        - value
+      properties:
+        date:
+          type: string
+          format: date
+        value:
+          type: integer
+    CharacterReport:
+      type: object
+      additionalProperties: false
+      required:
+        - reportType
+        - characterName
+        - scoreBps
+        - metrics
+        - trend30Days
+        - nextQuestId
+        - calculationVersion
+        - dataState
+        - lastSyncedAt
+      properties:
+        reportType:
+          $ref: "#/components/schemas/CharacterReportType"
+        characterName:
+          type: string
+          enum:
+            - BEAR
+            - SEAL
+            - RABBIT
+            - BIRD
+        scoreBps:
+          $ref: "#/components/schemas/BasisPoints"
+        metrics:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/CharacterMetric"
+        trend30Days:
+          type: array
+          items:
+            $ref: "#/components/schemas/TrendPoint"
+        nextQuestId:
+          type: string
         calculationVersion:
           type: string
         dataState:
@@ -1022,21 +1771,29 @@ components:
         lastSyncedAt:
           $ref: "#/components/schemas/NullableTimestamp"
     MateGroup:
+      type: object
+      additionalProperties: false
+      required:
+        - groupId
+        - name
+        - memberCount
+        - syntheticDemo
+        - eligibleForProductionAggregation
+      properties:
+        groupId:
+          type: string
+        name:
+          type: string
+        memberCount:
+          type: integer
+          minimum: 1
+        syntheticDemo:
+          type: boolean
+        eligibleForProductionAggregation:
+          type: boolean
       oneOf:
-        - title: OperationalMateGroup
-          type: object
-          additionalProperties: false
-          required:
-            - groupId
-            - name
-            - memberCount
-            - syntheticDemo
-            - eligibleForProductionAggregation
+        - title: OperationalGroup
           properties:
-            groupId:
-              type: string
-            name:
-              type: string
             memberCount:
               type: integer
               minimum: 30
@@ -1048,24 +1805,8 @@ components:
               type: boolean
               enum:
                 - true
-        - title: SyntheticDemoMateGroup
-          type: object
-          additionalProperties: false
-          required:
-            - groupId
-            - name
-            - memberCount
-            - syntheticDemo
-            - eligibleForProductionAggregation
+        - title: SyntheticDemoGroup
           properties:
-            groupId:
-              type: string
-            name:
-              type: string
-            memberCount:
-              type: integer
-              enum:
-                - 10
             syntheticDemo:
               type: boolean
               enum:
@@ -1084,24 +1825,207 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/MateGroup"
+    MateFriendStatus:
+      type: object
+      additionalProperties: false
+      required:
+        - friendId
+        - alias
+        - avatarCode
+        - questCompletedToday
+      properties:
+        friendId:
+          type: string
+        alias:
+          type: string
+        avatarCode:
+          type: string
+        questCompletedToday:
+          type: boolean
+    MateFriendOverview:
+      type: object
+      description: Read-only friend summary. friendCount is the number of accepted
+        friend relationships, not the denominator for financial-stat averages.
+        Source aggregation tracks scoredFriendCount separately when averages are
+        exposed by a future contract.
+      additionalProperties: false
+      required:
+        - friendCount
+        - completedToday
+        - readOnly
+        - friends
+      properties:
+        friendCount:
+          type: integer
+          minimum: 0
+          description: Total accepted friends; do not interpret as scoredFriendCount.
+        completedToday:
+          type: integer
+          minimum: 0
+        readOnly:
+          type: boolean
+          enum:
+            - true
+        friends:
+          type: array
+          items:
+            $ref: "#/components/schemas/MateFriendStatus"
+    MateFeedItem:
+      type: object
+      additionalProperties: false
+      required:
+        - friendId
+        - alias
+        - avatarCode
+        - eventType
+        - message
+        - completed
+        - occurredAt
+      properties:
+        friendId:
+          type: string
+        alias:
+          type: string
+        avatarCode:
+          type: string
+        eventType:
+          type: string
+          enum:
+            - QUEST
+            - ROUTINE
+            - STREAK
+        message:
+          type: string
+        completed:
+          type: boolean
+        occurredAt:
+          $ref: "#/components/schemas/Timestamp"
+    MateFriendFeed:
+      type: object
+      additionalProperties: false
+      required:
+        - readOnly
+        - items
+      properties:
+        readOnly:
+          type: boolean
+          enum:
+            - true
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/MateFeedItem"
+    MateStreakItem:
+      type: object
+      additionalProperties: false
+      required:
+        - friendId
+        - alias
+        - label
+        - daysTogether
+      properties:
+        friendId:
+          type: string
+        alias:
+          type: string
+        label:
+          type: string
+        daysTogether:
+          type: integer
+          minimum: 0
+    MateStreakPage:
+      type: object
+      additionalProperties: false
+      required:
+        - readOnly
+        - items
+      properties:
+        readOnly:
+          type: boolean
+          enum:
+            - true
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/MateStreakItem"
+    DistributionRange:
+      type: object
+      additionalProperties: false
+      required:
+        - p25Bps
+        - medianBps
+        - p75Bps
+      properties:
+        p25Bps:
+          $ref: "#/components/schemas/BasisPoints"
+        medianBps:
+          $ref: "#/components/schemas/BasisPoints"
+        p75Bps:
+          $ref: "#/components/schemas/BasisPoints"
+    MateGroupReport:
+      type: object
+      additionalProperties: false
+      required:
+        - group
+        - selectionReasons
+        - spendingRateRange
+        - savingRateRange
+        - averageStats
+        - achieverCount
+        - adventurerPreview
+        - coachCopyKeys
+        - calculationVersion
+        - dataState
+        - lastSyncedAt
+      properties:
+        group:
+          $ref: "#/components/schemas/MateGroup"
+        selectionReasons:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        spendingRateRange:
+          $ref: "#/components/schemas/DistributionRange"
+        savingRateRange:
+          $ref: "#/components/schemas/DistributionRange"
+        averageStats:
+          $ref: "#/components/schemas/FinancialStats"
+        achieverCount:
+          type: integer
+          minimum: 0
+        adventurerPreview:
+          type: array
+          items:
+            $ref: "#/components/schemas/RecommendedAdventurerCard"
+        coachCopyKeys:
+          type: array
+          items:
+            type: string
+        calculationVersion:
+          type: string
+        dataState:
+          $ref: "#/components/schemas/DataState"
+        lastSyncedAt:
+          $ref: "#/components/schemas/NullableTimestamp"
     RoutineSummary:
       type: object
       additionalProperties: false
       required:
         - routineId
         - title
-        - availableDomains
+        - domain
+        - maintenanceDays
       properties:
         routineId:
           type: string
         title:
           type: string
-        availableDomains:
-          type: array
-          minItems: 1
-          uniqueItems: true
-          items:
-            $ref: "#/components/schemas/AdaptationDomain"
+        domain:
+          $ref: "#/components/schemas/AdaptationDomain"
+        maintenanceDays:
+          type: integer
+          minimum: 30
     RecommendedAdventurerCard:
       type: object
       additionalProperties: false
@@ -1109,8 +2033,11 @@ components:
         - adventurerId
         - groupId
         - alias
+        - contextTags
         - similarityReasons
+        - goalAchievementLabel
         - routines
+        - verifiedAt
         - approvedAt
       properties:
         adventurerId:
@@ -1119,16 +2046,24 @@ components:
           type: string
         alias:
           type: string
+        contextTags:
+          type: array
+          items:
+            type: string
         similarityReasons:
           type: array
           minItems: 1
           items:
             type: string
+        goalAchievementLabel:
+          type: string
         routines:
           type: array
           minItems: 1
           items:
             $ref: "#/components/schemas/RoutineSummary"
+        verifiedAt:
+          $ref: "#/components/schemas/Timestamp"
         approvedAt:
           $ref: "#/components/schemas/Timestamp"
     RecommendedAdventurerPage:
@@ -1153,6 +2088,220 @@ components:
           $ref: "#/components/schemas/DataState"
         lastSyncedAt:
           $ref: "#/components/schemas/NullableTimestamp"
+    ComparisonMetric:
+      type: object
+      additionalProperties: false
+      required:
+        - label
+        - myRange
+        - adventurerRange
+        - interpretationCopyKey
+      properties:
+        label:
+          type: string
+        myRange:
+          type: string
+        adventurerRange:
+          type: string
+        interpretationCopyKey:
+          type: string
+    AdventurerReport:
+      type: object
+      additionalProperties: false
+      required:
+        - adventurer
+        - comparisonMetrics
+        - routineEvidence
+        - calculationVersion
+        - dataState
+        - lastSyncedAt
+      properties:
+        adventurer:
+          $ref: "#/components/schemas/RecommendedAdventurerCard"
+        comparisonMetrics:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/ComparisonMetric"
+        routineEvidence:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        calculationVersion:
+          type: string
+        dataState:
+          $ref: "#/components/schemas/DataState"
+        lastSyncedAt:
+          $ref: "#/components/schemas/NullableTimestamp"
+    PublicAssetEntry:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - category
+        - balanceKrw
+        - asOfDate
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        balanceKrw:
+          $ref: "#/components/schemas/KrwAmount"
+        asOfDate:
+          type: string
+          format: date
+    PublicCashflowEntry:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - category
+        - amountKrw
+        - asOfDate
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        amountKrw:
+          $ref: "#/components/schemas/KrwAmount"
+        asOfDate:
+          type: string
+          format: date
+    PublicProductHolding:
+      type: object
+      additionalProperties: false
+      required:
+        - productName
+        - category
+        - balanceKrw
+        - asOfDate
+      properties:
+        productName:
+          type: string
+        category:
+          type: string
+        balanceKrw:
+          $ref: "#/components/schemas/KrwAmount"
+        asOfDate:
+          type: string
+          format: date
+    PublicInvestmentHolding:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - ticker
+        - balanceKrw
+        - allocationBps
+        - quantity
+        - asOfDate
+      properties:
+        name:
+          type: string
+        ticker:
+          type: string
+        balanceKrw:
+          $ref: "#/components/schemas/KrwAmount"
+        allocationBps:
+          $ref: "#/components/schemas/BasisPoints"
+        quantity:
+          type: number
+          minimum: 0
+        asOfDate:
+          type: string
+          format: date
+    PublicTradeRecord:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - ticker
+        - action
+        - amountKrw
+        - quantity
+        - occurredAt
+      properties:
+        name:
+          type: string
+        ticker:
+          type: string
+        action:
+          type: string
+          enum:
+            - BUY
+            - SELL
+        amountKrw:
+          $ref: "#/components/schemas/KrwAmount"
+        quantity:
+          type: number
+          minimum: 0
+        occurredAt:
+          $ref: "#/components/schemas/Timestamp"
+    PublicFinancialProfile:
+      type: object
+      additionalProperties: false
+      required:
+        - adventurerId
+        - alias
+        - synthetic
+        - exactValues
+        - visibleFields
+        - consentVersion
+        - updatedAt
+      properties:
+        adventurerId:
+          type: string
+        alias:
+          type: string
+        synthetic:
+          type: boolean
+          enum:
+            - true
+        exactValues:
+          type: boolean
+          enum:
+            - true
+        visibleFields:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items:
+            $ref: "#/components/schemas/DisclosureField"
+        consentVersion:
+          type: string
+        updatedAt:
+          $ref: "#/components/schemas/Timestamp"
+        assets:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicAssetEntry"
+        income:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicCashflowEntry"
+        spending:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicCashflowEntry"
+        savings:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicCashflowEntry"
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicProductHolding"
+        investments:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicInvestmentHolding"
+        trades:
+          type: array
+          items:
+            $ref: "#/components/schemas/PublicTradeRecord"
     AdventurerRoutine:
       type: object
       additionalProperties: false
@@ -1161,9 +2310,10 @@ components:
         - adventurerId
         - groupId
         - title
-        - description
-        - availableDomains
-        - maintainedDays
+        - domain
+        - maintenanceDays
+        - steps
+        - evidenceCopyKeys
       properties:
         routineId:
           type: string
@@ -1173,152 +2323,196 @@ components:
           type: string
         title:
           type: string
-        description:
-          type: string
-        availableDomains:
+        domain:
+          $ref: "#/components/schemas/AdaptationDomain"
+        maintenanceDays:
+          type: integer
+          minimum: 30
+        steps:
           type: array
           minItems: 1
-          uniqueItems: true
           items:
-            $ref: "#/components/schemas/AdaptationDomain"
-        maintainedDays:
-          type: integer
-          minimum: 1
-    CreateRoutineAdaptationRequest:
+            type: string
+        evidenceCopyKeys:
+          type: array
+          minItems: 1
+          items:
+            type: string
+    MateExploreSearchRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - ageBand
+        - occupationGroup
+        - incomeBand
+        - spendingTendency
+        - savingRateBand
+        - investmentTendency
+      properties:
+        ageBand:
+          type: string
+          enum:
+            - AGE_19_23
+            - AGE_24_29
+            - AGE_30_34
+        occupationGroup:
+          type: string
+          enum:
+            - STUDENT
+            - EARLY_CAREER
+            - FREELANCER
+            - JOB_SEEKER
+        incomeBand:
+          type: string
+          enum:
+            - NONE
+            - UNDER_200
+            - FROM_200_TO_300
+            - OVER_300
+        spendingTendency:
+          type: string
+          enum:
+            - PLANNED
+            - BALANCED
+            - VARIABLE
+        savingRateBand:
+          type: string
+          enum:
+            - UNDER_10
+            - FROM_10_TO_20
+            - OVER_20
+        investmentTendency:
+          type: string
+          enum:
+            - CAUTIOUS
+            - BALANCED
+            - LEARNING
+    CreateRoutineRecommendationRequest:
       type: object
       additionalProperties: false
       required:
         - groupId
         - adventurerId
-        - routineId
+        - sourceRoutineId
+        - selectedDomain
       properties:
         groupId:
           type: string
         adventurerId:
           type: string
-        routineId:
+        sourceRoutineId:
           type: string
-    ChooseAdaptationDomainRequest:
+        selectedDomain:
+          $ref: "#/components/schemas/AdaptationDomain"
+    RoutineAdaptationCandidate:
       type: object
       additionalProperties: false
       required:
+        - candidateId
+        - difficulty
         - domain
+        - title
+        - targetKind
+        - steps
       properties:
+        candidateId:
+          type: string
+        difficulty:
+          $ref: "#/components/schemas/Difficulty"
         domain:
           $ref: "#/components/schemas/AdaptationDomain"
-    RoutineAdaptationCandidate:
+        title:
+          type: string
+        targetKind:
+          type: string
+          enum:
+            - AMOUNT_KRW
+            - BASIS_POINTS
+            - BEHAVIOR
+        targetAmountKrw:
+          $ref: "#/components/schemas/KrwAmount"
+        targetBasisPoints:
+          $ref: "#/components/schemas/BasisPoints"
+        behaviorTarget:
+          type: string
+        durationDays:
+          type: integer
+          minimum: 1
+          maximum: 365
+        steps:
+          type: array
+          minItems: 1
+          items:
+            type: string
       oneOf:
-        - title: AmountRoutineAdaptationCandidate
-          type: object
-          additionalProperties: false
+        - title: SpendingOrSavingAmount
           required:
-            - candidateId
-            - difficulty
-            - domain
-            - title
-            - targetKind
             - targetAmountKrw
-            - steps
           properties:
-            candidateId:
-              type: string
-            difficulty:
-              $ref: "#/components/schemas/Difficulty"
             domain:
               type: string
               enum:
                 - SPENDING
                 - SAVING
-            title:
-              type: string
             targetKind:
               type: string
               enum:
                 - AMOUNT_KRW
-            targetAmountKrw:
-              $ref: "#/components/schemas/KrwAmount"
-            steps:
-              type: array
-              minItems: 1
-              items:
-                type: string
-        - title: RatioRoutineAdaptationCandidate
-          type: object
-          additionalProperties: false
+          not:
+            anyOf:
+              - required:
+                  - targetBasisPoints
+              - required:
+                  - behaviorTarget
+        - title: SpendingOrSavingRatio
           required:
-            - candidateId
-            - difficulty
-            - domain
-            - title
-            - targetKind
-            - targetRatioBps
-            - steps
+            - targetBasisPoints
           properties:
-            candidateId:
-              type: string
-            difficulty:
-              $ref: "#/components/schemas/Difficulty"
             domain:
               type: string
               enum:
                 - SPENDING
                 - SAVING
-            title:
-              type: string
             targetKind:
               type: string
               enum:
-                - RATIO_BPS
-            targetRatioBps:
-              $ref: "#/components/schemas/BasisPoints"
-            steps:
-              type: array
-              minItems: 1
-              items:
-                type: string
-        - title: BehaviorRoutineAdaptationCandidate
-          type: object
-          additionalProperties: false
+                - BASIS_POINTS
+          not:
+            anyOf:
+              - required:
+                  - targetAmountKrw
+              - required:
+                  - behaviorTarget
+        - title: ApprovedBehavior
           required:
-            - candidateId
-            - difficulty
-            - domain
-            - title
-            - targetKind
             - behaviorTarget
-            - steps
           properties:
-            candidateId:
-              type: string
-            difficulty:
-              $ref: "#/components/schemas/Difficulty"
             domain:
-              $ref: "#/components/schemas/AdaptationDomain"
-            title:
               type: string
+              enum:
+                - SPENDING
+                - SAVING
+                - INVESTMENT_JUDGMENT
             targetKind:
               type: string
               enum:
                 - BEHAVIOR
-            behaviorTarget:
-              type: string
-              minLength: 1
-            steps:
-              type: array
-              minItems: 1
-              items:
-                type: string
-    RoutineAdaptationSet:
+          not:
+            anyOf:
+              - required:
+                  - targetAmountKrw
+              - required:
+                  - targetBasisPoints
+    RoutineRecommendation:
       type: object
       additionalProperties: false
       required:
         - adaptationId
         - sourceRoutineId
-        - state
         - selectedDomain
-        - light
-        - standard
-        - challenge
+        - recommendedCandidate
+        - recommendationReasonCopyKey
+        - intensityOptions
         - calculationVersion
         - dataState
         - lastSyncedAt
@@ -1327,169 +2521,27 @@ components:
           type: string
         sourceRoutineId:
           type: string
-        state:
-          type: string
-          enum:
-            - CANDIDATES_READY
         selectedDomain:
           $ref: "#/components/schemas/AdaptationDomain"
-        light:
-          allOf:
-            - $ref: "#/components/schemas/RoutineAdaptationCandidate"
-            - type: object
-              required:
-                - difficulty
-              properties:
-                difficulty:
-                  type: string
-                  enum:
-                    - LIGHT
-        standard:
-          allOf:
-            - $ref: "#/components/schemas/RoutineAdaptationCandidate"
-            - type: object
-              required:
-                - difficulty
-              properties:
-                difficulty:
-                  type: string
-                  enum:
-                    - STANDARD
-        challenge:
-          allOf:
-            - $ref: "#/components/schemas/RoutineAdaptationCandidate"
-            - type: object
-              required:
-                - difficulty
-              properties:
-                difficulty:
-                  type: string
-                  enum:
-                    - CHALLENGE
+        recommendedCandidate:
+          $ref: "#/components/schemas/RoutineAdaptationCandidate"
+        recommendationReasonCopyKey:
+          type: string
+        relatedProductId:
+          type: string
+        intensityOptions:
+          type: array
+          minItems: 3
+          maxItems: 3
+          uniqueItems: true
+          items:
+            $ref: "#/components/schemas/RoutineAdaptationCandidate"
         calculationVersion:
           type: string
         dataState:
           $ref: "#/components/schemas/DataState"
         lastSyncedAt:
           $ref: "#/components/schemas/NullableTimestamp"
-      oneOf:
-        - title: SpendingRoutineAdaptationSet
-          properties:
-            selectedDomain:
-              type: string
-              enum:
-                - SPENDING
-            light:
-              allOf:
-                - $ref: "#/components/schemas/RoutineAdaptationCandidate"
-                - type: object
-                  required:
-                    - domain
-                  properties:
-                    domain:
-                      type: string
-                      enum:
-                        - SPENDING
-            standard:
-              allOf:
-                - $ref: "#/components/schemas/RoutineAdaptationCandidate"
-                - type: object
-                  required:
-                    - domain
-                  properties:
-                    domain:
-                      type: string
-                      enum:
-                        - SPENDING
-            challenge:
-              allOf:
-                - $ref: "#/components/schemas/RoutineAdaptationCandidate"
-                - type: object
-                  required:
-                    - domain
-                  properties:
-                    domain:
-                      type: string
-                      enum:
-                        - SPENDING
-        - title: SavingRoutineAdaptationSet
-          properties:
-            selectedDomain:
-              type: string
-              enum:
-                - SAVING
-            light:
-              allOf:
-                - $ref: "#/components/schemas/RoutineAdaptationCandidate"
-                - type: object
-                  required:
-                    - domain
-                  properties:
-                    domain:
-                      type: string
-                      enum:
-                        - SAVING
-            standard:
-              allOf:
-                - $ref: "#/components/schemas/RoutineAdaptationCandidate"
-                - type: object
-                  required:
-                    - domain
-                  properties:
-                    domain:
-                      type: string
-                      enum:
-                        - SAVING
-            challenge:
-              allOf:
-                - $ref: "#/components/schemas/RoutineAdaptationCandidate"
-                - type: object
-                  required:
-                    - domain
-                  properties:
-                    domain:
-                      type: string
-                      enum:
-                        - SAVING
-        - title: InvestmentJudgmentRoutineAdaptationSet
-          properties:
-            selectedDomain:
-              type: string
-              enum:
-                - INVESTMENT_JUDGMENT
-            light:
-              allOf:
-                - $ref: "#/components/schemas/RoutineAdaptationCandidate"
-                - type: object
-                  required:
-                    - domain
-                  properties:
-                    domain:
-                      type: string
-                      enum:
-                        - INVESTMENT_JUDGMENT
-            standard:
-              allOf:
-                - $ref: "#/components/schemas/RoutineAdaptationCandidate"
-                - type: object
-                  required:
-                    - domain
-                  properties:
-                    domain:
-                      type: string
-                      enum:
-                        - INVESTMENT_JUDGMENT
-            challenge:
-              allOf:
-                - $ref: "#/components/schemas/RoutineAdaptationCandidate"
-                - type: object
-                  required:
-                    - domain
-                  properties:
-                    domain:
-                      type: string
-                      enum:
-                        - INVESTMENT_JUDGMENT
     ActiveRoutineBuild:
       type: object
       additionalProperties: false
@@ -1574,6 +2626,58 @@ components:
           $ref: "#/components/schemas/ActiveRoutineBuild"
         replacedAt:
           $ref: "#/components/schemas/Timestamp"
+    RelatedHanaProductInfo:
+      type: object
+      additionalProperties: false
+      required:
+        - productId
+        - displayName
+        - category
+        - relatedRoutineDomain
+        - keyConditions
+        - cautions
+        - informationAsOf
+        - officialInformationUrl
+        - reviewedCatalog
+        - inAppEnrollmentAvailable
+        - affectsProgress
+      properties:
+        productId:
+          type: string
+        displayName:
+          type: string
+        category:
+          type: string
+        relatedRoutineDomain:
+          $ref: "#/components/schemas/AdaptationDomain"
+        keyConditions:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        cautions:
+          type: array
+          minItems: 1
+          items:
+            type: string
+        informationAsOf:
+          type: string
+          format: date
+        officialInformationUrl:
+          type: string
+          format: uri
+        reviewedCatalog:
+          type: boolean
+          enum:
+            - true
+        inAppEnrollmentAvailable:
+          type: boolean
+          enum:
+            - false
+        affectsProgress:
+          type: boolean
+          enum:
+            - false
     Quest:
       type: object
       additionalProperties: false
@@ -1582,8 +2686,12 @@ components:
         - title
         - status
         - verificationKind
+        - currentValue
+        - targetValue
+        - unit
+        - durationLabel
         - xpReward
-        - internalRewardCodes
+        - pointReward
         - financialStatsChanged
         - calculationVersion
         - dataState
@@ -1607,17 +2715,34 @@ components:
           enum:
             - BEHAVIOR
             - SYNTHETIC_MYDATA
+        currentValue:
+          type: integer
+          minimum: 0
+        targetValue:
+          type: integer
+          minimum: 0
+        unit:
+          type: string
+          enum:
+            - COUNT
+            - KRW
+            - BASIS_POINTS
+        durationLabel:
+          type: string
         xpReward:
           type: integer
           minimum: 0
-        internalRewardCodes:
-          type: array
-          items:
-            type: string
+        pointReward:
+          type: integer
+          minimum: 0
+          description: Fixed internal points offered after the quest's verification rule
+            succeeds.
         financialStatsChanged:
           type: boolean
           enum:
             - false
+        acceptedAt:
+          $ref: "#/components/schemas/NullableTimestamp"
         calculationVersion:
           type: string
         dataState:
@@ -1629,6 +2754,8 @@ components:
       additionalProperties: false
       required:
         - items
+        - completedTodayCount
+        - totalTodayCount
         - totalXp
         - calculationVersion
         - dataState
@@ -1638,6 +2765,12 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Quest"
+        completedTodayCount:
+          type: integer
+          minimum: 0
+        totalTodayCount:
+          type: integer
+          minimum: 0
         totalXp:
           type: integer
           minimum: 0
@@ -1647,13 +2780,29 @@ components:
           $ref: "#/components/schemas/DataState"
         lastSyncedAt:
           $ref: "#/components/schemas/NullableTimestamp"
+    QuestAcceptance:
+      type: object
+      additionalProperties: false
+      required:
+        - quest
+        - acceptedAt
+        - financialStatsChanged
+      properties:
+        quest:
+          $ref: "#/components/schemas/Quest"
+        acceptedAt:
+          $ref: "#/components/schemas/Timestamp"
+        financialStatsChanged:
+          type: boolean
+          enum:
+            - false
     QuestCompletion:
       type: object
       additionalProperties: false
       required:
         - quest
         - xpAwarded
-        - internalRewardCodes
+        - pointsAwarded
         - financialStatsChanged
       properties:
         quest:
@@ -1661,38 +2810,169 @@ components:
         xpAwarded:
           type: integer
           minimum: 0
-        internalRewardCodes:
-          type: array
-          items:
-            type: string
+        pointsAwarded:
+          type: integer
+          minimum: 0
         financialStatsChanged:
           type: boolean
           enum:
             - false
-    RecordEvent:
+    PointLedgerEntry:
       type: object
       additionalProperties: false
       required:
-        - eventType
+        - entryType
+        - amountPoints
+        - sourceType
+        - sourceId
         - occurredAt
-        - title
       properties:
-        eventType:
+        entryType:
+          type: string
+          enum:
+            - EARN
+            - SPEND
+        amountPoints:
+          type: integer
+          description: Positive for EARN and negative for SPEND.
+        sourceType:
           type: string
           enum:
             - QUEST
-            - ROUTINE_BUILD
-            - MYDATA_RECALCULATION
+            - COSMETIC
+        sourceId:
+          type: string
         occurredAt:
           $ref: "#/components/schemas/Timestamp"
+    PointLedgerView:
+      type: object
+      additionalProperties: false
+      required:
+        - balance
+        - entries
+      properties:
+        balance:
+          type: integer
+          minimum: 0
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/PointLedgerEntry"
+    CosmeticCatalogItem:
+      type: object
+      additionalProperties: false
+      required:
+        - id
+        - itemType
+        - name
+        - description
+        - pricePoints
+        - owned
+      properties:
+        id:
+          type: string
+        itemType:
+          type: string
+          enum:
+            - OUTFIT
+            - PROFILE_FRAME
+            - THEME
+        name:
+          type: string
+        description:
+          type: string
+        pricePoints:
+          type: integer
+          minimum: 1
+        owned:
+          type: boolean
+    CosmeticCatalogView:
+      type: object
+      additionalProperties: false
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CosmeticCatalogItem"
+    CosmeticPurchase:
+      type: object
+      additionalProperties: false
+      required:
+        - cosmeticId
+        - owned
+        - balance
+      properties:
+        cosmeticId:
+          type: string
+        owned:
+          type: boolean
+          enum:
+            - true
+        balance:
+          type: integer
+          minimum: 0
+    DailyActivity:
+      type: object
+      additionalProperties: false
+      required:
+        - activityId
+        - activityType
+        - title
+        - occurredAt
+        - primary
+      properties:
+        activityId:
+          type: string
+        activityType:
+          type: string
+          enum:
+            - INCOME
+            - EXPENSE
+            - SAVING
+            - INVESTMENT
+            - QUEST
+            - ROUTINE
+            - MYDATA_RECALCULATION
         title:
           type: string
+        amountKrw:
+          $ref: "#/components/schemas/SignedKrwAmount"
+        occurredAt:
+          $ref: "#/components/schemas/Timestamp"
+        primary:
+          type: boolean
+        categoryLabels:
+          type: array
+          maxItems: 3
+          items:
+            type: string
+    BudgetStatus:
+      type: object
+      additionalProperties: false
+      required:
+        - budgetKrw
+        - spentKrw
+        - remainingKrw
+        - usedBps
+      properties:
+        budgetKrw:
+          $ref: "#/components/schemas/KrwAmount"
+        spentKrw:
+          $ref: "#/components/schemas/KrwAmount"
+        remainingKrw:
+          $ref: "#/components/schemas/KrwAmount"
+        usedBps:
+          $ref: "#/components/schemas/BasisPoints"
     DailyRecord:
       type: object
       additionalProperties: false
       required:
         - date
-        - events
+        - status
+        - activities
+        - budget
         - xpEarned
         - reflection
         - calculationVersion
@@ -1702,14 +2982,26 @@ components:
         date:
           type: string
           format: date
-        events:
+        status:
+          type: string
+          enum:
+            - RECORDED
+            - TODAY
+            - PLANNED
+            - EMPTY
+        activities:
           type: array
           items:
-            $ref: "#/components/schemas/RecordEvent"
+            $ref: "#/components/schemas/DailyActivity"
+        budget:
+          $ref: "#/components/schemas/BudgetStatus"
         xpEarned:
           type: integer
           minimum: 0
         reflection:
+          type: string
+          nullable: true
+        recalculationSummary:
           type: string
           nullable: true
         calculationVersion:
@@ -1737,6 +3029,100 @@ components:
           $ref: "#/components/schemas/DataState"
         lastSyncedAt:
           $ref: "#/components/schemas/NullableTimestamp"
+    JourneyNode:
+      type: object
+      additionalProperties: false
+      required:
+        - date
+        - status
+        - primaryActivity
+        - secondaryActivityTypes
+        - hiddenActivityCount
+        - detailAvailable
+      properties:
+        date:
+          type: string
+          format: date
+        status:
+          type: string
+          enum:
+            - RECORDED
+            - TODAY
+            - PLANNED
+            - LOCKED
+            - EMPTY
+        primaryActivity:
+          $ref: "#/components/schemas/DailyActivity"
+        secondaryActivityTypes:
+          type: array
+          maxItems: 2
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - INCOME
+              - EXPENSE
+              - SAVING
+              - INVESTMENT
+              - QUEST
+              - ROUTINE
+        hiddenActivityCount:
+          type: integer
+          minimum: 0
+        detailAvailable:
+          type: boolean
+    MonthlyMoneySummary:
+      type: object
+      additionalProperties: false
+      required:
+        - incomeKrw
+        - expenseKrw
+        - savingKrw
+      properties:
+        incomeKrw:
+          $ref: "#/components/schemas/KrwAmount"
+        expenseKrw:
+          $ref: "#/components/schemas/KrwAmount"
+        savingKrw:
+          $ref: "#/components/schemas/KrwAmount"
+    DailyJourneyMonth:
+      type: object
+      additionalProperties: false
+      required:
+        - month
+        - recordedDayCount
+        - dayCount
+        - moneySummary
+        - nodes
+        - calculationVersion
+        - dataState
+        - lastSyncedAt
+      properties:
+        month:
+          type: string
+          pattern: ^\d{4}-(0[1-9]|1[0-2])$
+        recordedDayCount:
+          type: integer
+          minimum: 0
+          maximum: 31
+        dayCount:
+          type: integer
+          minimum: 28
+          maximum: 31
+        moneySummary:
+          $ref: "#/components/schemas/MonthlyMoneySummary"
+        nodes:
+          type: array
+          minItems: 1
+          maxItems: 31
+          items:
+            $ref: "#/components/schemas/JourneyNode"
+        calculationVersion:
+          type: string
+        dataState:
+          $ref: "#/components/schemas/DataState"
+        lastSyncedAt:
+          $ref: "#/components/schemas/NullableTimestamp"
     SaveReflectionRequest:
       type: object
       additionalProperties: false
@@ -1752,40 +3138,87 @@ components:
       additionalProperties: false
       required:
         - fixtureId
-        - expectedStage
+        - expectedFrameIndex
       properties:
         fixtureId:
           type: string
           enum:
             - EUROPE_TRAVEL_JANUARY
-        expectedStage:
+        expectedFrameIndex:
           type: integer
           minimum: 0
-          maximum: 3
+          maximum: 5
+    DemoTimelineFrame:
+      type: object
+      additionalProperties: false
+      required:
+        - frameIndex
+        - month
+        - savingEventKrw
+        - goalCurrentAmountKrw
+        - goalProgressBps
+        - dataState
+      properties:
+        frameIndex:
+          type: integer
+          minimum: 0
+          maximum: 5
+        month:
+          type: string
+          pattern: ^\d{4}-(0[1-9]|1[0-2])$
+        savingEventKrw:
+          $ref: "#/components/schemas/KrwAmount"
+        goalCurrentAmountKrw:
+          $ref: "#/components/schemas/KrwAmount"
+        goalProgressBps:
+          $ref: "#/components/schemas/BasisPoints"
+        dataState:
+          type: string
+          enum:
+            - FRESH
     DemoTimelineView:
       type: object
       additionalProperties: false
       required:
         - fixtureId
-        - stage
+        - initialGoalAmountKrw
+        - targetGoalAmountKrw
+        - currentFrameIndex
+        - frames
         - mainGoal
         - raid
-        - syntheticGroup
+        - calculationVersion
+        - dataState
+        - lastSyncedAt
       properties:
         fixtureId:
           type: string
           enum:
             - EUROPE_TRAVEL_JANUARY
-        stage:
+        initialGoalAmountKrw:
+          $ref: "#/components/schemas/KrwAmount"
+        targetGoalAmountKrw:
+          $ref: "#/components/schemas/KrwAmount"
+        currentFrameIndex:
           type: integer
-          minimum: 1
-          maximum: 3
+          minimum: 0
+          maximum: 5
+        frames:
+          type: array
+          minItems: 6
+          maxItems: 6
+          items:
+            $ref: "#/components/schemas/DemoTimelineFrame"
         mainGoal:
           $ref: "#/components/schemas/UserGoal"
         raid:
           $ref: "#/components/schemas/RaidView"
-        syntheticGroup:
-          $ref: "#/components/schemas/MateGroup"
+        calculationVersion:
+          type: string
+        dataState:
+          $ref: "#/components/schemas/DataState"
+        lastSyncedAt:
+          $ref: "#/components/schemas/NullableTimestamp"
     FieldError:
       type: object
       additionalProperties: false
@@ -1831,10 +3264,10 @@ components:
             - DUPLICATE_EMAIL
             - NOT_FOUND
             - ACTIVE_MAIN_GOAL_EXISTS
+            - GOAL_REQUIRED
             - DATA_STALE
             - DATA_INSUFFICIENT
             - ACTIVE_ROUTINE_BUILD_EXISTS
-            - ADAPTATION_DOMAIN_REQUIRED
             - DEMO_PROFILE_REQUIRED
         traceId:
           type: string

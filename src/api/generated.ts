@@ -23,9 +23,22 @@ export interface paths {
   "/auth/logout": {
     post: operations["logOut"];
   };
+  "/me/disclosures": {
+    get: operations["getDisclosureConsent"];
+    /** @description Activates only the fields that were previewed and explicitly confirmed as exact values. */
+    put: operations["updateDisclosureConsent"];
+    /** @description Immediately opts out and removes every selected field from discovery and recommendation reads. */
+    delete: operations["withdrawDisclosureConsent"];
+  };
+  "/me/disclosures/preview": {
+    post: operations["previewDisclosure"];
+  };
   "/onboarding": {
     get: operations["getOnboarding"];
     put: operations["completeOnboarding"];
+  };
+  "/goals": {
+    post: operations["confirmUserGoal"];
   };
   "/goals/active": {
     get: operations["getActiveUserGoal"];
@@ -36,23 +49,48 @@ export interface paths {
   "/raids/current": {
     get: operations["getCurrentRaid"];
   };
+  "/reports/characters/{reportType}": {
+    get: operations["getCharacterReport"];
+  };
   "/reports/monthly": {
     get: operations["getMonthlyReport"];
+  };
+  "/mate/friends/overview": {
+    get: operations["getMateFriendOverview"];
+  };
+  "/mate/friends/feed": {
+    get: operations["getMateFriendFeed"];
+  };
+  "/mate/friends/streaks": {
+    get: operations["getMateFriendStreaks"];
   };
   "/mate/groups": {
     get: operations["listMateGroups"];
   };
+  "/mate/groups/{groupId}/report": {
+    get: operations["getMateGroupReport"];
+  };
   "/mate/groups/{groupId}/adventurers": {
     get: operations["listRecommendedAdventurers"];
+  };
+  "/mate/groups/{groupId}/adventurers/{adventurerId}": {
+    get: operations["getRecommendedAdventurer"];
+  };
+  "/mate/groups/{groupId}/adventurers/{adventurerId}/report": {
+    get: operations["getAdventurerReport"];
+  };
+  "/mate/groups/{groupId}/adventurers/{adventurerId}/financial-profile": {
+    /** @description Exact synthetic financial values selected by an active, granular disclosure consent. */
+    get: operations["getPublicFinancialProfile"];
   };
   "/mate/groups/{groupId}/adventurers/{adventurerId}/routines/{routineId}": {
     get: operations["getAdventurerRoutine"];
   };
-  "/routine-adaptations": {
-    post: operations["createRoutineAdaptation"];
+  "/mate/explore/search": {
+    post: operations["searchMateAdventurers"];
   };
-  "/routine-adaptations/{adaptationId}/choice": {
-    put: operations["chooseRoutineAdaptationDomain"];
+  "/routine-adaptations": {
+    post: operations["createRoutineRecommendation"];
   };
   "/routine-adaptations/{adaptationId}/candidates/{candidateId}/import": {
     post: operations["importRoutineAdaptationCandidate"];
@@ -63,11 +101,17 @@ export interface paths {
   "/routine-builds/active/replacement": {
     post: operations["replaceActiveRoutineBuild"];
   };
+  "/hana-products/{productId}": {
+    get: operations["getRelatedHanaProductInfo"];
+  };
   "/quests": {
     get: operations["listQuests"];
   };
   "/quests/{questId}": {
     get: operations["getQuest"];
+  };
+  "/quests/{questId}/accept": {
+    post: operations["acceptQuest"];
   };
   "/quests/{questId}/complete": {
     post: operations["completeQuest"];
@@ -75,12 +119,24 @@ export interface paths {
   "/records": {
     get: operations["listDailyRecords"];
   };
+  "/records/journey": {
+    get: operations["getDailyJourneyMonth"];
+  };
   "/records/{date}": {
     get: operations["getDailyRecord"];
     put: operations["saveDailyReflection"];
   };
+  "/rewards/points": {
+    get: operations["getPointLedger"];
+  };
+  "/rewards/cosmetics": {
+    get: operations["listCosmetics"];
+  };
+  "/rewards/cosmetics/{cosmeticId}/purchase": {
+    post: operations["purchaseCosmetic"];
+  };
   "/demo/timeline/advance": {
-    /** @description Registered only under the Spring demo profile. Never exposed in production. */
+    /** @description Registered only under the demo profile and for synthetic users. */
     post: operations["advanceDemoTimeline"];
   };
 }
@@ -91,9 +147,14 @@ export interface components {
   schemas: {
     /**
      * Format: int64
-     * @description Whole Korean won
+     * @description Whole Korean won.
      */
     KrwAmount: number;
+    /**
+     * Format: int64
+     * @description Signed whole Korean won.
+     */
+    SignedKrwAmount: number;
     BasisPoints: number;
     /** Format: date-time */
     Timestamp: string;
@@ -102,11 +163,42 @@ export interface components {
     /** @enum {string} */
     DataState: "FRESH" | "PENDING" | "STALE" | "INSUFFICIENT";
     /** @enum {string} */
+    OnboardingState: "EXPLORE_ONLY" | "GOAL_ACTIVE";
+    /** @enum {string} */
     GoalDomain: "SPENDING" | "SAVING";
     /** @enum {string} */
     AdaptationDomain: "SPENDING" | "SAVING" | "INVESTMENT_JUDGMENT";
     /** @enum {string} */
     Difficulty: "LIGHT" | "STANDARD" | "CHALLENGE";
+    /** @enum {string} */
+    CharacterReportType: "SPENDING_DEFENSE" | "SAVING_HP" | "INVESTMENT_JUDGMENT" | "QUEST_XP";
+    /** @enum {string} */
+    DisclosureField: "ASSETS" | "INCOME" | "SPENDING" | "SAVING" | "FINANCIAL_PRODUCTS" | "INVESTMENT_HOLDINGS" | "TRADES";
+    /** @enum {string} */
+    PermanentlyExcludedDisclosureField: "ACCOUNT_NUMBER" | "RAW_TRANSACTION_MEMO" | "DETAILED_EMPLOYER" | "DETAILED_LOCATION" | "AUTHENTICATION_IDENTIFIER";
+    DisclosureRequest: {
+      fields: components["schemas"]["DisclosureField"][];
+      consentVersion: string;
+      /** @enum {boolean} */
+      confirmExactValues: true;
+    };
+    DisclosureConsent: {
+      /** @enum {string} */
+      state: "ACTIVE" | "OPTED_OUT";
+      exactValues: boolean;
+      fields: components["schemas"]["DisclosureField"][];
+      consentVersion: string;
+      /** Format: int64 */
+      version: number;
+      updatedAt: components["schemas"]["Timestamp"];
+    };
+    DisclosurePreview: {
+      /** @enum {boolean} */
+      exactValues: true;
+      fields: components["schemas"]["DisclosureField"][];
+      permanentlyExcludedFields: components["schemas"]["PermanentlyExcludedDisclosureField"][];
+      consentVersion: string;
+    };
     SignUpRequest: {
       /** Format: email */
       email: string;
@@ -118,7 +210,7 @@ export interface components {
       email: string;
       password: string;
     };
-    UserSummary: {
+    AuthUser: {
       /** Format: uuid */
       userId: string;
       /** Format: email */
@@ -132,13 +224,47 @@ export interface components {
       /** @enum {string} */
       tokenType: "Bearer";
       expiresAt: components["schemas"]["Timestamp"];
-      user: components["schemas"]["UserSummary"];
+      user: components["schemas"]["AuthUser"];
+    };
+    ProfileContext: {
+      /** @enum {string} */
+      incomeRegularity: "REGULAR" | "IRREGULAR" | "NONE";
+      /** @enum {string} */
+      housingType: "WITH_FAMILY" | "RENT" | "DORMITORY" | "OTHER";
+      /** @enum {string} */
+      fixedCostBurden: "LOW" | "MEDIUM" | "HIGH";
     };
     CompleteOnboardingRequest: {
       displayName: string;
-      mainGoal: components["schemas"]["UserGoalDraft"];
+      context: components["schemas"]["ProfileContext"];
+      /** @enum {string} */
+      moneyConcern: "SPENDING" | "SAVING" | "EMERGENCY_FUND" | "INVESTMENT_JUDGMENT" | "UNSURE";
+      /** @enum {string} */
+      financialTendency: "CAUTIOUS" | "BALANCED" | "EXPLORING";
+      lifestyleTags: string[];
+      anonymousShareConsent: boolean;
       /** @enum {boolean} */
-      confirmMainGoal: true;
+      syntheticMyDataConsent: true;
+      /** @enum {string} */
+      finishMode: "EXPLORE_ONLY";
+    };
+    BaselineSummary: {
+      disposableIncomeKrw: components["schemas"]["KrwAmount"];
+      spendingRateBps: components["schemas"]["BasisPoints"];
+      savingRateBps: components["schemas"]["BasisPoints"];
+      investmentJudgmentBps: components["schemas"]["BasisPoints"];
+    };
+    OnboardingView: {
+      /** @enum {string} */
+      status: "IN_PROGRESS" | "COMPLETED";
+      onboardingState: components["schemas"]["OnboardingState"];
+      displayName?: string;
+      context?: components["schemas"]["ProfileContext"];
+      baseline: components["schemas"]["BaselineSummary"];
+      mainGoal?: components["schemas"]["UserGoal"];
+      calculationVersion: string;
+      dataState: components["schemas"]["DataState"];
+      lastSyncedAt: components["schemas"]["NullableTimestamp"];
     };
     UserGoalDraft: {
       title: string;
@@ -146,6 +272,11 @@ export interface components {
       currentAmountKrw: components["schemas"]["KrwAmount"];
       targetAmountKrw: components["schemas"]["KrwAmount"];
       targetMonth: string;
+    };
+    ConfirmUserGoalRequest: {
+      goal: components["schemas"]["UserGoalDraft"];
+      /** @enum {boolean} */
+      confirm: true;
     };
     UserGoal: {
       goalId: string;
@@ -155,41 +286,70 @@ export interface components {
       targetAmountKrw: components["schemas"]["KrwAmount"];
       targetMonth: string;
       /** @enum {string} */
-      state: "ACTIVE" | "COMPLETED" | "ARCHIVED";
+      state: "ACTIVE" | "PAUSED" | "COMPLETED" | "CANCELLED" | "EXPIRED";
       confirmedAt: components["schemas"]["Timestamp"];
       calculationVersion: string;
       dataState: components["schemas"]["DataState"];
       lastSyncedAt: components["schemas"]["NullableTimestamp"];
     };
-    OnboardingView: {
-      /** @enum {string} */
-      status: "DRAFT" | "COMPLETED";
-      displayName: string | null;
-      mainGoal?: components["schemas"]["UserGoal"];
-    };
     FinancialStats: {
-      spendingBps: components["schemas"]["BasisPoints"];
-      savingBps: components["schemas"]["BasisPoints"];
+      spendingDefenseBps: components["schemas"]["BasisPoints"];
+      savingHpBps: components["schemas"]["BasisPoints"];
       investmentJudgmentBps: components["schemas"]["BasisPoints"];
+      questXp: number;
     };
     RaidView: {
       raidId: string;
       goalId: string;
       stage: number;
       bossHpBps: components["schemas"]["BasisPoints"];
-      progressBps: components["schemas"]["BasisPoints"];
+      currentProgressBps: components["schemas"]["BasisPoints"];
+      highestProgressBps: components["schemas"]["BasisPoints"];
+      /** @enum {string} */
+      status: "ACTIVE" | "WAITING_FOR_DATA" | "COMPLETED";
       financialStats: components["schemas"]["FinancialStats"];
-      xp: number;
       coachCopyKey: string;
       calculationVersion: string;
       dataState: components["schemas"]["DataState"];
       lastSyncedAt: components["schemas"]["NullableTimestamp"];
     };
-    HomeResponse: {
-      mainGoal: components["schemas"]["UserGoal"];
-      raid: components["schemas"]["RaidView"];
+    HomeView: ({
+      mode: components["schemas"]["OnboardingState"];
+      totalAssetsKrw: components["schemas"]["KrwAmount"];
+      mainGoal?: components["schemas"]["UserGoal"];
+      raid?: components["schemas"]["RaidView"];
+      financialStats: components["schemas"]["FinancialStats"];
       activeRoutineBuild?: components["schemas"]["ActiveRoutineBuild"];
       nextQuest?: components["schemas"]["Quest"];
+      lockedActions: ("RAID" | "QUEST_ACCEPT" | "ROUTINE_IMPORT" | "PERSONALIZED_PRODUCT_INFO")[];
+      calculationVersion: string;
+      dataState: components["schemas"]["DataState"];
+      lastSyncedAt: components["schemas"]["NullableTimestamp"];
+    }) & OneOf<[{
+      /** @enum {string} */
+      mode: "EXPLORE_ONLY";
+    }, {
+      /** @enum {string} */
+      mode: "GOAL_ACTIVE";
+    }]>;
+    CharacterMetric: {
+      label: string;
+      displayValue: string;
+      reasonCopyKey: string;
+    };
+    TrendPoint: {
+      /** Format: date */
+      date: string;
+      value: number;
+    };
+    CharacterReport: {
+      reportType: components["schemas"]["CharacterReportType"];
+      /** @enum {string} */
+      characterName: "BEAR" | "SEAL" | "RABBIT" | "BIRD";
+      scoreBps: components["schemas"]["BasisPoints"];
+      metrics: components["schemas"]["CharacterMetric"][];
+      trend30Days: components["schemas"]["TrendPoint"][];
+      nextQuestId: string;
       calculationVersion: string;
       dataState: components["schemas"]["DataState"];
       lastSyncedAt: components["schemas"]["NullableTimestamp"];
@@ -204,38 +364,101 @@ export interface components {
       dataState: components["schemas"]["DataState"];
       lastSyncedAt: components["schemas"]["NullableTimestamp"];
     };
-    MateGroup: OneOf<[{
+    MateGroup: {
       groupId: string;
       name: string;
       memberCount: number;
+      syntheticDemo: boolean;
+      eligibleForProductionAggregation: boolean;
+    } & OneOf<[{
+      memberCount?: number;
       /** @enum {boolean} */
-      syntheticDemo: false;
+      syntheticDemo?: false;
       /** @enum {boolean} */
-      eligibleForProductionAggregation: true;
+      eligibleForProductionAggregation?: true;
     }, {
-      groupId: string;
-      name: string;
-      /** @enum {integer} */
-      memberCount: 10;
       /** @enum {boolean} */
-      syntheticDemo: true;
+      syntheticDemo?: true;
       /** @enum {boolean} */
-      eligibleForProductionAggregation: false;
+      eligibleForProductionAggregation?: false;
     }]>;
     MateGroupPage: {
       items: components["schemas"]["MateGroup"][];
     };
+    MateFriendStatus: {
+      friendId: string;
+      alias: string;
+      avatarCode: string;
+      questCompletedToday: boolean;
+    };
+    /** @description Read-only friend summary. friendCount is the number of accepted friend relationships, not the denominator for financial-stat averages. Source aggregation tracks scoredFriendCount separately when averages are exposed by a future contract. */
+    MateFriendOverview: {
+      /** @description Total accepted friends; do not interpret as scoredFriendCount. */
+      friendCount: number;
+      completedToday: number;
+      /** @enum {boolean} */
+      readOnly: true;
+      friends: components["schemas"]["MateFriendStatus"][];
+    };
+    MateFeedItem: {
+      friendId: string;
+      alias: string;
+      avatarCode: string;
+      /** @enum {string} */
+      eventType: "QUEST" | "ROUTINE" | "STREAK";
+      message: string;
+      completed: boolean;
+      occurredAt: components["schemas"]["Timestamp"];
+    };
+    MateFriendFeed: {
+      /** @enum {boolean} */
+      readOnly: true;
+      items: components["schemas"]["MateFeedItem"][];
+    };
+    MateStreakItem: {
+      friendId: string;
+      alias: string;
+      label: string;
+      daysTogether: number;
+    };
+    MateStreakPage: {
+      /** @enum {boolean} */
+      readOnly: true;
+      items: components["schemas"]["MateStreakItem"][];
+    };
+    DistributionRange: {
+      p25Bps: components["schemas"]["BasisPoints"];
+      medianBps: components["schemas"]["BasisPoints"];
+      p75Bps: components["schemas"]["BasisPoints"];
+    };
+    MateGroupReport: {
+      group: components["schemas"]["MateGroup"];
+      selectionReasons: string[];
+      spendingRateRange: components["schemas"]["DistributionRange"];
+      savingRateRange: components["schemas"]["DistributionRange"];
+      averageStats: components["schemas"]["FinancialStats"];
+      achieverCount: number;
+      adventurerPreview: components["schemas"]["RecommendedAdventurerCard"][];
+      coachCopyKeys: string[];
+      calculationVersion: string;
+      dataState: components["schemas"]["DataState"];
+      lastSyncedAt: components["schemas"]["NullableTimestamp"];
+    };
     RoutineSummary: {
       routineId: string;
       title: string;
-      availableDomains: components["schemas"]["AdaptationDomain"][];
+      domain: components["schemas"]["AdaptationDomain"];
+      maintenanceDays: number;
     };
     RecommendedAdventurerCard: {
       adventurerId: string;
       groupId: string;
       alias: string;
+      contextTags: string[];
       similarityReasons: string[];
+      goalAchievementLabel: string;
       routines: components["schemas"]["RoutineSummary"][];
+      verifiedAt: components["schemas"]["Timestamp"];
       approvedAt: components["schemas"]["Timestamp"];
     };
     RecommendedAdventurerPage: {
@@ -245,120 +468,147 @@ export interface components {
       dataState: components["schemas"]["DataState"];
       lastSyncedAt: components["schemas"]["NullableTimestamp"];
     };
+    ComparisonMetric: {
+      label: string;
+      myRange: string;
+      adventurerRange: string;
+      interpretationCopyKey: string;
+    };
+    AdventurerReport: {
+      adventurer: components["schemas"]["RecommendedAdventurerCard"];
+      comparisonMetrics: components["schemas"]["ComparisonMetric"][];
+      routineEvidence: string[];
+      calculationVersion: string;
+      dataState: components["schemas"]["DataState"];
+      lastSyncedAt: components["schemas"]["NullableTimestamp"];
+    };
+    PublicAssetEntry: {
+      name: string;
+      category: string;
+      balanceKrw: components["schemas"]["KrwAmount"];
+      /** Format: date */
+      asOfDate: string;
+    };
+    PublicCashflowEntry: {
+      name: string;
+      category: string;
+      amountKrw: components["schemas"]["KrwAmount"];
+      /** Format: date */
+      asOfDate: string;
+    };
+    PublicProductHolding: {
+      productName: string;
+      category: string;
+      balanceKrw: components["schemas"]["KrwAmount"];
+      /** Format: date */
+      asOfDate: string;
+    };
+    PublicInvestmentHolding: {
+      name: string;
+      ticker: string;
+      balanceKrw: components["schemas"]["KrwAmount"];
+      allocationBps: components["schemas"]["BasisPoints"];
+      quantity: number;
+      /** Format: date */
+      asOfDate: string;
+    };
+    PublicTradeRecord: {
+      name: string;
+      ticker: string;
+      /** @enum {string} */
+      action: "BUY" | "SELL";
+      amountKrw: components["schemas"]["KrwAmount"];
+      quantity: number;
+      occurredAt: components["schemas"]["Timestamp"];
+    };
+    PublicFinancialProfile: {
+      adventurerId: string;
+      alias: string;
+      /** @enum {boolean} */
+      synthetic: true;
+      /** @enum {boolean} */
+      exactValues: true;
+      visibleFields: components["schemas"]["DisclosureField"][];
+      consentVersion: string;
+      updatedAt: components["schemas"]["Timestamp"];
+      assets?: components["schemas"]["PublicAssetEntry"][];
+      income?: components["schemas"]["PublicCashflowEntry"][];
+      spending?: components["schemas"]["PublicCashflowEntry"][];
+      savings?: components["schemas"]["PublicCashflowEntry"][];
+      products?: components["schemas"]["PublicProductHolding"][];
+      investments?: components["schemas"]["PublicInvestmentHolding"][];
+      trades?: components["schemas"]["PublicTradeRecord"][];
+    };
     AdventurerRoutine: {
       routineId: string;
       adventurerId: string;
       groupId: string;
       title: string;
-      description: string;
-      availableDomains: components["schemas"]["AdaptationDomain"][];
-      maintainedDays: number;
+      domain: components["schemas"]["AdaptationDomain"];
+      maintenanceDays: number;
+      steps: string[];
+      evidenceCopyKeys: string[];
     };
-    CreateRoutineAdaptationRequest: {
+    MateExploreSearchRequest: {
+      /** @enum {string} */
+      ageBand: "AGE_19_23" | "AGE_24_29" | "AGE_30_34";
+      /** @enum {string} */
+      occupationGroup: "STUDENT" | "EARLY_CAREER" | "FREELANCER" | "JOB_SEEKER";
+      /** @enum {string} */
+      incomeBand: "NONE" | "UNDER_200" | "FROM_200_TO_300" | "OVER_300";
+      /** @enum {string} */
+      spendingTendency: "PLANNED" | "BALANCED" | "VARIABLE";
+      /** @enum {string} */
+      savingRateBand: "UNDER_10" | "FROM_10_TO_20" | "OVER_20";
+      /** @enum {string} */
+      investmentTendency: "CAUTIOUS" | "BALANCED" | "LEARNING";
+    };
+    CreateRoutineRecommendationRequest: {
       groupId: string;
       adventurerId: string;
-      routineId: string;
+      sourceRoutineId: string;
+      selectedDomain: components["schemas"]["AdaptationDomain"];
     };
-    ChooseAdaptationDomainRequest: {
-      domain: components["schemas"]["AdaptationDomain"];
-    };
-    RoutineAdaptationCandidate: OneOf<[{
-      candidateId: string;
-      difficulty: components["schemas"]["Difficulty"];
-      /** @enum {string} */
-      domain: "SPENDING" | "SAVING";
-      title: string;
-      /** @enum {string} */
-      targetKind: "AMOUNT_KRW";
-      targetAmountKrw: components["schemas"]["KrwAmount"];
-      steps: string[];
-    }, {
-      candidateId: string;
-      difficulty: components["schemas"]["Difficulty"];
-      /** @enum {string} */
-      domain: "SPENDING" | "SAVING";
-      title: string;
-      /** @enum {string} */
-      targetKind: "RATIO_BPS";
-      targetRatioBps: components["schemas"]["BasisPoints"];
-      steps: string[];
-    }, {
+    RoutineAdaptationCandidate: ({
       candidateId: string;
       difficulty: components["schemas"]["Difficulty"];
       domain: components["schemas"]["AdaptationDomain"];
       title: string;
       /** @enum {string} */
-      targetKind: "BEHAVIOR";
-      behaviorTarget: string;
+      targetKind: "AMOUNT_KRW" | "BASIS_POINTS" | "BEHAVIOR";
+      targetAmountKrw?: components["schemas"]["KrwAmount"];
+      targetBasisPoints?: components["schemas"]["BasisPoints"];
+      behaviorTarget?: string;
+      durationDays?: number;
       steps: string[];
-    }]>;
-    RoutineAdaptationSet: ({
+    }) & (OneOf<[{
+      /** @enum {string} */
+      domain?: "SPENDING" | "SAVING";
+      /** @enum {string} */
+      targetKind?: "AMOUNT_KRW";
+    }, {
+      /** @enum {string} */
+      domain?: "SPENDING" | "SAVING";
+      /** @enum {string} */
+      targetKind?: "BASIS_POINTS";
+    }, {
+      /** @enum {string} */
+      domain?: "SPENDING" | "SAVING" | "INVESTMENT_JUDGMENT";
+      /** @enum {string} */
+      targetKind?: "BEHAVIOR";
+    }]>);
+    RoutineRecommendation: {
       adaptationId: string;
       sourceRoutineId: string;
-      /** @enum {string} */
-      state: "CANDIDATES_READY";
       selectedDomain: components["schemas"]["AdaptationDomain"];
-      light: components["schemas"]["RoutineAdaptationCandidate"] & {
-        /** @enum {string} */
-        difficulty: "LIGHT";
-      };
-      standard: components["schemas"]["RoutineAdaptationCandidate"] & {
-        /** @enum {string} */
-        difficulty: "STANDARD";
-      };
-      challenge: components["schemas"]["RoutineAdaptationCandidate"] & {
-        /** @enum {string} */
-        difficulty: "CHALLENGE";
-      };
+      recommendedCandidate: components["schemas"]["RoutineAdaptationCandidate"];
+      recommendationReasonCopyKey: string;
+      relatedProductId?: string;
+      intensityOptions: components["schemas"]["RoutineAdaptationCandidate"][];
       calculationVersion: string;
       dataState: components["schemas"]["DataState"];
       lastSyncedAt: components["schemas"]["NullableTimestamp"];
-    }) & (OneOf<[{
-      /** @enum {string} */
-      selectedDomain?: "SPENDING";
-      light?: components["schemas"]["RoutineAdaptationCandidate"] & {
-        /** @enum {string} */
-        domain: "SPENDING";
-      };
-      standard?: components["schemas"]["RoutineAdaptationCandidate"] & {
-        /** @enum {string} */
-        domain: "SPENDING";
-      };
-      challenge?: components["schemas"]["RoutineAdaptationCandidate"] & {
-        /** @enum {string} */
-        domain: "SPENDING";
-      };
-    }, {
-      /** @enum {string} */
-      selectedDomain?: "SAVING";
-      light?: components["schemas"]["RoutineAdaptationCandidate"] & {
-        /** @enum {string} */
-        domain: "SAVING";
-      };
-      standard?: components["schemas"]["RoutineAdaptationCandidate"] & {
-        /** @enum {string} */
-        domain: "SAVING";
-      };
-      challenge?: components["schemas"]["RoutineAdaptationCandidate"] & {
-        /** @enum {string} */
-        domain: "SAVING";
-      };
-    }, {
-      /** @enum {string} */
-      selectedDomain?: "INVESTMENT_JUDGMENT";
-      light?: components["schemas"]["RoutineAdaptationCandidate"] & {
-        /** @enum {string} */
-        domain: "INVESTMENT_JUDGMENT";
-      };
-      standard?: components["schemas"]["RoutineAdaptationCandidate"] & {
-        /** @enum {string} */
-        domain: "INVESTMENT_JUDGMENT";
-      };
-      challenge?: components["schemas"]["RoutineAdaptationCandidate"] & {
-        /** @enum {string} */
-        domain: "INVESTMENT_JUDGMENT";
-      };
-    }]>);
+    };
     ActiveRoutineBuild: {
       buildId: string;
       candidateId: string;
@@ -387,6 +637,24 @@ export interface components {
       activeBuild: components["schemas"]["ActiveRoutineBuild"];
       replacedAt: components["schemas"]["Timestamp"];
     };
+    RelatedHanaProductInfo: {
+      productId: string;
+      displayName: string;
+      category: string;
+      relatedRoutineDomain: components["schemas"]["AdaptationDomain"];
+      keyConditions: string[];
+      cautions: string[];
+      /** Format: date */
+      informationAsOf: string;
+      /** Format: uri */
+      officialInformationUrl: string;
+      /** @enum {boolean} */
+      reviewedCatalog: true;
+      /** @enum {boolean} */
+      inAppEnrollmentAvailable: false;
+      /** @enum {boolean} */
+      affectsProgress: false;
+    };
     Quest: {
       questId: string;
       title: string;
@@ -394,40 +662,101 @@ export interface components {
       status: "AVAILABLE" | "ACTIVE" | "DATA_PENDING" | "COMPLETED" | "EXPIRED" | "CANCELLED";
       /** @enum {string} */
       verificationKind: "BEHAVIOR" | "SYNTHETIC_MYDATA";
+      currentValue: number;
+      targetValue: number;
+      /** @enum {string} */
+      unit: "COUNT" | "KRW" | "BASIS_POINTS";
+      durationLabel: string;
       xpReward: number;
-      internalRewardCodes: string[];
+      /** @description Fixed internal points offered after the quest's verification rule succeeds. */
+      pointReward: number;
       /** @enum {boolean} */
       financialStatsChanged: false;
+      acceptedAt?: components["schemas"]["NullableTimestamp"];
       calculationVersion: string;
       dataState: components["schemas"]["DataState"];
       lastSyncedAt: components["schemas"]["NullableTimestamp"];
     };
     QuestPage: {
       items: components["schemas"]["Quest"][];
+      completedTodayCount: number;
+      totalTodayCount: number;
       totalXp: number;
       calculationVersion: string;
       dataState: components["schemas"]["DataState"];
       lastSyncedAt: components["schemas"]["NullableTimestamp"];
     };
-    QuestCompletion: {
+    QuestAcceptance: {
       quest: components["schemas"]["Quest"];
-      xpAwarded: number;
-      internalRewardCodes: string[];
+      acceptedAt: components["schemas"]["Timestamp"];
       /** @enum {boolean} */
       financialStatsChanged: false;
     };
-    RecordEvent: {
+    QuestCompletion: {
+      quest: components["schemas"]["Quest"];
+      xpAwarded: number;
+      pointsAwarded: number;
+      /** @enum {boolean} */
+      financialStatsChanged: false;
+    };
+    PointLedgerEntry: {
       /** @enum {string} */
-      eventType: "QUEST" | "ROUTINE_BUILD" | "MYDATA_RECALCULATION";
+      entryType: "EARN" | "SPEND";
+      /** @description Positive for EARN and negative for SPEND. */
+      amountPoints: number;
+      /** @enum {string} */
+      sourceType: "QUEST" | "COSMETIC";
+      sourceId: string;
       occurredAt: components["schemas"]["Timestamp"];
+    };
+    PointLedgerView: {
+      balance: number;
+      entries: components["schemas"]["PointLedgerEntry"][];
+    };
+    CosmeticCatalogItem: {
+      id: string;
+      /** @enum {string} */
+      itemType: "OUTFIT" | "PROFILE_FRAME" | "THEME";
+      name: string;
+      description: string;
+      pricePoints: number;
+      owned: boolean;
+    };
+    CosmeticCatalogView: {
+      items: components["schemas"]["CosmeticCatalogItem"][];
+    };
+    CosmeticPurchase: {
+      cosmeticId: string;
+      /** @enum {boolean} */
+      owned: true;
+      balance: number;
+    };
+    DailyActivity: {
+      activityId: string;
+      /** @enum {string} */
+      activityType: "INCOME" | "EXPENSE" | "SAVING" | "INVESTMENT" | "QUEST" | "ROUTINE" | "MYDATA_RECALCULATION";
       title: string;
+      amountKrw?: components["schemas"]["SignedKrwAmount"];
+      occurredAt: components["schemas"]["Timestamp"];
+      primary: boolean;
+      categoryLabels?: string[];
+    };
+    BudgetStatus: {
+      budgetKrw: components["schemas"]["KrwAmount"];
+      spentKrw: components["schemas"]["KrwAmount"];
+      remainingKrw: components["schemas"]["KrwAmount"];
+      usedBps: components["schemas"]["BasisPoints"];
     };
     DailyRecord: {
       /** Format: date */
       date: string;
-      events: components["schemas"]["RecordEvent"][];
+      /** @enum {string} */
+      status: "RECORDED" | "TODAY" | "PLANNED" | "EMPTY";
+      activities: components["schemas"]["DailyActivity"][];
+      budget: components["schemas"]["BudgetStatus"];
       xpEarned: number;
       reflection: string | null;
+      recalculationSummary?: string | null;
       calculationVersion: string;
       dataState: components["schemas"]["DataState"];
       lastSyncedAt: components["schemas"]["NullableTimestamp"];
@@ -438,21 +767,60 @@ export interface components {
       dataState: components["schemas"]["DataState"];
       lastSyncedAt: components["schemas"]["NullableTimestamp"];
     };
+    JourneyNode: {
+      /** Format: date */
+      date: string;
+      /** @enum {string} */
+      status: "RECORDED" | "TODAY" | "PLANNED" | "LOCKED" | "EMPTY";
+      primaryActivity: components["schemas"]["DailyActivity"];
+      secondaryActivityTypes: ("INCOME" | "EXPENSE" | "SAVING" | "INVESTMENT" | "QUEST" | "ROUTINE")[];
+      hiddenActivityCount: number;
+      detailAvailable: boolean;
+    };
+    MonthlyMoneySummary: {
+      incomeKrw: components["schemas"]["KrwAmount"];
+      expenseKrw: components["schemas"]["KrwAmount"];
+      savingKrw: components["schemas"]["KrwAmount"];
+    };
+    DailyJourneyMonth: {
+      month: string;
+      recordedDayCount: number;
+      dayCount: number;
+      moneySummary: components["schemas"]["MonthlyMoneySummary"];
+      nodes: components["schemas"]["JourneyNode"][];
+      calculationVersion: string;
+      dataState: components["schemas"]["DataState"];
+      lastSyncedAt: components["schemas"]["NullableTimestamp"];
+    };
     SaveReflectionRequest: {
       reflection: string;
     };
     AdvanceDemoTimelineRequest: {
       /** @enum {string} */
       fixtureId: "EUROPE_TRAVEL_JANUARY";
-      expectedStage: number;
+      expectedFrameIndex: number;
+    };
+    DemoTimelineFrame: {
+      frameIndex: number;
+      month: string;
+      savingEventKrw: components["schemas"]["KrwAmount"];
+      goalCurrentAmountKrw: components["schemas"]["KrwAmount"];
+      goalProgressBps: components["schemas"]["BasisPoints"];
+      /** @enum {string} */
+      dataState: "FRESH";
     };
     DemoTimelineView: {
       /** @enum {string} */
       fixtureId: "EUROPE_TRAVEL_JANUARY";
-      stage: number;
+      initialGoalAmountKrw: components["schemas"]["KrwAmount"];
+      targetGoalAmountKrw: components["schemas"]["KrwAmount"];
+      currentFrameIndex: number;
+      frames: components["schemas"]["DemoTimelineFrame"][];
       mainGoal: components["schemas"]["UserGoal"];
       raid: components["schemas"]["RaidView"];
-      syntheticGroup: components["schemas"]["MateGroup"];
+      calculationVersion: string;
+      dataState: components["schemas"]["DataState"];
+      lastSyncedAt: components["schemas"]["NullableTimestamp"];
     };
     FieldError: {
       field: string;
@@ -466,13 +834,13 @@ export interface components {
       detail: string;
       instance: string;
       /** @enum {string} */
-      code: "VALIDATION_FAILED" | "UNAUTHORIZED" | "INVALID_CREDENTIALS" | "DUPLICATE_EMAIL" | "NOT_FOUND" | "ACTIVE_MAIN_GOAL_EXISTS" | "DATA_STALE" | "DATA_INSUFFICIENT" | "ACTIVE_ROUTINE_BUILD_EXISTS" | "ADAPTATION_DOMAIN_REQUIRED" | "DEMO_PROFILE_REQUIRED";
+      code: "VALIDATION_FAILED" | "UNAUTHORIZED" | "INVALID_CREDENTIALS" | "DUPLICATE_EMAIL" | "NOT_FOUND" | "ACTIVE_MAIN_GOAL_EXISTS" | "GOAL_REQUIRED" | "DATA_STALE" | "DATA_INSUFFICIENT" | "ACTIVE_ROUTINE_BUILD_EXISTS" | "DEMO_PROFILE_REQUIRED";
       traceId: string;
       fieldErrors?: components["schemas"]["FieldError"][];
     };
   };
   responses: {
-    /** @description Authenticated email/password session */
+    /** @description Authenticated email/password session. */
     AuthSessionResponse: {
       headers: {
         "Set-Cookie": components["headers"]["RefreshCookie"];
@@ -481,25 +849,43 @@ export interface components {
         "application/json": components["schemas"]["AuthSession"];
       };
     };
-    /** @description RFC 7807 problem */
+    /** @description RFC 7807 problem. */
     ProblemResponse: {
       content: {
         "application/problem+json": components["schemas"]["Problem"];
       };
     };
-    /** @description An active routine build exists and explicit replacement is required */
-    ActiveBuildConflict: {
+    /** @description An active goal is required for this command. */
+    GoalRequired: {
       content: {
         "application/problem+json": components["schemas"]["Problem"];
       };
     };
-    /** @description The last synthetic calculation is too old for this command */
+    /** @description A main goal is already active. */
+    ActiveGoalConflict: {
+      content: {
+        "application/problem+json": components["schemas"]["Problem"];
+      };
+    };
+    /** @description Goal is missing or an active routine requires explicit replacement. */
+    RoutineImportConflict: {
+      content: {
+        "application/problem+json": components["schemas"]["Problem"];
+      };
+    };
+    /** @description A goal is missing or the synthetic source data is stale. */
+    RoutineRecommendationConflict: {
+      content: {
+        "application/problem+json": components["schemas"]["Problem"];
+      };
+    };
+    /** @description The last synthetic calculation is too old for this command. */
     DataStale: {
       content: {
         "application/problem+json": components["schemas"]["Problem"];
       };
     };
-    /** @description Synthetic source periods or classifications are insufficient */
+    /** @description Synthetic source periods or classifications are insufficient. */
     DataInsufficient: {
       content: {
         "application/problem+json": components["schemas"]["Problem"];
@@ -508,25 +894,29 @@ export interface components {
   };
   parameters: {
     IdempotencyKey: string;
-    /** @description Opaque 30-day refresh token. Sent only as an HttpOnly, SameSite=Lax cookie scoped to /api/v1/auth. */
+    /** @description Opaque 30-day refresh token held only in a browser cookie. */
     RefreshCookie: string;
     GroupId: string;
     AdventurerId: string;
     RoutineId: string;
     AdaptationId: string;
     CandidateId: string;
+    ProductId: string;
+    CosmeticId: string;
     QuestId: string;
     RecordDate: string;
+    CharacterReportType: components["schemas"]["CharacterReportType"];
+    Month: string;
   };
   requestBodies: never;
   headers: {
     /**
-     * @description Rotated opaque refresh token; HttpOnly, SameSite=Lax, Path=/api/v1/auth, Max-Age=2592000. Secure is enabled outside local development.
+     * @description Rotated opaque refresh token with secure browser attributes.
      * @example finmate_refresh=opaque-token; Path=/api/v1/auth; Max-Age=2592000; HttpOnly; SameSite=Lax; Secure
      */
     RefreshCookie: string;
     /**
-     * @description Revokes the browser cookie with Max-Age=0 using the same attributes and path.
+     * @description Revokes the browser cookie with the same attributes and Max-Age=0.
      * @example finmate_refresh=; Path=/api/v1/auth; Max-Age=0; HttpOnly; SameSite=Lax; Secure
      */
     ClearedRefreshCookie: string;
@@ -580,7 +970,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Refresh session revoked and cookie cleared */
+      /** @description Refresh session revoked and browser cookie cleared. */
       204: {
         headers: {
           "Set-Cookie": components["headers"]["ClearedRefreshCookie"];
@@ -590,9 +980,63 @@ export interface operations {
       default: components["responses"]["ProblemResponse"];
     };
   };
+  getDisclosureConsent: {
+    responses: {
+      /** @description Current granular disclosure consent. New users are opted out by default. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["DisclosureConsent"];
+        };
+      };
+      default: components["responses"]["ProblemResponse"];
+    };
+  };
+  /** @description Activates only the fields that were previewed and explicitly confirmed as exact values. */
+  updateDisclosureConsent: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DisclosureRequest"];
+      };
+    };
+    responses: {
+      /** @description Active versioned disclosure consent. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["DisclosureConsent"];
+        };
+      };
+      default: components["responses"]["ProblemResponse"];
+    };
+  };
+  /** @description Immediately opts out and removes every selected field from discovery and recommendation reads. */
+  withdrawDisclosureConsent: {
+    responses: {
+      /** @description Disclosure withdrawn and version advanced. */
+      204: {
+        content: never;
+      };
+      default: components["responses"]["ProblemResponse"];
+    };
+  };
+  previewDisclosure: {
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DisclosureRequest"];
+      };
+    };
+    responses: {
+      /** @description Exact-value preview plus fields that can never be disclosed. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["DisclosurePreview"];
+        };
+      };
+      default: components["responses"]["ProblemResponse"];
+    };
+  };
   getOnboarding: {
     responses: {
-      /** @description Current onboarding draft or completed state */
+      /** @description Current onboarding draft or completed state. */
       200: {
         content: {
           "application/json": components["schemas"]["OnboardingView"];
@@ -613,7 +1057,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Onboarding completed with one confirmed goal */
+      /** @description Onboarding completed in explore-only mode; a goal may be confirmed later. */
       200: {
         content: {
           "application/json": components["schemas"]["OnboardingView"];
@@ -622,23 +1066,46 @@ export interface operations {
       default: components["responses"]["ProblemResponse"];
     };
   };
+  confirmUserGoal: {
+    parameters: {
+      header: {
+        "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+      };
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ConfirmUserGoalRequest"];
+      };
+    };
+    responses: {
+      /** @description The user's one active main goal. */
+      201: {
+        content: {
+          "application/json": components["schemas"]["UserGoal"];
+        };
+      };
+      409: components["responses"]["ActiveGoalConflict"];
+      default: components["responses"]["ProblemResponse"];
+    };
+  };
   getActiveUserGoal: {
     responses: {
-      /** @description The one active main goal */
+      /** @description The one active main goal. */
       200: {
         content: {
           "application/json": components["schemas"]["UserGoal"];
         };
       };
+      404: components["responses"]["ProblemResponse"];
       default: components["responses"]["ProblemResponse"];
     };
   };
   getHome: {
     responses: {
-      /** @description Home tab projection */
+      /** @description Explore-only or goal-active home projection. */
       200: {
         content: {
-          "application/json": components["schemas"]["HomeResponse"];
+          "application/json": components["schemas"]["HomeView"];
         };
       };
       default: components["responses"]["ProblemResponse"];
@@ -646,10 +1113,27 @@ export interface operations {
   };
   getCurrentRaid: {
     responses: {
-      /** @description Current raid projection from financial evidence */
+      /** @description Current raid projection calculated from financial evidence. */
       200: {
         content: {
           "application/json": components["schemas"]["RaidView"];
+        };
+      };
+      404: components["responses"]["ProblemResponse"];
+      default: components["responses"]["ProblemResponse"];
+    };
+  };
+  getCharacterReport: {
+    parameters: {
+      path: {
+        reportType: components["parameters"]["CharacterReportType"];
+      };
+    };
+    responses: {
+      /** @description One of the four character-backed financial reports. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["CharacterReport"];
         };
       };
       default: components["responses"]["ProblemResponse"];
@@ -658,11 +1142,11 @@ export interface operations {
   getMonthlyReport: {
     parameters: {
       query: {
-        month: string;
+        month: components["parameters"]["Month"];
       };
     };
     responses: {
-      /** @description Monthly financial and activity report */
+      /** @description Monthly financial and activity report. */
       200: {
         content: {
           "application/json": components["schemas"]["MonthlyReport"];
@@ -671,12 +1155,61 @@ export interface operations {
       default: components["responses"]["ProblemResponse"];
     };
   };
+  getMateFriendOverview: {
+    responses: {
+      /** @description Synthetic read-only friend progress and comparison summary. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["MateFriendOverview"];
+        };
+      };
+      default: components["responses"]["ProblemResponse"];
+    };
+  };
+  getMateFriendFeed: {
+    responses: {
+      /** @description Amount-free synthetic friend activity feed. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["MateFriendFeed"];
+        };
+      };
+      default: components["responses"]["ProblemResponse"];
+    };
+  };
+  getMateFriendStreaks: {
+    responses: {
+      /** @description Amount-free synthetic shared streaks. This resource is read-only in MVP. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["MateStreakPage"];
+        };
+      };
+      default: components["responses"]["ProblemResponse"];
+    };
+  };
   listMateGroups: {
     responses: {
-      /** @description Eligible operational groups and explicit synthetic demo group */
+      /** @description Eligible groups and explicit synthetic demo groups. */
       200: {
         content: {
           "application/json": components["schemas"]["MateGroupPage"];
+        };
+      };
+      default: components["responses"]["ProblemResponse"];
+    };
+  };
+  getMateGroupReport: {
+    parameters: {
+      path: {
+        groupId: components["parameters"]["GroupId"];
+      };
+    };
+    responses: {
+      /** @description Anonymous group ranges, distributions, and goal-achiever preview. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["MateGroupReport"];
         };
       };
       default: components["responses"]["ProblemResponse"];
@@ -689,10 +1222,68 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Anonymous adventurers recommended inside the selected group */
+      /** @description Anonymous adventurers recommended inside the selected group. */
       200: {
         content: {
           "application/json": components["schemas"]["RecommendedAdventurerPage"];
+        };
+      };
+      default: components["responses"]["ProblemResponse"];
+    };
+  };
+  getRecommendedAdventurer: {
+    parameters: {
+      path: {
+        groupId: components["parameters"]["GroupId"];
+        adventurerId: components["parameters"]["AdventurerId"];
+      };
+    };
+    responses: {
+      /** @description One anonymous adventurer's approved public context. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["RecommendedAdventurerCard"];
+        };
+      };
+      default: components["responses"]["ProblemResponse"];
+    };
+  };
+  getAdventurerReport: {
+    parameters: {
+      path: {
+        groupId: components["parameters"]["GroupId"];
+        adventurerId: components["parameters"]["AdventurerId"];
+      };
+    };
+    responses: {
+      /** @description Range-based comparison and evidence for the adventurer's routines. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["AdventurerReport"];
+        };
+      };
+      default: components["responses"]["ProblemResponse"];
+    };
+  };
+  /** @description Exact synthetic financial values selected by an active, granular disclosure consent. */
+  getPublicFinancialProfile: {
+    parameters: {
+      path: {
+        groupId: components["parameters"]["GroupId"];
+        adventurerId: components["parameters"]["AdventurerId"];
+      };
+    };
+    responses: {
+      /** @description Only consented sections are present. Product and trade data are information-only. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["PublicFinancialProfile"];
+        };
+      };
+      /** @description Profile missing or its disclosure consent has been withdrawn. */
+      404: {
+        content: {
+          "application/problem+json": components["schemas"]["Problem"];
         };
       };
       default: components["responses"]["ProblemResponse"];
@@ -707,7 +1298,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Routine detail within group and anonymous adventurer context */
+      /** @description Routine detail in group and anonymous adventurer context. */
       200: {
         content: {
           "application/json": components["schemas"]["AdventurerRoutine"];
@@ -716,50 +1307,36 @@ export interface operations {
       default: components["responses"]["ProblemResponse"];
     };
   };
-  createRoutineAdaptation: {
+  searchMateAdventurers: {
     requestBody: {
       content: {
-        "application/json": components["schemas"]["CreateRoutineAdaptationRequest"];
+        "application/json": components["schemas"]["MateExploreSearchRequest"];
       };
     };
     responses: {
-      /** @description Adaptation awaiting the user's single domain choice */
-      201: {
+      /** @description Synthetic read-only adventurers for an approved filter combination. */
+      200: {
         content: {
-          "application/json": {
-            adaptationId: string;
-            sourceRoutineId: string;
-            /** @enum {string} */
-            state: "AWAITING_DOMAIN";
-            availableDomains: components["schemas"]["AdaptationDomain"][];
-            calculationVersion: string;
-            dataState: components["schemas"]["DataState"];
-            lastSyncedAt: components["schemas"]["NullableTimestamp"];
-          };
+          "application/json": components["schemas"]["RecommendedAdventurerPage"];
         };
       };
       default: components["responses"]["ProblemResponse"];
     };
   };
-  chooseRoutineAdaptationDomain: {
-    parameters: {
-      path: {
-        adaptationId: components["parameters"]["AdaptationId"];
-      };
-    };
+  createRoutineRecommendation: {
     requestBody: {
       content: {
-        "application/json": components["schemas"]["ChooseAdaptationDomainRequest"];
+        "application/json": components["schemas"]["CreateRoutineRecommendationRequest"];
       };
     };
     responses: {
-      /** @description Three candidates for the selected domain */
-      200: {
+      /** @description One recommended candidate plus optional intensity alternatives. */
+      201: {
         content: {
-          "application/json": components["schemas"]["RoutineAdaptationSet"];
+          "application/json": components["schemas"]["RoutineRecommendation"];
         };
       };
-      409: components["responses"]["DataStale"];
+      409: components["responses"]["RoutineRecommendationConflict"];
       422: components["responses"]["DataInsufficient"];
       default: components["responses"]["ProblemResponse"];
     };
@@ -775,24 +1352,25 @@ export interface operations {
       };
     };
     responses: {
-      /** @description New global active routine build when none exists */
+      /** @description New active routine build when none exists. */
       201: {
         content: {
           "application/json": components["schemas"]["ActiveRoutineBuild"];
         };
       };
-      409: components["responses"]["ActiveBuildConflict"];
+      409: components["responses"]["RoutineImportConflict"];
       default: components["responses"]["ProblemResponse"];
     };
   };
   getActiveRoutineBuild: {
     responses: {
-      /** @description The one global active routine build */
+      /** @description The one global active routine build. */
       200: {
         content: {
           "application/json": components["schemas"]["ActiveRoutineBuild"];
         };
       };
+      404: components["responses"]["ProblemResponse"];
       default: components["responses"]["ProblemResponse"];
     };
   };
@@ -808,7 +1386,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Previous build archived and candidate build activated atomically */
+      /** @description Previous build archived and candidate build activated atomically. */
       200: {
         content: {
           "application/json": components["schemas"]["RoutineBuildReplacement"];
@@ -817,9 +1395,26 @@ export interface operations {
       default: components["responses"]["ProblemResponse"];
     };
   };
+  getRelatedHanaProductInfo: {
+    parameters: {
+      path: {
+        productId: components["parameters"]["ProductId"];
+      };
+    };
+    responses: {
+      /** @description Reviewed informational catalog item, separate from peer and routine data. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["RelatedHanaProductInfo"];
+        };
+      };
+      409: components["responses"]["GoalRequired"];
+      default: components["responses"]["ProblemResponse"];
+    };
+  };
   listQuests: {
     responses: {
-      /** @description Quest tab projection */
+      /** @description Quest tab projection. */
       200: {
         content: {
           "application/json": components["schemas"]["QuestPage"];
@@ -835,12 +1430,32 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Quest detail */
+      /** @description Quest detail and verification rule. */
       200: {
         content: {
           "application/json": components["schemas"]["Quest"];
         };
       };
+      default: components["responses"]["ProblemResponse"];
+    };
+  };
+  acceptQuest: {
+    parameters: {
+      header: {
+        "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+      };
+      path: {
+        questId: components["parameters"]["QuestId"];
+      };
+    };
+    responses: {
+      /** @description Available quest accepted without changing financial stats. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["QuestAcceptance"];
+        };
+      };
+      409: components["responses"]["GoalRequired"];
       default: components["responses"]["ProblemResponse"];
     };
   };
@@ -854,13 +1469,13 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Completion grants XP/internal rewards without changing financial stats */
+      /** @description Behavior completion grants XP/internal rewards without financial-stat change. */
       200: {
         content: {
           "application/json": components["schemas"]["QuestCompletion"];
         };
       };
-      /** @description Financial evidence awaits synthetic MyData recalculation */
+      /** @description Financial evidence awaits synthetic MyData recalculation. */
       202: {
         content: {
           "application/json": components["schemas"]["QuestCompletion"];
@@ -877,10 +1492,26 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Daily record page */
+      /** @description Daily record page. */
       200: {
         content: {
           "application/json": components["schemas"]["DailyRecordPage"];
+        };
+      };
+      default: components["responses"]["ProblemResponse"];
+    };
+  };
+  getDailyJourneyMonth: {
+    parameters: {
+      query: {
+        month: components["parameters"]["Month"];
+      };
+    };
+    responses: {
+      /** @description Ordered monthly stepping-stone journey. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["DailyJourneyMonth"];
         };
       };
       default: components["responses"]["ProblemResponse"];
@@ -893,7 +1524,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description One daily record */
+      /** @description One daily record for the bottom sheet. */
       200: {
         content: {
           "application/json": components["schemas"]["DailyRecord"];
@@ -914,7 +1545,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Daily record with saved reflection; calculations are unchanged */
+      /** @description Daily record with saved reflection; calculations are unchanged. */
       200: {
         content: {
           "application/json": components["schemas"]["DailyRecord"];
@@ -923,7 +1554,48 @@ export interface operations {
       default: components["responses"]["ProblemResponse"];
     };
   };
-  /** @description Registered only under the Spring demo profile. Never exposed in production. */
+  getPointLedger: {
+    responses: {
+      /** @description Non-transferable internal point balance and ledger. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["PointLedgerView"];
+        };
+      };
+      default: components["responses"]["ProblemResponse"];
+    };
+  };
+  listCosmetics: {
+    responses: {
+      /** @description Fixed cosmetic items only; no cash, coupon, random box, or report lock. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["CosmeticCatalogView"];
+        };
+      };
+      default: components["responses"]["ProblemResponse"];
+    };
+  };
+  purchaseCosmetic: {
+    parameters: {
+      header: {
+        "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+      };
+      path: {
+        cosmeticId: components["parameters"]["CosmeticId"];
+      };
+    };
+    responses: {
+      /** @description Idempotent fixed cosmetic purchase with internal points. */
+      200: {
+        content: {
+          "application/json": components["schemas"]["CosmeticPurchase"];
+        };
+      };
+      default: components["responses"]["ProblemResponse"];
+    };
+  };
+  /** @description Registered only under the demo profile and for synthetic users. */
   advanceDemoTimeline: {
     parameters: {
       header: {
@@ -936,7 +1608,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Advanced synthetic fixture stage and recalculated projections */
+      /** @description Deterministic six-frame synthetic timeline and current projections. */
       200: {
         content: {
           "application/json": components["schemas"]["DemoTimelineView"];

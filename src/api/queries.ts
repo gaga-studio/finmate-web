@@ -3,43 +3,72 @@ import {
   apiGet,
   apiRequest,
   type ActiveRoutineBuild,
+  type Adventurer,
   type AdventurerPage,
+  type AdventurerReport,
   type AdventurerRoutine,
+  type CharacterReport,
+  type DailyJourneyMonth,
   type DailyRecordPage,
   type DemoTimeline,
+  type HanaProductInfo,
   type HomeResponse,
+  type MateGroupReport,
   type MateGroupPage,
   type MonthlyReport,
   type OnboardingView,
   type QuestPage,
+  type QuestAcceptance,
   type QuestCompletion,
   type DailyRecord,
   type RaidView,
-  type RoutineAdaptationDraft,
-  type RoutineAdaptationSet,
+  type RoutineRecommendation,
   type RoutineReplacement,
   type Schema,
+  type UserGoal,
 } from './client'
 
 type CompleteOnboarding = Schema['CompleteOnboardingRequest']
-type CreateAdaptation = Schema['CreateRoutineAdaptationRequest']
-type ChooseDomain = Schema['ChooseAdaptationDomainRequest']
+type ConfirmGoal = Schema['ConfirmUserGoalRequest']
+type CreateRecommendation = Schema['CreateRoutineRecommendationRequest']
 type ReplaceRoutine = Schema['ReplaceActiveRoutineBuildRequest']
 
 const invalidateRoutineViews = (queryClient: ReturnType<typeof useQueryClient>) =>
   Promise.all([queryClient.invalidateQueries({ queryKey: ['home'] }), queryClient.invalidateQueries({ queryKey: ['active-routine'] })])
 
 export const useOnboarding = () => useQuery({ queryKey: ['onboarding'], queryFn: () => apiGet<OnboardingView>('/onboarding') })
-export const useCompleteOnboarding = () => useMutation({ mutationFn: (body: CompleteOnboarding) => apiRequest<OnboardingView>('/onboarding', 'PUT', body) })
+export const useCompleteOnboarding = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (body: CompleteOnboarding) => apiRequest<OnboardingView>('/onboarding', 'PUT', body),
+    onSuccess: () => Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['onboarding'] }),
+      queryClient.invalidateQueries({ queryKey: ['home'] }),
+    ]),
+  })
+}
+export const useConfirmGoal = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (body: ConfirmGoal) => apiRequest<UserGoal>('/goals', 'POST', body),
+    onSuccess: () => Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['onboarding'] }),
+      queryClient.invalidateQueries({ queryKey: ['home'] }),
+    ]),
+  })
+}
 export const useHome = () => useQuery({ queryKey: ['home'], queryFn: () => apiGet<HomeResponse>('/home') })
 export const useRaid = () => useQuery({ queryKey: ['raid'], queryFn: () => apiGet<RaidView>('/raids/current') })
+export const useCharacterReport = (reportType: Schema['CharacterReportType']) => useQuery({ queryKey: ['character-report', reportType], queryFn: () => apiGet<CharacterReport>(`/reports/characters/${reportType}`) })
 export const useMonthlyReport = () => useQuery({ queryKey: ['monthly-report'], queryFn: () => apiGet<MonthlyReport>('/reports/monthly?month=2026-07') })
 export const useMateGroups = () => useQuery({ queryKey: ['mate-groups'], queryFn: () => apiGet<MateGroupPage>('/mate/groups') })
+export const useMateGroupReport = (groupId: string) => useQuery({ queryKey: ['mate-group-report', groupId], queryFn: () => apiGet<MateGroupReport>(`/mate/groups/${groupId}/report`), enabled: Boolean(groupId) })
 export const useAdventurers = (groupId: string) => useQuery({ queryKey: ['adventurers', groupId], queryFn: () => apiGet<AdventurerPage>(`/mate/groups/${groupId}/adventurers`), enabled: Boolean(groupId) })
+export const useAdventurer = (groupId: string, adventurerId: string) => useQuery({ queryKey: ['adventurer', groupId, adventurerId], queryFn: () => apiGet<Adventurer>(`/mate/groups/${groupId}/adventurers/${adventurerId}`), enabled: Boolean(groupId && adventurerId) })
+export const useAdventurerReport = (groupId: string, adventurerId: string) => useQuery({ queryKey: ['adventurer-report', groupId, adventurerId], queryFn: () => apiGet<AdventurerReport>(`/mate/groups/${groupId}/adventurers/${adventurerId}/report`), enabled: Boolean(groupId && adventurerId) })
 export const useAdventurerRoutine = (groupId: string, adventurerId: string, routineId: string) => useQuery({ queryKey: ['routine', groupId, adventurerId, routineId], queryFn: () => apiGet<AdventurerRoutine>(`/mate/groups/${groupId}/adventurers/${adventurerId}/routines/${routineId}`), enabled: Boolean(groupId && adventurerId && routineId) })
 export const useActiveRoutine = () => useQuery({ queryKey: ['active-routine'], queryFn: () => apiGet<ActiveRoutineBuild>('/routine-builds/active') })
-export const useCreateAdaptation = () => useMutation({ mutationFn: (body: CreateAdaptation) => apiRequest<RoutineAdaptationDraft>('/routine-adaptations', 'POST', body) })
-export const useChooseAdaptation = () => useMutation({ mutationFn: ({ adaptationId, body }: { adaptationId: string; body: ChooseDomain }) => apiRequest<RoutineAdaptationSet>(`/routine-adaptations/${adaptationId}/choice`, 'PUT', body) })
+export const useCreateRecommendation = () => useMutation({ mutationFn: (body: CreateRecommendation) => apiRequest<RoutineRecommendation>('/routine-adaptations', 'POST', body) })
 export const useImportRoutine = () => {
   const queryClient = useQueryClient()
   return useMutation({ mutationFn: ({ adaptationId, candidateId }: { adaptationId: string; candidateId: string }) => apiRequest<ActiveRoutineBuild>(`/routine-adaptations/${adaptationId}/candidates/${candidateId}/import`, 'POST', {}), onSuccess: () => invalidateRoutineViews(queryClient) })
@@ -49,13 +78,19 @@ export const useReplaceRoutine = () => {
   return useMutation({ mutationFn: (body: ReplaceRoutine) => apiRequest<RoutineReplacement>('/routine-builds/active/replacement', 'POST', body), onSuccess: () => invalidateRoutineViews(queryClient) })
 }
 export const useQuests = () => useQuery({ queryKey: ['quests'], queryFn: () => apiGet<QuestPage>('/quests') })
+export const useAcceptQuest = () => {
+  const queryClient = useQueryClient()
+  return useMutation({ mutationFn: (questId: string) => apiRequest<QuestAcceptance>(`/quests/${questId}/accept`, 'POST'), onSuccess: () => queryClient.invalidateQueries({ queryKey: ['quests'] }) })
+}
 export const useCompleteQuest = () => {
   const queryClient = useQueryClient()
   return useMutation({ mutationFn: (questId: string) => apiRequest<QuestCompletion>(`/quests/${questId}/complete`, 'POST'), onSuccess: () => queryClient.invalidateQueries({ queryKey: ['quests'] }) })
 }
 export const useRecords = () => useQuery({ queryKey: ['records'], queryFn: () => apiGet<DailyRecordPage>('/records?from=2026-07-01&to=2026-07-30') })
+export const useDailyJourney = (month = '2026-07') => useQuery({ queryKey: ['records', 'journey', month], queryFn: () => apiGet<DailyJourneyMonth>(`/records/journey?month=${month}`) })
 export const useDailyRecord = (date: string | null) => useQuery({ queryKey: ['record', date], queryFn: () => apiGet<DailyRecord>(`/records/${date}`), enabled: Boolean(date) })
+export const useHanaProductInfo = (productId: string | null) => useQuery({ queryKey: ['hana-product', productId], queryFn: () => apiGet<HanaProductInfo>(`/hana-products/${productId}`), enabled: Boolean(productId) })
 export const useAdvanceDemo = () => {
   const queryClient = useQueryClient()
-  return useMutation({ mutationFn: (expectedStage: number) => apiRequest<DemoTimeline>('/demo/timeline/advance', 'POST', { fixtureId: 'EUROPE_TRAVEL_JANUARY', expectedStage }), onSuccess: () => Promise.all([queryClient.refetchQueries({ queryKey: ['home'] }), queryClient.refetchQueries({ queryKey: ['raid'] }), queryClient.invalidateQueries({ queryKey: ['goal'] })]) })
+  return useMutation({ mutationFn: (expectedFrameIndex: number) => apiRequest<DemoTimeline>('/demo/timeline/advance', 'POST', { fixtureId: 'EUROPE_TRAVEL_JANUARY', expectedFrameIndex }), onSuccess: () => Promise.all([queryClient.refetchQueries({ queryKey: ['home'] }), queryClient.refetchQueries({ queryKey: ['raid'] }), queryClient.invalidateQueries({ queryKey: ['goal'] })]) })
 }
