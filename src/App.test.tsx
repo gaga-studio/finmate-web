@@ -20,7 +20,7 @@ function renderApp(initialEntry = '/signup') {
 }
 
 describe('FinMate representative flow', () => {
-  it('starts signup and advances into six-step onboarding', async () => {
+  it('starts signup and advances into five-step onboarding', async () => {
     const user = userEvent.setup()
     renderApp()
 
@@ -29,20 +29,28 @@ describe('FinMate representative flow', () => {
     await user.type(screen.getByLabelText('비밀번호'), 'finmate12345')
     await user.click(screen.getByRole('button', { name: '시작하기' }))
 
-    expect(await screen.findByText('금융 습관을 알아볼게요')).toBeInTheDocument()
-    expect(screen.getByText('1 / 6')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: '지금의 생활 리듬은 어떤가요?' })).toBeInTheDocument()
+    expect(screen.getByText('1 / 5')).toBeInTheDocument()
   })
 
   it('retains onboarding choices locally and opens an editable Europe travel goal draft', async () => {
     const user = userEvent.setup()
     renderApp('/onboarding/1')
 
-    const choice = screen.getByRole('button', { name: '자동저축부터 만들고 싶어요' })
+    const choice = screen.getByRole('button', { name: '정기 소득 · 자취 중이에요' })
     await user.click(choice)
     expect(choice).toHaveAttribute('aria-pressed', 'true')
 
-    for (let step = 0; step < 5; step += 1) await user.click(screen.getByRole('button', { name: '다음' }))
-    await user.click(screen.getByRole('button', { name: '여행 목표 보기' }))
+    await user.click(screen.getByRole('button', { name: '다음' }))
+    await user.click(screen.getByRole('button', { name: '저축을 꾸준히 하고 싶어요' }))
+    await user.click(screen.getByRole('button', { name: '다음' }))
+    await user.click(screen.getByRole('button', { name: '안전성과 실행을 함께 봐요' }))
+    await user.click(screen.getByRole('button', { name: '다음' }))
+    await user.click(screen.getByRole('button', { name: '자취 · 사회초년생' }))
+    await user.click(screen.getByRole('button', { name: '다음' }))
+    await user.click(screen.getByRole('button', { name: '동의 범위를 확인하고 연결하기' }))
+    await user.click(screen.getByRole('button', { name: '연결하고 기준선 보기' }))
+    await user.click(await screen.findByRole('link', { name: '목표 설정하기' }))
 
     expect(await screen.findByLabelText('목표 이름')).toHaveValue('유럽 여행 자금')
     expect(screen.getByLabelText('목표 금액')).toHaveValue(5000000)
@@ -105,6 +113,17 @@ describe('FinMate representative flow', () => {
     expect(screen.getByRole('link', { name: '목표 설정' })).toHaveAttribute('href', '/goal/confirm')
   })
 
+  it('explains the calculated baseline before goal confirmation', async () => {
+    renderApp('/onboarding/baseline')
+
+    expect(await screen.findByRole('heading', { name: '지금의 출발점을 확인했어요' })).toBeInTheDocument()
+    expect(screen.getByText('1,100,000원')).toBeInTheDocument()
+    expect(screen.getByText('52%')).toBeInTheDocument()
+    expect(screen.getByText('18%')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '목표 설정하기' })).toHaveAttribute('href', '/goal/confirm')
+    expect(screen.getByRole('link', { name: '일단 메이트 탐색하기' })).toHaveAttribute('href', '/home')
+  })
+
   it('presents the active goal as a travel raid with four report entry points', async () => {
     renderApp('/home')
 
@@ -122,6 +141,7 @@ describe('FinMate representative flow', () => {
     renderApp('/mates/group/savers')
 
     await user.click(await screen.findByRole('link', { name: /북쪽의 모험가/ }))
+    await user.click(await screen.findByRole('link', { name: /루틴 보기/ }))
     await user.click(await screen.findByRole('link', { name: '루틴을 내 생활에 맞추기' }))
     await user.click(await screen.findByRole('button', { name: '내 기준으로 추천 받기' }))
     await user.click(await screen.findByRole('button', { name: '표준 · 월급날 50만원 먼저 저축' }))
@@ -154,15 +174,61 @@ describe('FinMate representative flow', () => {
     expect(screen.queryByText(/1위|랭킹/)).not.toBeInTheDocument()
   })
 
+  it('shows read-only friend activity without amounts or ranking', async () => {
+    renderApp('/mates/friends')
+
+    expect(await screen.findByRole('heading', { name: '친구와 이어온 작은 습관' })).toBeInTheDocument()
+    expect(screen.getByText('3 / 4명 완료')).toBeInTheDocument()
+    expect(screen.getByText('자동저축 확인 루틴을 이어갔어요.')).toBeInTheDocument()
+    expect(screen.getByText('12일')).toBeInTheDocument()
+    expect(screen.queryByText(/원|랭킹|1위/)).not.toBeInTheDocument()
+  })
+
+  it('searches approved comparison filters and opens an anonymous adventurer', async () => {
+    const user = userEvent.setup()
+    renderApp('/mates/explore')
+
+    expect(await screen.findByRole('heading', { name: '조건으로 익명 모험가 찾기' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: '모험가 찾기' }))
+    const result = await screen.findByRole('link', { name: /남쪽의 모험가/ })
+    expect(result).toHaveAttribute('href', '/mates/group/budget/adventurer/adventurer-budget')
+  })
+
+  it('separates the adventurer profile, comparison report, and routine action', async () => {
+    const user = userEvent.setup()
+    renderApp('/mates/group/savers/adventurer/adventurer-saver')
+
+    expect(await screen.findByRole('heading', { name: '북쪽의 모험가' })).toBeInTheDocument()
+    expect(screen.getByText('42일 유지 · 저축')).toBeInTheDocument()
+    await user.click(screen.getByRole('link', { name: /나와 비교한 리포트 보기/ }))
+    expect(await screen.findByRole('heading', { name: '나와 북쪽의 모험가' })).toBeInTheDocument()
+    expect(screen.getByText('10–20%')).toBeInTheDocument()
+    expect(screen.getByText('20–30%')).toBeInTheDocument()
+    expect(screen.getByText('차이는 부담 없는 저축 행동부터 줄일 수 있어요.')).toBeInTheDocument()
+    expect(screen.queryByText('SAVING GAP IS ACTIONABLE')).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /이 루틴을 내 상황에 맞추기/ })).toBeInTheDocument()
+  })
+
+  it('keeps reviewed Hana product information separate from game progress', async () => {
+    renderApp('/products/hana-saving-info-001')
+
+    expect(await screen.findByRole('heading', { name: '하나 합 저축 정보' })).toBeInTheDocument()
+    expect(screen.getByText('루틴과 상품 정보는 분리돼요')).toBeInTheDocument()
+    expect(screen.getByText(/XP, 금융 스탯, 레이드 진행률은 바뀌지 않아요/)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /공식 정보에서 확인/ })).toHaveAttribute('target', '_blank')
+    expect(screen.queryByRole('button', { name: /가입/ })).not.toBeInTheDocument()
+  })
+
   it('shows synthetic financial quests as waiting for MyData evidence', async () => {
     const user = userEvent.setup()
     renderApp('/quests')
 
-    await user.click(await screen.findByRole('button', { name: '자동저축 입금 반영 확인하기 수락' }))
-    await user.click(await screen.findByRole('button', { name: '자동저축 입금 반영 확인하기 완료' }))
+    await user.click(await screen.findByRole('link', { name: /자동저축 입금 반영 확인하기/ }))
+    await user.click(await screen.findByRole('button', { name: '퀘스트 수락' }))
+    await user.click(await screen.findByRole('button', { name: '완료 확인' }))
 
-    expect(await screen.findByRole('status')).toHaveTextContent('MyData 반영을 기다리고 있어요')
-    expect(screen.getByRole('button', { name: '자동저축 입금 반영 확인하기 완료' })).toBeDisabled()
+    expect(await screen.findByText('새 데이터 반영을 기다리고 있어요')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '기록에서 반영 상태 보기' })).toBeInTheDocument()
   })
 
   it('explains that quest rewards and financial growth are calculated separately', async () => {

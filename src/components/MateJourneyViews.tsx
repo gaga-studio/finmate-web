@@ -34,22 +34,25 @@ export function MateGroupDetailView({
       </aside>
 
       <div className={styles.adventurerList}>
-        {adventurers.flatMap((adventurer) => adventurer.routines.map((routine) => (
+        {adventurers.map((adventurer) => {
+          const routine = adventurer.routines[0]
+          return (
           <Link
             className={styles.adventurerCard}
-            to={`/mates/group/${group.groupId}/adventurer/${adventurer.adventurerId}/routine/${routine.routineId}`}
-            key={routine.routineId}
+            to={`/mates/group/${group.groupId}/adventurer/${adventurer.adventurerId}`}
+            key={adventurer.adventurerId}
           >
             <img src={adventurerImage(group.groupId)} alt="" />
             <div>
               <span>{adventurer.goalAchievementLabel}</span>
               <h2>{adventurer.alias}</h2>
-              <p>{routine.title}</p>
-              <small>{adventurer.contextTags.join(' · ')} · {routine.maintenanceDays}일 유지</small>
+              <p>{routine?.title ?? '검증된 금융 루틴'}</p>
+              <small>{adventurer.contextTags.join(' · ')}{routine ? ` · ${routine.maintenanceDays}일 유지` : ''}</small>
             </div>
             <ChevronRight size={22} aria-hidden="true" />
           </Link>
-        )))}
+          )
+        })}
       </div>
     </section>
   )

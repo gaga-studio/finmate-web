@@ -7,6 +7,26 @@ const groups: Schema['MateGroup'][] = [
   { groupId: 'savers', name: '꾸준저축 원정대', memberCount: 34, syntheticDemo: false, eligibleForProductionAggregation: true },
   { groupId: 'budget', name: '생활비 탐험대', memberCount: 31, syntheticDemo: false, eligibleForProductionAggregation: true },
 ]
+const friendOverview: Schema['MateFriendOverview'] = {
+  friendCount: 4,
+  completedToday: 3,
+  readOnly: true,
+  friends: [
+    { friendId: 'friend-bear', alias: '단단한 곰', avatarCode: 'bear', questCompletedToday: true },
+    { friendId: 'friend-rabbit', alias: '차분한 토끼', avatarCode: 'rabbit', questCompletedToday: true },
+    { friendId: 'friend-bird', alias: '배우는 새', avatarCode: 'bird', questCompletedToday: true },
+    { friendId: 'friend-otter', alias: '꾸준한 수달', avatarCode: 'otter', questCompletedToday: false },
+  ],
+}
+const friendFeed: Schema['MateFriendFeed'] = {
+  readOnly: true,
+  items: [
+    { friendId: 'friend-rabbit', alias: '차분한 토끼', avatarCode: 'rabbit', eventType: 'ROUTINE', message: '자동저축 확인 루틴을 이어갔어요.', completed: true, occurredAt: now },
+    { friendId: 'friend-bird', alias: '배우는 새', avatarCode: 'bird', eventType: 'QUEST', message: '오늘의 금융 퀴즈를 완료했어요.', completed: true, occurredAt: now },
+    { friendId: 'friend-otter', alias: '꾸준한 수달', avatarCode: 'otter', eventType: 'STREAK', message: '예산 확인 연속기록을 이어가고 있어요.', completed: false, occurredAt: now },
+  ],
+}
+const friendStreaks: Schema['MateStreakPage'] = { readOnly: true, items: [{ friendId: 'friend-rabbit', alias: '차분한 토끼', label: '자동저축 확인', daysTogether: 12 }, { friendId: 'friend-otter', alias: '꾸준한 수달', label: '예산 먼저 보기', daysTogether: 7 }] }
 const baseRoutine: Schema['ActiveRoutineBuild'] = { buildId: 'build-current', candidateId: 'candidate-current', sourceRoutineId: 'routine-current', domain: 'SAVING', difficulty: 'LIGHT', status: 'ACTIVE', steps: ['월급날 자동저축'], activatedAt: now, replacesBuildId: null, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }
 const lightCandidate = { candidateId: 'candidate-light', difficulty: 'LIGHT', domain: 'SAVING', title: '월급날 30만원 먼저 저축', targetKind: 'AMOUNT_KRW', targetAmountKrw: 300000, durationDays: 180, steps: ['월급 입금일 확인', '입금 당일 자동저축 확인'] } satisfies Schema['RoutineAdaptationCandidate']
 const standardCandidate = { candidateId: 'candidate-standard', difficulty: 'STANDARD', domain: 'SAVING', title: '월급날 50만원 먼저 저축', targetKind: 'AMOUNT_KRW', targetAmountKrw: 500000, durationDays: 180, steps: ['월급 입금일 확인', '입금 당일 자동저축 확인'] } satisfies Schema['RoutineAdaptationCandidate']
@@ -48,6 +68,45 @@ const page = (groupId: string): Schema['RecommendedAdventurerPage'] => ({
   items: [{ adventurerId: groupId === 'budget' ? 'adventurer-budget' : 'adventurer-saver', groupId, alias: groupId === 'budget' ? '남쪽의 모험가' : '북쪽의 모험가', contextTags: ['사회초년생', '자취'], similarityReasons: ['익명 저축 루틴을 꾸준히 유지했어요.'], goalAchievementLabel: '여행 자금 목표 달성', routines: [{ routineId: groupId === 'budget' ? 'routine-budget' : 'routine-savers', title: groupId === 'budget' ? '하루 한 번 지출 점검' : '주 3회 저축 챌린지', domain: 'SAVING', maintenanceDays: 42 }], verifiedAt: now, approvedAt: now }],
   calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now,
 })
+const adventurerFor = (groupId: string, adventurerId?: string) => ({ ...page(groupId).items[0], ...(adventurerId ? { adventurerId } : {}) }) satisfies Schema['RecommendedAdventurerCard']
+const reportFor = (groupId: string): Schema['MateGroupReport'] => ({
+  group: groups.find((group) => group.groupId === groupId) ?? groups[0],
+  selectionReasons: ['소득 규칙성과 주거 부담이 비슷해요.', '저축을 시작한 구간이 가까워요.'],
+  spendingRateRange: { p25Bps: 4200, medianBps: 5000, p75Bps: 5800 },
+  savingRateRange: { p25Bps: 1400, medianBps: 1900, p75Bps: 2400 },
+  averageStats: { spendingDefenseBps: 6100, savingHpBps: 5700, investmentJudgmentBps: 5200, questXp: 22 },
+  achieverCount: 9,
+  adventurerPreview: page(groupId).items,
+  coachCopyKeys: ['SIMILAR_START_POINT', 'ROUTINE_OVER_RANKING'],
+  calculationVersion: 'mate-group-v2',
+  dataState: 'FRESH',
+  lastSyncedAt: now,
+})
+const adventurerReportFor = (groupId: string, adventurerId: string): Schema['AdventurerReport'] => ({
+  adventurer: adventurerFor(groupId, adventurerId),
+  comparisonMetrics: [
+    { label: '저축률', myRange: '10–20%', adventurerRange: '20–30%', interpretationCopyKey: 'SAVING_GAP_IS_ACTIONABLE' },
+    { label: '예산 확인', myRange: '주 1–2회', adventurerRange: '주 3–4회', interpretationCopyKey: 'CHECK_BEFORE_SPENDING' },
+    { label: '루틴 유지', myRange: '시작 단계', adventurerRange: '42일 유지', interpretationCopyKey: 'MAINTENANCE_OVER_AMOUNT' },
+  ],
+  routineEvidence: ['42일 동안 월급날 먼저 저축을 유지했어요.', '정확 금액이 아닌 빈도와 유지 기간만 참고해요.'],
+  calculationVersion: 'adventurer-report-v2',
+  dataState: 'FRESH',
+  lastSyncedAt: now,
+})
+const hanaProduct: Schema['RelatedHanaProductInfo'] = {
+  productId: 'hana-saving-info-001',
+  displayName: '하나 합 저축 정보',
+  category: '적립식 저축 정보',
+  relatedRoutineDomain: 'SAVING',
+  keyConditions: ['정기적으로 저축하는 사용자가 확인할 수 있는 상품 정보예요.', '금리와 우대 조건은 공식 정보에서 최신 내용을 확인해야 해요.'],
+  cautions: ['중도해지 시 적용 조건이 달라질 수 있어요.', '이 화면은 가입 권유나 개인 맞춤 추천이 아니에요.'],
+  informationAsOf: '2026-07-14',
+  officialInformationUrl: 'https://www.hanabank.com/',
+  reviewedCatalog: true,
+  inAppEnrollmentAvailable: false,
+  affectsProgress: false,
+}
 const activity = (activityId: string, activityType: Schema['DailyActivity']['activityType'], title: string, amountKrw: number | undefined, primary: boolean, categoryLabels: string[]): Schema['DailyActivity'] => ({ activityId, activityType, title, ...(amountKrw !== undefined ? { amountKrw } : {}), occurredAt: now, primary, categoryLabels })
 const activitiesForDay = (day: number): Schema['DailyActivity'][] => {
   if (day === 7) return [activity('activity-07-expense', 'EXPENSE', '식비·교통 지출', -24500, true, ['식비', '교통'])]
@@ -156,14 +215,23 @@ export const handlers = [
     return HttpResponse.json({ reportType, characterName: data.characterName, scoreBps: data.scoreBps, metrics: [{ label: data.label, displayValue: data.displayValue, reasonCopyKey: 'VERIFIED_DATA_V1' }], trend30Days: [{ date: '2026-06-12', value: Math.max(0, data.scoreBps - 300) }, { date: '2026-07-11', value: data.scoreBps }], nextQuestId: reportType === 'SAVING_HP' ? 'quest-routine' : 'quest-etf', calculationVersion: 'character-report-v1', dataState: 'FRESH', lastSyncedAt: now })
   }),
   http.get('/api/v1/reports/monthly', () => HttpResponse.json({ month: '2026-07', goalProgressBps: 4000, financialStats, xpEarned: 26, completedQuestCount: 4, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now })),
+  http.get('/api/v1/mate/friends/overview', () => HttpResponse.json(friendOverview)),
+  http.get('/api/v1/mate/friends/feed', () => HttpResponse.json(friendFeed)),
+  http.get('/api/v1/mate/friends/streaks', () => HttpResponse.json(friendStreaks)),
   http.get('/api/v1/mate/groups', () => HttpResponse.json({ items: groups })),
+  http.get('/api/v1/mate/groups/:groupId/report', ({ params }) => HttpResponse.json(reportFor(String(params.groupId)))),
   http.get('/api/v1/mate/groups/:groupId/adventurers', ({ params }) => HttpResponse.json(page(String(params.groupId)))),
+  http.get('/api/v1/mate/groups/:groupId/adventurers/:adventurerId', ({ params }) => HttpResponse.json(adventurerFor(String(params.groupId), String(params.adventurerId)))),
+  http.get('/api/v1/mate/groups/:groupId/adventurers/:adventurerId/report', ({ params }) => HttpResponse.json(adventurerReportFor(String(params.groupId), String(params.adventurerId)))),
   http.get('/api/v1/mate/groups/:groupId/adventurers/:adventurerId/routines/:routineId', ({ params }) => HttpResponse.json({ routineId: String(params.routineId), adventurerId: String(params.adventurerId), groupId: String(params.groupId), title: String(params.routineId) === 'routine-budget' ? '하루 한 번 지출 점검' : '주 3회 저축 챌린지', domain: 'SAVING', maintenanceDays: 42, steps: ['월급날 먼저 저축'], evidenceCopyKeys: ['ROUTINE_MAINTAINED_42_DAYS'] })),
+  http.post('/api/v1/mate/explore/search', async ({ request }) => { const body = await request.json() as Schema['MateExploreSearchRequest']; const selectedGroup = body.savingRateBand === 'OVER_20' ? 'savers' : 'budget'; return HttpResponse.json(page(selectedGroup)) }),
   http.post('/api/v1/routine-adaptations', () => HttpResponse.json(recommendation, { status: 201 })),
   http.post('/api/v1/routine-adaptations/:adaptationId/candidates/:candidateId/import', () => problem(409, 'ACTIVE_ROUTINE_BUILD_EXISTS', 'An active routine build already exists.', '/api/v1/routine-adaptations/import')),
   http.get('/api/v1/routine-builds/active', () => HttpResponse.json(activeRoutine)),
   http.post('/api/v1/routine-builds/active/replacement', async ({ request }) => { const body = await request.json(); if (!body || typeof body !== 'object' || body.confirmReplacement !== true) return problem(422, 'CONFIRMATION_REQUIRED', 'Routine replacement requires explicit confirmation.', '/api/v1/routine-builds/active/replacement'); const archivedBuild = { ...activeRoutine, status: 'ARCHIVED' as const, archivedAt: now }; activeRoutine = { buildId: 'build-standard', candidateId: typeof body.candidateId === 'string' ? body.candidateId : standardCandidate.candidateId, sourceRoutineId: 'routine-savers', domain: 'SAVING', difficulty: 'STANDARD', status: 'ACTIVE', steps: standardCandidate.steps, activatedAt: now, replacesBuildId: archivedBuild.buildId, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }; return HttpResponse.json({ archivedBuild, activeBuild: activeRoutine, replacedAt: now }) }),
+  http.get('/api/v1/hana-products/:productId', ({ params }) => String(params.productId) === hanaProduct.productId ? HttpResponse.json(hanaProduct) : problem(404, 'NOT_FOUND', 'Product information was not found.', `/api/v1/hana-products/${String(params.productId)}`)),
   http.get('/api/v1/quests', () => HttpResponse.json({ items: questItems(), completedTodayCount: questItems().filter((quest) => quest.status === 'COMPLETED').length, totalTodayCount: questItems().length, totalXp: 26, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now })),
+  http.get('/api/v1/quests/:questId', ({ params }) => { const quest = questItems().find((item) => item.questId === String(params.questId)); return quest ? HttpResponse.json(quest) : problem(404, 'NOT_FOUND', 'Quest was not found.', `/api/v1/quests/${String(params.questId)}`) }),
   http.post('/api/v1/quests/:questId/accept', ({ params }) => { const questId = String(params.questId); questStatuses[questId] = 'ACTIVE'; const quest = questItems().find((item) => item.questId === questId) ?? questItems()[0]; return HttpResponse.json({ quest, acceptedAt: now, financialStatsChanged: false }) }),
   http.post('/api/v1/quests/:questId/complete', ({ params }) => {
     const questId = String(params.questId)
