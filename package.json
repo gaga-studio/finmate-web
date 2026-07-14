@@ -13,7 +13,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:api": "./scripts/test-actual-api-e2e.sh",
-    "generate:api": "node scripts/generate-api.mjs"
+    "generate:api": "node scripts/generate-api.mjs",
+    "demo:record": "node scripts/record-demo.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
