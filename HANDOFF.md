@@ -7,7 +7,7 @@
 - 고정 tree: `28d6a65653b05ce773793b7e8d5d60492f1f5b45`
 - 보존 branch: `design-handoff/2026-07-14`
 - 보존 tag: `design-handoff-2026-07-14`
-- 운영 이식 branch: `codex/integrate-design-handoff`
+- 운영 이식 기준 branch: `codex/align-ui-to-frontend-v2`
 
 원본은 2026-07-14에 Git으로 받았고 수정 없이 별도 branch와 tag로 동결했다.
 원본의 설치, lint, production build는 성공했다. 상세 결과는
@@ -29,8 +29,8 @@
 
 ## 대표 흐름 이식 결과
 
-- 계약 기준: `gaga-studio/finmate-api` `main`의 한국어 Swagger 포함 기준
-  commit `ae088f55cf564b3a76a627664c0e86783d2de9a2`
+- 계약 기준: `gaga-studio/finmate-api`의 런타임 계약 완성 기준
+  commit `f50deff7`
 - 구현 범위: `가입 → 온보딩 → 목표 → 홈 레이드·동물 리포트 → 메이트 그룹·모험가
   → 루틴 적용·교체 → 퀘스트 → 기록·일일 바텀시트 → 데모 완료`
 - 유지된 제품 규칙: 4탭, 주 목표 유지, 퀘스트 XP와 금융데이터 재계산 분리,
@@ -39,6 +39,25 @@
   하나 상품 정보, 개별 퀘스트 상세·수락, 기준선 진단
 - 계속 제외: 친구 추가·팔로우 쓰기, 자유 검색, 상품 가입, 실제 투자·거래
 - 배포 차단 조건: Paperlogy 폰트와 전달 이미지의 소유권·라이선스 서면 확인
+
+## 디자인 단일 기준 정렬
+
+`frontend-v2@e7faff8`을 시각 단일 기준으로 삼아 기존 운영 UI를 교체했다.
+원본 저장소는 수정하지 않았고, 운영 저장소에는 다음만 선별 이식했다.
+
+- Paperlogy와 캐릭터·전투·퀘스트·기록 에셋 58개
+- `index.css`, `home.css`, `mate.css`, `quest.css`, `detailedProfile.css`,
+  `signature.css`, `homeBattleOrbit.ts`
+- 홈 전투, 동물 리포트, 메이트, 퀘스트, 대형 발판 기록의 DOM·클래스 문법
+
+원본 에셋과 운영 복사본의 SHA-256은
+[`docs/frontend-v2-assets.sha256`](docs/frontend-v2-assets.sha256)에 고정했다. API에만
+존재하는 기준선·목표·공개 설정·오류 상태는 원본 토큰과 카드 문법으로만 조합했다.
+생일펀드, 리포트 잠금, 랜덤 상자, 포인트 충전, 투자 확대·첫 매수·수익률 보상은
+런타임에서 이식하지 않았다.
+
+화면·브라우저 검증 결과는
+[`docs/ui-alignment-verification.md`](docs/ui-alignment-verification.md)에 기록한다.
 
 최종 검증 수치와 화면별 상태는 [`HANDOFF_MANIFEST.md`](HANDOFF_MANIFEST.md)와
 [`docs/screen-inventory.md`](docs/screen-inventory.md)에 기록한다.

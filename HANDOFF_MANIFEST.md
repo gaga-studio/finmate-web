@@ -100,11 +100,15 @@ The operational app keeps these vNext foundations unchanged:
 Only approved assets, visual tokens, and screen composition patterns are copied into the
 operational branch. Source API, route, session, mock, calculation, and old E2E files are not copied.
 
-## Full MVP IA Integration Verification
+## Frontend-v2 Alignment Verification
 
-- API contract source: `gaga-studio/finmate-api` `main`,
-  commit `ae088f55cf564b3a76a627664c0e86783d2de9a2`
-- Unit/component tests: `33 passed`
+- Web baseline: `gaga-studio/finmate-web@dfb2f31`
+- Design source: `gaga-studio/finmate-frontend-v2@e7faff8`
+- API contract source: `gaga-studio/finmate-api@f50deff7`
+- Copied asset hashes: 58/58 identical to the frozen design source
+- Exact source modules: `index.css`, `home.css`, `mate.css`, `quest.css`,
+  `detailedProfile.css`, `signature.css`, `homeBattleOrbit.ts`
+- Unit/component tests: `37 passed`
 - TypeScript typecheck: passed
 - Lint: passed
 - Production PWA build: passed
@@ -119,11 +123,18 @@ operational branch. Source API, route, session, mock, calculation, and old E2E f
   record, and daily sheet at
   `360px`, `390px`, and `430px`
 - Browser audit: no console errors, failed image requests, or horizontal overflow
+- Visual captures: home, report, mate, routine, quest, record, and daily sheet at
+  `360px`, `390px`, and `430px` (21 captures)
+- Record interaction regression: only the seven current journey steps are rendered,
+  preventing hidden monthly steps from intercepting pointer events
 - MVP IA completion: all seven formerly planned screens are implemented against Mock and
   actual API contracts; social writes, free-form search, and in-app product enrollment remain deferred
 
 Generated screenshots and temporary capture automation were used only for verification and are
-not committed.
+not committed. Global screenshot similarity is not reported as a synthetic percentage because
+the approved IA intentionally changes content, goal semantics, tab labels, and removed unsafe
+features. Asset identity, source CSS identity, viewport behavior, and screen-by-screen composition
+are verified separately.
 
 ## Sign-off
 

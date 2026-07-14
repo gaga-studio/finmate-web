@@ -70,7 +70,7 @@
 
 | Screen ID | Route proposal | 화면 책임 | 계약 기준 | MVP 상태 | Web 상태 | Handoff |
 | --- | --- | --- | --- | --- | --- | --- |
-| RECORD-01 | `/record?month=YYYY-MM` | 월간 요약과 1~말일 대형 발판 여정 | `getDailyJourneyMonth` | MVP | Implemented | `KEEP` |
+| RECORD-01 | `/record?month=YYYY-MM` | 월간 요약과 현재 날짜 중심 7개 대형 발판(월 이동으로 전체 기간 탐색) | `getDailyJourneyMonth` | MVP | Implemented | `KEEP` |
 | RECORD-02 | `/record?month=YYYY-MM&date=YYYY-MM-DD` | 활동 목록·예산·퀘스트·데이터 반영 바텀시트 | `getDailyRecord` | MVP | Implemented | `REFINE` |
 | DEMO-01 | `/demo` | 8월~1월 50만원×6회 합성 시간 진행 제어 | `advanceDemoTimeline` | Demo-only | Implemented | `REBUILD` |
 
