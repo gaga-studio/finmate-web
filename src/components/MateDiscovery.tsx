@@ -1,72 +1,22 @@
-import { ChevronRight, ShieldCheck } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import styles from './MateDiscovery.module.css'
+import { Chevron, IconBadge } from '../design-v2/primitives'
+import { MateAvatar, MateCoachCard, MateSectionCard } from '../design-v2/MateShared'
 
-type MateGroup = {
-  groupId: string
-  name: string
-  memberCount: number
-}
-
-const groupPresentation: Record<string, { image: string; description: string; badge: string }> = {
-  savers: {
-    image: '/assets/characters/mate/mate-char-rabbit.png',
-    description: '먼저 저축하는 익명 루틴',
-    badge: '저축 습관',
-  },
-  budget: {
-    image: '/assets/characters/mate/mate-char-bear.png',
-    description: '예산을 확인하는 익명 루틴',
-    badge: '소비 점검',
-  },
-}
-
-const fallbackPresentation = {
-  image: '/assets/characters/mate/mate-char-otter.png',
-  description: '비슷한 생활 조건에서 이어온 익명 금융 루틴',
-  badge: '검증된 루틴',
-}
+type MateGroup = { groupId: string; name: string; memberCount: number }
 
 export function MateDiscovery({ groups }: { groups: MateGroup[] }) {
-  return (
-    <section className={styles.page}>
-      <header className={styles.header}>
-        <div>
-          <p>메이트</p>
-          <h1 aria-label="비슷한 출발점의 루틴을 발견해요">비슷한 출발점의<br />루틴을 발견해요</h1>
-          <span>목표를 바꾸지 않고, 지금 실행할 루틴만 가져올 수 있어요.</span>
-        </div>
-        <div className={styles.party} aria-hidden="true">
-          <img src="/assets/characters/mate/mate-char-bird.png" alt="" />
-          <img src="/assets/characters/mate/mate-char-otter.png" alt="" />
-          <img src="/assets/characters/mate/mate-char-rabbit.png" alt="" />
-        </div>
-      </header>
+  const primary = groups[0]
+  return <div className="mate-tab-stack">
+    {primary ? <MateSectionCard eyebrowIcon="profile" title="나와 비슷한 그룹" className="mate-group-card">
+      <div className="mate-group-copy"><p><IconBadge icon="profile" tone="teal"/>{primary.name}</p><p><IconBadge icon="saving" tone="warning"/>비슷한 출발점에서 루틴을 이어온 익명 그룹</p></div>
+      <div className="mate-group-trio"><MateAvatar species="otter" size={86} fit="contain"/><MateAvatar species="rabbit" size={86} fit="contain"/><MateAvatar species="bear" size={86} fit="contain"/></div>
+      <span className="mate-group-count">그룹 구성원 {primary.memberCount.toLocaleString('ko-KR')}명</span>
+    </MateSectionCard> : null}
 
-      <aside className={styles.safetyNotice}>
-        <ShieldCheck size={20} />
-        <p>정확한 금액과 순위는 숨기고, 검증된 루틴만 보여드려요.</p>
-      </aside>
+    <MateSectionCard eyebrowIcon="chart" title="추천 유사그룹" subtitle="정확 금액과 공개 순위 없이 루틴을 살펴봐요">
+      <div className="mate-anonymous-list">{groups.map((group, index) => <Link className="mate-anonymous-card" to={`/mates/group/${group.groupId}`} key={group.groupId}><MateAvatar species={index % 2 === 0 ? 'rabbit' : 'bear'} size={82} fit="contain" className="mate-anonymous-avatar"/><span className="mate-anonymous-copy"><span className="mate-adventurer-match">검증된 익명 그룹</span><strong>{group.name}</strong><small>목표를 바꾸지 않고 실행 루틴만 참고해요.</small><span className="mate-anonymous-stat-strip"><i>{group.memberCount}명</i><i>정확 금액 비공개</i></span></span><Chevron/></Link>)}</div>
+    </MateSectionCard>
 
-      <div className={styles.groupList}>
-        {groups.map((group) => {
-          const presentation = groupPresentation[group.groupId] ?? fallbackPresentation
-          return (
-            <Link className={styles.groupCard} to={`/mates/group/${group.groupId}`} key={group.groupId}>
-              <div className={styles.characterStage}>
-                <img src={presentation.image} alt={`${group.name} 대표 캐릭터`} />
-              </div>
-              <div className={styles.groupCopy}>
-                <span>{presentation.badge}</span>
-                <h2>{group.name}</h2>
-                <p>{presentation.description}</p>
-                <small>{group.memberCount}명의 익명 모험가</small>
-              </div>
-              <ChevronRight size={22} aria-hidden="true" />
-            </Link>
-          )
-        })}
-      </div>
-    </section>
-  )
+    <MateCoachCard message="금액이 아니라 비슷한 생활 조건에서 꾸준히 유지한 행동을 먼저 확인해보세요."/>
+  </div>
 }

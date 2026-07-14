@@ -1,88 +1,21 @@
-import { CheckCircle2, X } from 'lucide-react'
+import { CheckCircle2 } from 'lucide-react'
 import type { Schema } from '../api/client'
-import styles from './RecordDaySheetView.module.css'
+import { AppIcon } from '../design-v2/primitives'
 
-interface RecordDaySheetViewProps {
-  record: Schema['DailyRecord']
-  onClose: () => void
+interface RecordDaySheetViewProps { record: Schema['DailyRecord']; onClose: () => void }
+type Tone = 'income' | 'expense' | 'saving' | 'invest' | 'quest' | 'planned'
+const iconBase = '/assets/roadmap/icons'
+const meta: Record<Schema['DailyActivity']['activityType'], { tone: Tone; icon: string }> = {
+  INCOME: { tone: 'income', icon: 'document' }, EXPENSE: { tone: 'expense', icon: 'wallet' }, SAVING: { tone: 'saving', icon: 'piggy' }, INVESTMENT: { tone: 'invest', icon: 'chart' }, QUEST: { tone: 'quest', icon: 'quest' }, ROUTINE: { tone: 'planned', icon: 'calendar' }, MYDATA_RECALCULATION: { tone: 'planned', icon: 'calendar' },
 }
-
-const activityMeta: Record<Schema['DailyActivity']['activityType'], { label: string; icon: string; className: string }> = {
-  INCOME: { label: '수입', icon: '/assets/roadmap/icons/roadmap-icon-document.png', className: styles.income },
-  EXPENSE: { label: '지출', icon: '/assets/roadmap/icons/roadmap-icon-wallet.png', className: styles.expense },
-  SAVING: { label: '저축', icon: '/assets/roadmap/icons/roadmap-icon-piggy.png', className: styles.saving },
-  INVESTMENT: { label: '투자', icon: '/assets/roadmap/icons/roadmap-icon-chart.png', className: styles.investment },
-  QUEST: { label: '퀘스트', icon: '/assets/roadmap/icons/roadmap-icon-quest.png', className: styles.quest },
-  ROUTINE: { label: '루틴', icon: '/assets/roadmap/icons/roadmap-icon-calendar.png', className: styles.routine },
-  MYDATA_RECALCULATION: { label: '데이터 반영', icon: '/assets/roadmap/icons/roadmap-icon-calendar.png', className: styles.recalculation },
-}
-
-function formatAmount(value: number) {
-  const sign = value > 0 ? '+' : value < 0 ? '-' : ''
-  return `${sign}${new Intl.NumberFormat('ko-KR').format(Math.abs(value))}원`
-}
-
-function dateLabel(date: string) {
-  const [, month, day] = date.split('-').map(Number)
-  return `${month}월 ${day}일 금융 기록`
-}
+const formatAmount = (value: number) => `${value > 0 ? '+' : ''}${new Intl.NumberFormat('ko-KR').format(value)}원`
+const dateLabel = (date: string) => new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', weekday: 'long' }).format(new Date(`${date}T00:00:00`))
 
 export function RecordDaySheetView({ record, onClose }: RecordDaySheetViewProps) {
-  return (
-    <div className={styles.scrim} onClick={onClose}>
-      <section
-        aria-label={dateLabel(record.date)}
-        className={styles.sheet}
-        role="dialog"
-        onClick={(event) => event.stopPropagation()}
-      >
-        <span className={styles.handle} aria-hidden="true" />
-        <header className={styles.header}>
-          <div>
-            <span className={styles.complete}><CheckCircle2 size={14} /> 기록 완료</span>
-            <h2>{dateLabel(record.date)}</h2>
-            <p>오늘의 금융활동 {record.activities.length}개</p>
-          </div>
-          <button aria-label="닫기" type="button" onClick={onClose}><X size={20} /></button>
-        </header>
-
-        <section className={styles.activities} aria-labelledby="activity-title">
-          <h3 id="activity-title">활동 내역</h3>
-          {record.activities.map((activity) => {
-            const meta = activityMeta[activity.activityType]
-            return (
-              <article className={styles.activity} key={activity.activityId}>
-                <span className={styles.activityIcon}><img src={meta.icon} alt="" /></span>
-                <div>
-                  <span>{meta.label}{activity.primary ? ' · 대표 활동' : ''}</span>
-                  <strong>{activity.title}</strong>
-                  {activity.categoryLabels && activity.categoryLabels.length > 0 && <small>{activity.categoryLabels.join(' · ')}</small>}
-                </div>
-                {activity.amountKrw !== undefined && <b className={meta.className}>{formatAmount(activity.amountKrw)}</b>}
-              </article>
-            )
-          })}
-        </section>
-
-        <section className={styles.budget} aria-labelledby="budget-title">
-          <div>
-            <h3 id="budget-title">오늘 예산</h3>
-            <strong>{new Intl.NumberFormat('ko-KR').format(record.budget.budgetKrw)}원</strong>
-          </div>
-          <div className={styles.budgetNumbers}>
-            <span>사용 {new Intl.NumberFormat('ko-KR').format(record.budget.spentKrw)}원</span>
-            <b>남은 예산 {new Intl.NumberFormat('ko-KR').format(record.budget.remainingKrw)}원</b>
-          </div>
-          <div className={styles.track} aria-label={`오늘 예산 ${Math.round(record.budget.usedBps / 100)}% 사용`}>
-            <i style={{ width: `${record.budget.usedBps / 100}%` }} />
-          </div>
-        </section>
-
-        <section className={styles.recalculationCard}>
-          <div><CheckCircle2 size={20} /><strong>퀘스트 XP +{record.xpEarned}</strong></div>
-          <p>{record.recalculationSummary ?? '데이터 반영 후 금융 스탯을 다시 계산해요'}</p>
-        </section>
-      </section>
-    </div>
-  )
+  return <div className="roadmap-sheet-layer" role="dialog" aria-modal="true" aria-labelledby="record-sheet-title"><button className="roadmap-sheet-dim" type="button" aria-label="상세 기록 닫기" onClick={onClose}/><section className="roadmap-sheet"><span className="sheet-handle"/><button className="sheet-close" type="button" aria-label="상세 기록 닫기" onClick={onClose}>×</button><header className="sheet-heading"><h2 id="record-sheet-title">{dateLabel(record.date)}</h2><span><AppIcon name="check"/> {record.status === 'PLANNED' ? '예정' : '기록 완료'}</span><p>오늘의 금융활동 {record.activities.length}개</p></header>
+    <section className="sheet-section"><h3>활동 내역</h3><div className="sheet-activity-list">{record.activities.map((activity) => { const item = meta[activity.activityType]; return <div className="sheet-activity" data-tone={item.tone} key={activity.activityId}><span className="roadmap-icon-orb" data-tone={item.tone}><img src={`${iconBase}/roadmap-icon-${item.icon}.png`} alt=""/></span><div>{activity.primary ? <span className="activity-badge">대표 활동</span> : null}<strong>{activity.title}</strong>{activity.categoryLabels?.length ? <div className="activity-chips">{activity.categoryLabels.map((label) => <span key={label}>{label}</span>)}</div> : null}</div>{activity.amountKrw !== undefined ? <em>{formatAmount(activity.amountKrw)}</em> : null}<AppIcon name="chevron-right"/></div>})}</div></section>
+    <section className="sheet-section"><h3>오늘 예산</h3><div className="budget-card"><p>사용 {record.budget.spentKrw.toLocaleString('ko-KR')}원 / 예산 {record.budget.budgetKrw.toLocaleString('ko-KR')}원</p><div><strong>{record.budget.remainingKrw.toLocaleString('ko-KR')}원 남음</strong><em>{Math.round(record.budget.usedBps / 100)}%</em></div><span><i style={{ width: `${Math.min(100, record.budget.usedBps / 100)}%` }}/></span></div></section>
+    <section className="sheet-section"><h3>퀘스트 · 데이터 반영</h3><div className="quest-card"><span className="roadmap-icon-orb" data-tone="quest"><img src={`${iconBase}/roadmap-icon-quest.png`} alt=""/></span><div><strong>퀘스트 XP +{record.xpEarned}</strong><p><span>{record.recalculationSummary ?? '새 금융데이터 확인 후 스탯을 다시 계산해요.'}</span></p></div></div></section>
+    {record.reflection ? <section className="sheet-section"><h3>오늘의 회고</h3><div className="quest-card"><CheckCircle2 size={22}/><div><strong>{record.reflection}</strong></div></div></section> : null}
+  </section></div>
 }

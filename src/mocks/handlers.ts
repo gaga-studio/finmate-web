@@ -38,9 +38,25 @@ let demoFrameIndex = 0
 let activeGoal: Schema['UserGoal'] | null = initialGoal
 let onboardingComplete = true
 let questStatuses: Record<string, Schema['Quest']['status']> = { 'quest-routine': 'AVAILABLE', 'quest-etf': 'AVAILABLE' }
+let disclosureConsent: Schema['DisclosureConsent'] = {
+  state: 'OPTED_OUT',
+  exactValues: false,
+  fields: [],
+  consentVersion: 'disclosure-v1',
+  version: 1,
+  updatedAt: now,
+}
 const demoCommands = new Map<string, { expectedFrameIndex: number; response: Schema['DemoTimelineView'] }>()
 
-export function resetMockState() { activeRoutine = baseRoutine; demoFrameIndex = 0; activeGoal = initialGoal; onboardingComplete = true; questStatuses = { 'quest-routine': 'AVAILABLE', 'quest-etf': 'AVAILABLE' }; demoCommands.clear() }
+export function resetMockState() {
+  activeRoutine = baseRoutine
+  demoFrameIndex = 0
+  activeGoal = initialGoal
+  onboardingComplete = true
+  questStatuses = { 'quest-routine': 'AVAILABLE', 'quest-etf': 'AVAILABLE' }
+  disclosureConsent = { state: 'OPTED_OUT', exactValues: false, fields: [], consentVersion: 'disclosure-v1', version: 1, updatedAt: now }
+  demoCommands.clear()
+}
 
 const financialStats: Schema['FinancialStats'] = { spendingDefenseBps: 6300, savingHpBps: 5800, investmentJudgmentBps: 5500, questXp: 26 }
 const progressBps = () => Math.floor(demoFrameIndex / 6 * 10000)
@@ -106,6 +122,18 @@ const hanaProduct: Schema['RelatedHanaProductInfo'] = {
   reviewedCatalog: true,
   inAppEnrollmentAvailable: false,
   affectsProgress: false,
+}
+const pointLedger: Schema['PointLedgerView'] = {
+  balance: 12450,
+  entries: [
+    { entryType: 'EARN', amountPoints: 20, sourceType: 'QUEST', sourceId: 'quest-etf', occurredAt: now },
+  ],
+}
+const cosmeticCatalog: Schema['CosmeticCatalogView'] = {
+  items: [
+    { id: 'outfit-mint-cape', itemType: 'OUTFIT', name: '민트 원정대 망토', description: '확정형 캐릭터 꾸미기 아이템', pricePoints: 15000, owned: false },
+    { id: 'frame-gold-leaf', itemType: 'PROFILE_FRAME', name: '금빛 새싹 테두리', description: '획득한 프로필 꾸미기 아이템', pricePoints: 8000, owned: true },
+  ],
 }
 const activity = (activityId: string, activityType: Schema['DailyActivity']['activityType'], title: string, amountKrw: number | undefined, primary: boolean, categoryLabels: string[]): Schema['DailyActivity'] => ({ activityId, activityType, title, ...(amountKrw !== undefined ? { amountKrw } : {}), occurredAt: now, primary, categoryLabels })
 const activitiesForDay = (day: number): Schema['DailyActivity'][] => {
@@ -200,7 +228,7 @@ export const handlers = [
   http.post('/api/v1/goals', async ({ request }) => { const body = await request.json() as Schema['ConfirmUserGoalRequest']; activeGoal = { goalId: 'europe-trip', ...body.goal, state: 'ACTIVE', confirmedAt: now, calculationVersion: 'goal-calc-v2', dataState: 'FRESH', lastSyncedAt: now }; return HttpResponse.json(activeGoal, { status: 201 }) }),
   http.get('/api/v1/goals/active', () => activeGoal ? HttpResponse.json(activeGoal) : problem(404, 'NOT_FOUND', 'No active goal exists.', '/api/v1/goals/active')),
   http.get('/api/v1/home', () => activeGoal
-    ? HttpResponse.json({ mode: 'GOAL_ACTIVE', totalAssetsKrw: 4280000, mainGoal: activeGoal, raid: raidView(), financialStats, activeRoutineBuild: activeRoutine, lockedActions: [], calculationVersion: 'home-calc-v2', dataState: 'FRESH', lastSyncedAt: now })
+    ? HttpResponse.json({ mode: 'GOAL_ACTIVE', totalAssetsKrw: 4280000, mainGoal: activeGoal, raid: raidView(), financialStats, activeRoutineBuild: activeRoutine, nextQuest: questItems()[0], lockedActions: [], calculationVersion: 'home-calc-v2', dataState: 'FRESH', lastSyncedAt: now })
     : HttpResponse.json({ mode: 'EXPLORE_ONLY', totalAssetsKrw: 4280000, financialStats: { spendingDefenseBps: 5200, savingHpBps: 1800, investmentJudgmentBps: 4000, questXp: 0 }, lockedActions: ['RAID', 'QUEST_ACCEPT', 'ROUTINE_IMPORT', 'PERSONALIZED_PRODUCT_INFO'], calculationVersion: 'home-calc-v2', dataState: 'FRESH', lastSyncedAt: now })),
   http.get('/api/v1/raids/current', () => activeGoal ? HttpResponse.json(raidView()) : problem(409, 'GOAL_REQUIRED', 'Confirm a goal before opening a raid.', '/api/v1/raids/current')),
   http.get('/api/v1/reports/characters/:reportType', ({ params }) => {
@@ -230,6 +258,22 @@ export const handlers = [
   http.get('/api/v1/routine-builds/active', () => HttpResponse.json(activeRoutine)),
   http.post('/api/v1/routine-builds/active/replacement', async ({ request }) => { const body = await request.json(); if (!body || typeof body !== 'object' || body.confirmReplacement !== true) return problem(422, 'CONFIRMATION_REQUIRED', 'Routine replacement requires explicit confirmation.', '/api/v1/routine-builds/active/replacement'); const archivedBuild = { ...activeRoutine, status: 'ARCHIVED' as const, archivedAt: now }; activeRoutine = { buildId: 'build-standard', candidateId: typeof body.candidateId === 'string' ? body.candidateId : standardCandidate.candidateId, sourceRoutineId: 'routine-savers', domain: 'SAVING', difficulty: 'STANDARD', status: 'ACTIVE', steps: standardCandidate.steps, activatedAt: now, replacesBuildId: archivedBuild.buildId, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }; return HttpResponse.json({ archivedBuild, activeBuild: activeRoutine, replacedAt: now }) }),
   http.get('/api/v1/hana-products/:productId', ({ params }) => String(params.productId) === hanaProduct.productId ? HttpResponse.json(hanaProduct) : problem(404, 'NOT_FOUND', 'Product information was not found.', `/api/v1/hana-products/${String(params.productId)}`)),
+  http.get('/api/v1/rewards/points', () => HttpResponse.json(pointLedger)),
+  http.get('/api/v1/rewards/cosmetics', () => HttpResponse.json(cosmeticCatalog)),
+  http.get('/api/v1/me/disclosures', () => HttpResponse.json(disclosureConsent)),
+  http.post('/api/v1/me/disclosures/preview', async ({ request }) => {
+    const body = await request.json() as Schema['DisclosureRequest']
+    return HttpResponse.json({ exactValues: true, fields: body.fields, permanentlyExcludedFields: ['ACCOUNT_NUMBER', 'RAW_TRANSACTION_MEMO', 'DETAILED_EMPLOYER', 'DETAILED_LOCATION', 'AUTHENTICATION_IDENTIFIER'], consentVersion: body.consentVersion })
+  }),
+  http.put('/api/v1/me/disclosures', async ({ request }) => {
+    const body = await request.json() as Schema['DisclosureRequest']
+    disclosureConsent = { state: 'ACTIVE', exactValues: true, fields: body.fields, consentVersion: body.consentVersion, version: disclosureConsent.version + 1, updatedAt: now }
+    return HttpResponse.json(disclosureConsent)
+  }),
+  http.delete('/api/v1/me/disclosures', () => {
+    disclosureConsent = { state: 'OPTED_OUT', exactValues: false, fields: [], consentVersion: disclosureConsent.consentVersion, version: disclosureConsent.version + 1, updatedAt: now }
+    return new HttpResponse(null, { status: 204 })
+  }),
   http.get('/api/v1/quests', () => HttpResponse.json({ items: questItems(), completedTodayCount: questItems().filter((quest) => quest.status === 'COMPLETED').length, totalTodayCount: questItems().length, totalXp: 26, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now })),
   http.get('/api/v1/quests/:questId', ({ params }) => { const quest = questItems().find((item) => item.questId === String(params.questId)); return quest ? HttpResponse.json(quest) : problem(404, 'NOT_FOUND', 'Quest was not found.', `/api/v1/quests/${String(params.questId)}`) }),
   http.post('/api/v1/quests/:questId/accept', ({ params }) => { const questId = String(params.questId); questStatuses[questId] = 'ACTIVE'; const quest = questItems().find((item) => item.questId === questId) ?? questItems()[0]; return HttpResponse.json({ quest, acceptedAt: now, financialStatsChanged: false }) }),

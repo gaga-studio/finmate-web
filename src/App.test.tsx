@@ -27,10 +27,10 @@ describe('FinMate representative flow', () => {
     await user.type(screen.getByLabelText('이름'), '민지')
     await user.type(screen.getByLabelText('이메일'), 'minji@example.com')
     await user.type(screen.getByLabelText('비밀번호'), 'finmate12345')
-    await user.click(screen.getByRole('button', { name: '시작하기' }))
+    await user.click(screen.getByRole('button', { name: '회원가입' }))
 
     expect(await screen.findByRole('heading', { name: '지금의 생활 리듬은 어떤가요?' })).toBeInTheDocument()
-    expect(screen.getByText('1 / 5')).toBeInTheDocument()
+    expect(screen.getByLabelText('1단계 생활 맥락 (현재 단계)')).toHaveAttribute('aria-current', 'step')
   })
 
   it('retains onboarding choices locally and opens an editable Europe travel goal draft', async () => {
@@ -116,8 +116,7 @@ describe('FinMate representative flow', () => {
   it('explains the calculated baseline before goal confirmation', async () => {
     renderApp('/onboarding/baseline')
 
-    expect(await screen.findByRole('heading', { name: '지금의 출발점을 확인했어요' })).toBeInTheDocument()
-    expect(screen.getByText('1,100,000원')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: '1,100,000원' })).toBeInTheDocument()
     expect(screen.getByText('52%')).toBeInTheDocument()
     expect(screen.getByText('18%')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '목표 설정하기' })).toHaveAttribute('href', '/goal/confirm')
@@ -128,12 +127,12 @@ describe('FinMate representative flow', () => {
     renderApp('/home')
 
     expect(await screen.findByRole('heading', { name: '유럽 여행 자금 레이드' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '곰 소비 리포트 보기' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '물개 저축 리포트 보기' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '토끼 투자 판단 리포트 보기' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '새 퀘스트 XP 리포트 보기' })).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: '곰 소비 리포트 보기' })).toHaveLength(2)
+    expect(screen.getAllByRole('button', { name: '물개 저축 리포트 보기' })).toHaveLength(2)
+    expect(screen.getAllByRole('button', { name: '토끼 투자 판단 리포트 보기' })).toHaveLength(2)
+    expect(screen.getAllByRole('button', { name: '새 퀘스트 XP 리포트 보기' })).toHaveLength(2)
     expect(screen.queryByText('생활비 드래곤')).not.toBeInTheDocument()
-    expect(screen.queryByText('AUTO')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'AUTO' })).toBeInTheDocument()
   })
 
   it('persists a confirmed routine replacement while preserving the active main goal', async () => {
@@ -145,17 +144,16 @@ describe('FinMate representative flow', () => {
     await user.click(await screen.findByRole('link', { name: '루틴을 내 생활에 맞추기' }))
     await user.click(await screen.findByRole('button', { name: '내 기준으로 추천 받기' }))
     await user.click(await screen.findByRole('button', { name: '표준 · 월급날 50만원 먼저 저축' }))
-    await user.click(screen.getByRole('button', { name: '이 루틴으로 바꾸기' }))
+    await user.click(screen.getByRole('button', { name: '이 루틴으로 퀘스트 시작하기' }))
     expect(screen.getByRole('dialog', { name: '루틴 변경 확인' })).toBeInTheDocument()
-    expect(screen.getByText('여행 목표는 그대로 유지돼요.')).toBeInTheDocument()
+    expect(screen.getByText(/여행 목표는 그대로 유지돼요/)).toBeInTheDocument()
 
     await user.click(screen.getByRole('button', { name: '교체 확정' }))
     expect(await screen.findByRole('heading', { name: '활성 루틴이 바뀌었어요' })).toBeInTheDocument()
 
     await user.click(screen.getByRole('link', { name: '홈' }))
     expect(await screen.findByText('현재 루틴: 월급 입금일 확인')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: '유럽 여행 목표를 향해 가고 있어요.' })).toBeInTheDocument()
-    expect(screen.getByText('2,000,000원')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '유럽 여행 자금 레이드' })).toBeInTheDocument()
   })
 
   it('resolves the mate group from the route parameter', async () => {
@@ -167,20 +165,20 @@ describe('FinMate representative flow', () => {
   it('frames mate discovery around anonymous routines without public ranking', async () => {
     renderApp('/mates')
 
-    expect(await screen.findByRole('heading', { name: '비슷한 출발점의 루틴을 발견해요' })).toBeInTheDocument()
-    expect(screen.getByText('정확한 금액과 순위는 숨기고, 검증된 루틴만 보여드려요.')).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: '꾸준저축 원정대 대표 캐릭터' })).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: '생활비 탐험대 대표 캐릭터' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: '나와 비슷한 그룹' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '추천 유사그룹' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /꾸준저축 원정대/ })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /생활비 탐험대/ })).toBeInTheDocument()
     expect(screen.queryByText(/1위|랭킹/)).not.toBeInTheDocument()
   })
 
   it('shows read-only friend activity without amounts or ranking', async () => {
     renderApp('/mates/friends')
 
-    expect(await screen.findByRole('heading', { name: '친구와 이어온 작은 습관' })).toBeInTheDocument()
-    expect(screen.getByText('3 / 4명 완료')).toBeInTheDocument()
-    expect(screen.getByText('자동저축 확인 루틴을 이어갔어요.')).toBeInTheDocument()
-    expect(screen.getByText('12일')).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /친구 4명 중 3명이/ })).toBeInTheDocument()
+    expect(screen.getByText('오늘의 퀘스트를 완료했어요')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '금융 근황 피드' }).closest('section')).toHaveTextContent('자동저축 확인 루틴을 이어갔어요.')
+    expect(screen.getByText(/12일째/)).toBeInTheDocument()
     expect(screen.queryByText(/원|랭킹|1위/)).not.toBeInTheDocument()
   })
 
@@ -188,8 +186,8 @@ describe('FinMate representative flow', () => {
     const user = userEvent.setup()
     renderApp('/mates/explore')
 
-    expect(await screen.findByRole('heading', { name: '조건으로 익명 모험가 찾기' })).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: '모험가 찾기' }))
+    expect(await screen.findByRole('heading', { name: '비교 조건 설정' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /검색하기/ }))
     const result = await screen.findByRole('link', { name: /남쪽의 모험가/ })
     expect(result).toHaveAttribute('href', '/mates/group/budget/adventurer/adventurer-budget')
   })
@@ -213,7 +211,7 @@ describe('FinMate representative flow', () => {
     renderApp('/products/hana-saving-info-001')
 
     expect(await screen.findByRole('heading', { name: '하나 합 저축 정보' })).toBeInTheDocument()
-    expect(screen.getByText('루틴과 상품 정보는 분리돼요')).toBeInTheDocument()
+    expect(screen.getByText(/루틴과 상품 정보는 분리돼요/)).toBeInTheDocument()
     expect(screen.getByText(/XP, 금융 스탯, 레이드 진행률은 바뀌지 않아요/)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /공식 정보에서 확인/ })).toHaveAttribute('target', '_blank')
     expect(screen.queryByRole('button', { name: /가입/ })).not.toBeInTheDocument()
@@ -223,18 +221,19 @@ describe('FinMate representative flow', () => {
     const user = userEvent.setup()
     renderApp('/quests')
 
-    await user.click(await screen.findByRole('link', { name: /자동저축 입금 반영 확인하기/ }))
+    await user.click(await screen.findByRole('link', { name: /퀘스트 상세: 자동저축 입금 반영 확인하기/ }))
     await user.click(await screen.findByRole('button', { name: '퀘스트 수락' }))
     await user.click(await screen.findByRole('button', { name: '완료 확인' }))
 
-    expect(await screen.findByText('새 데이터 반영을 기다리고 있어요')).toBeInTheDocument()
+    expect(await screen.findByText(/새 데이터 반영을 기다리고 있어요/)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '기록에서 반영 상태 보기' })).toBeInTheDocument()
   })
 
   it('explains that quest rewards and financial growth are calculated separately', async () => {
     renderApp('/quests')
 
-    expect(await screen.findByText('퀘스트는 XP를 쌓고, 금융 스탯은 데이터 동기화 후 다시 계산돼요.')).toBeInTheDocument()
+    expect(await screen.findByText(/퀘스트 보상과 금융 성장은 분리돼요/)).toBeInTheDocument()
+    expect(screen.getByText(/금융 스탯과 레이드는 데이터 동기화 후 다시 계산해요/)).toBeInTheDocument()
     expect(screen.queryByText(/보스 진행률 \+\d/)).not.toBeInTheDocument()
     expect(screen.queryByText(/저축 HP \+\d/)).not.toBeInTheDocument()
   })
@@ -243,11 +242,12 @@ describe('FinMate representative flow', () => {
     renderApp('/record')
 
     expect(await screen.findByRole('heading', { name: '30일 금융 여정' })).toBeInTheDocument()
-    const visibleDates = [7, 8, 9, 10, 11, 12, 13].map((day) => screen.getByRole('button', { name: `2026-07-${String(day).padStart(2, '0')} 기록` }))
+    expect(screen.getAllByRole('button', { name: /기록 상세 보기$/ })).toHaveLength(7)
+    const visibleDates = [7, 8, 9, 10, 11, 12, 13].map((day) => screen.getByRole('button', { name: `2026-07-${String(day).padStart(2, '0')} 기록 상세 보기` }))
     expect(visibleDates).toHaveLength(7)
-    expect(screen.getByText('월급 입금')).toBeInTheDocument()
-    expect(screen.getByText('비상금 자동저축')).toBeInTheDocument()
-    expect(screen.getByText('저축 · 투자 · +2')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '2026-07-09 기록 상세 보기' })).toHaveTextContent('통신비 자동이체')
+    expect(screen.getByRole('button', { name: '2026-07-10 기록 상세 보기' })).toHaveTextContent('비상금 자동저축')
+    expect(screen.getByRole('button', { name: '2026-07-11 기록 상세 보기' })).toHaveTextContent('저축투자+2')
     expect(visibleDates[0]).not.toHaveClass('undefined')
   })
 
@@ -265,9 +265,9 @@ describe('FinMate representative flow', () => {
     const user = userEvent.setup()
     renderApp('/record')
 
-    await user.click(await screen.findByRole('button', { name: '2026-07-11 기록' }))
+    await user.click(await screen.findByRole('button', { name: '2026-07-11 기록 상세 보기' }))
 
-    const sheet = await screen.findByRole('dialog', { name: '7월 11일 금융 기록' })
+    const sheet = await screen.findByRole('dialog', { name: '7월 11일 토요일' })
     expect(sheet).toHaveTextContent('월급 입금')
     expect(sheet).toHaveTextContent('+2,800,000원')
     expect(sheet).toHaveTextContent('지출 3건')
@@ -277,7 +277,7 @@ describe('FinMate representative flow', () => {
     expect(sheet).toHaveTextContent('투자계좌 입금')
     expect(sheet).toHaveTextContent('+50,000원')
     expect(sheet).toHaveTextContent('카페비 기록 퀘스트 완료')
-    expect(sheet).toHaveTextContent('남은 예산 12,400원')
+    expect(sheet).toHaveTextContent('12,400원 남음')
     expect(sheet).toHaveTextContent('데이터 반영 후 금융 스탯을 다시 계산해요')
     expect(screen.queryByText('오늘의 돈 흐름')).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: '기록 수정' })).not.toBeInTheDocument()
@@ -293,7 +293,7 @@ describe('FinMate representative flow', () => {
 
     renderApp('/home')
 
-    expect(await screen.findByRole('heading', { name: '다시 만나서 반가워요' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: '금융 루틴으로 다시 들어가기' })).toBeInTheDocument()
   })
 
   it('rejects an unconfirmed routine replacement without mutating the active build', async () => {

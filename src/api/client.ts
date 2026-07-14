@@ -28,6 +28,10 @@ export type QuestCompletion = paths['/quests/{questId}/complete']['post']['respo
 export type DailyRecordPage = paths['/records']['get']['responses'][200]['content']['application/json']
 export type DailyJourneyMonth = paths['/records/journey']['get']['responses'][200]['content']['application/json']
 export type DailyRecord = paths['/records/{date}']['get']['responses'][200]['content']['application/json']
+export type PointLedger = paths['/rewards/points']['get']['responses'][200]['content']['application/json']
+export type CosmeticCatalog = paths['/rewards/cosmetics']['get']['responses'][200]['content']['application/json']
+export type DisclosureConsent = paths['/me/disclosures']['get']['responses'][200]['content']['application/json']
+export type DisclosurePreview = paths['/me/disclosures/preview']['post']['responses'][200]['content']['application/json']
 export type DemoTimeline = paths['/demo/timeline/advance']['post']['responses'][200]['content']['application/json']
 
 type AuthSession = Schema['AuthSession']
@@ -127,7 +131,7 @@ function isAuthSession(value: unknown): value is AuthSession {
 }
 
 type RequestOptions = {
-  method?: 'GET' | 'POST' | 'PUT'
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE'
   body?: object
   protected?: boolean
   retrying?: boolean
@@ -200,7 +204,7 @@ export async function apiGet<T>(path: string): Promise<T> {
   return request<T>(path)
 }
 
-export async function apiRequest<T>(path: string, method: 'POST' | 'PUT', body?: object, idempotencyKey?: string): Promise<T> {
+export async function apiRequest<T>(path: string, method: 'POST' | 'PUT' | 'DELETE', body?: object, idempotencyKey?: string): Promise<T> {
   return request<T>(path, { method, body, idempotencyKey })
 }
 
