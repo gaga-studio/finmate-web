@@ -3,7 +3,10 @@ import { dirname, resolve } from 'node:path'
 import openapiTS from 'openapi-typescript'
 import { parse, stringify } from 'yaml'
 
-const apiRoot = resolve(process.cwd(), '../finmate-api/docs/vnext/06-api')
+const apiRepositoryRoot = process.env.FINMATE_API_ROOT
+  ? resolve(process.env.FINMATE_API_ROOT)
+  : resolve(process.cwd(), '../finmate-api')
+const apiRoot = resolve(apiRepositoryRoot, 'docs/vnext/06-api')
 const source = resolve(apiRoot, 'openapi.yaml')
 const snapshot = resolve(process.cwd(), 'src/api/openapi.snapshot.yaml')
 const output = resolve(process.cwd(), 'src/api/generated.ts')

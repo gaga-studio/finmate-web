@@ -5,13 +5,23 @@ import { z } from 'zod'
 import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { BookOpen, ChevronRight, Compass, Heart, Home, ShieldCheck, Sparkles, Users } from 'lucide-react'
 import { ApiError, apiRequest, currentSession, type Schema } from './api/client'
-import { getDemoExpectedStage, saveDemoExpectedStage } from './api/demoProgress'
+import { getDemoExpectedFrameIndex, saveDemoExpectedFrameIndex } from './api/demoProgress'
 import { getOnboardingDraft, saveGoalDraft, saveOnboardingAnswer } from './api/onboardingDraft'
-import { useAcceptQuest, useActiveRoutine, useAdvanceDemo, useAdventurerRoutine, useAdventurers, useCompleteOnboarding, useCompleteQuest, useConfirmGoal, useCreateRecommendation, useDailyJourney, useDailyRecord, useHome, useImportRoutine, useMateGroups, useMonthlyReport, useQuests, useReplaceRoutine, useRaid } from './api/queries'
+import { useAcceptQuest, useActiveRoutine, useAdvanceDemo, useAdventurerRoutine, useAdventurers, useCharacterReport, useCompleteOnboarding, useCompleteQuest, useConfirmGoal, useCreateRecommendation, useDailyJourney, useDailyRecord, useHome, useImportRoutine, useMateGroups, useOnboarding, useQuests, useReplaceRoutine, useRaid } from './api/queries'
 import styles from './App.module.css'
 
 const onboardingSteps = ['생활 패턴', '저축 습관', '소비 우선순위', '투자 이해도', '알림 방식', '여정 준비']
 const formatKrw = (value: number) => `${new Intl.NumberFormat('ko-KR').format(value)} KRW`
+const onboardingCompletion = (): Schema['CompleteOnboardingRequest'] => ({
+  displayName: currentSession()?.user.displayName ?? '민지',
+  context: { incomeRegularity: 'REGULAR', housingType: 'RENT', fixedCostBurden: 'MEDIUM' },
+  moneyConcern: 'SAVING',
+  financialTendency: 'BALANCED',
+  lifestyleTags: ['자취', '사회초년생'],
+  anonymousShareConsent: true,
+  syntheticMyDataConsent: true,
+  finishMode: 'EXPLORE_ONLY',
+})
 
 function StateView({ state, onRetry }: { state: 'loading' | 'empty' | 'stale' | 'error'; onRetry?: () => void }) {
   const content = { loading: ['불러오는 중', 'MyData 결과와 루틴을 확인하고 있어요.'], empty: ['아직 쌓인 기록이 없어요', '오늘의 작은 선택부터 시작해 볼까요?'], stale: ['데이터가 조금 오래됐어요', '마지막 MyData 반영 결과를 표시하고 있어요.'], error: ['불러오지 못했어요', '잠시 후 다시 시도해 주세요.'] }[state]
@@ -61,21 +71,34 @@ function Onboarding() {
 }
 
 function GoalConfirmation() {
-  const navigate = useNavigate(); const complete = useCompleteOnboarding(); const confirmGoal = useConfirmGoal(); const draft = getOnboardingDraft(); const form = useForm<Schema['UserGoalDraft']>({ defaultValues: draft.mainGoal })
+  const navigate = useNavigate(); const onboarding = useOnboarding(); const complete = useCompleteOnboarding(); const confirmGoal = useConfirmGoal(); const draft = getOnboardingDraft(); const form = useForm<Schema['UserGoalDraft']>({ defaultValues: draft.mainGoal })
+  const ensureOnboardingCompleted = async () => {
+    if (onboarding.data?.status !== 'COMPLETED') await complete.mutateAsync(onboardingCompletion())
+  }
   const confirm = async (mainGoal: Schema['UserGoalDraft']) => {
     saveGoalDraft(mainGoal)
     try {
-      await complete.mutateAsync({ displayName: currentSession()?.user.displayName ?? '민지', context: { incomeRegularity: 'REGULAR', housingType: 'RENT', fixedCostBurden: 'MEDIUM' }, moneyConcern: 'SAVING', financialTendency: 'BALANCED', lifestyleTags: ['자취', '사회초년생'], anonymousShareConsent: true, syntheticMyDataConsent: true, finishMode: 'EXPLORE_ONLY' })
+      await ensureOnboardingCompleted()
       await confirmGoal.mutateAsync({ goal: mainGoal, confirm: true })
       navigate('/goal/success')
     } catch {
       // Mutation errors are rendered below without losing the editable goal draft.
     }
   }
+  const explore = async () => {
+    try {
+      await ensureOnboardingCompleted()
+      navigate('/home')
+    } catch {
+      // Mutation errors are rendered below and the user can retry.
+    }
+  }
   const watchedGoal = form.watch()
   const progress = watchedGoal.targetAmountKrw ? Math.min(100, watchedGoal.currentAmountKrw / watchedGoal.targetAmountKrw * 100) : 0
-  const goalError = complete.error ?? confirmGoal.error
-  return <MobileShell><section className={styles.page}><p className={styles.eyebrow}>목표 확인</p><h1>{watchedGoal.title || '유럽 여행 자금'}을 위한 준비</h1><form className={styles.form} onSubmit={form.handleSubmit(confirm)}><label>목표 이름<input aria-label="목표 이름" {...form.register('title')}/></label><label>현재 금액<input aria-label="현재 금액" type="number" {...form.register('currentAmountKrw', { valueAsNumber: true })}/></label><label>목표 금액<input aria-label="목표 금액" type="number" {...form.register('targetAmountKrw', { valueAsNumber: true })}/></label><label>목표 월<input aria-label="목표 월" type="month" {...form.register('targetMonth')}/></label><div className={styles.goalHero}><span>MAIN GOAL</span><strong>{new Intl.NumberFormat('ko-KR').format(watchedGoal.currentAmountKrw || 0)}</strong><small>/ {formatKrw(watchedGoal.targetAmountKrw || 0)}</small><div className={styles.goalTrack}><i style={{ width: `${progress}%` }}/></div><p>현재 MyData 기반으로 확인된 저축 금액이에요.</p></div><p>메이트는 이 목표를 바꾸지 않아요. 함께할 루틴만 제안해요.</p>{goalError && <small role="alert">{errorState(goalError) === 'stale' ? '데이터가 조금 오래됐어요.' : '목표를 만들지 못했어요.'}</small>}<button className={styles.primary} disabled={complete.isPending || confirmGoal.isPending} type="submit">{watchedGoal.title || '유럽 여행 자금'} 목표 만들기</button></form></section></MobileShell>
+  const goalError = onboarding.error ?? complete.error ?? confirmGoal.error
+  const waiting = QueryState({ loading: onboarding.isLoading, error: null, retry: () => void onboarding.refetch() })
+  if (waiting) return waiting
+  return <MobileShell><section className={styles.page}><p className={styles.eyebrow}>목표 확인</p><h1>{watchedGoal.title || '유럽 여행 자금'}을 위한 준비</h1><form className={styles.form} onSubmit={form.handleSubmit(confirm)}><label>목표 이름<input aria-label="목표 이름" {...form.register('title')}/></label><label>현재 금액<input aria-label="현재 금액" type="number" {...form.register('currentAmountKrw', { valueAsNumber: true })}/></label><label>목표 금액<input aria-label="목표 금액" type="number" {...form.register('targetAmountKrw', { valueAsNumber: true })}/></label><label>목표 월<input aria-label="목표 월" type="month" {...form.register('targetMonth')}/></label><div className={styles.goalHero}><span>MAIN GOAL</span><strong>{new Intl.NumberFormat('ko-KR').format(watchedGoal.currentAmountKrw || 0)}</strong><small>/ {formatKrw(watchedGoal.targetAmountKrw || 0)}</small><div className={styles.goalTrack}><i style={{ width: `${progress}%` }}/></div><p>현재 MyData 기반으로 확인된 저축 금액이에요.</p></div><p>메이트는 이 목표를 바꾸지 않아요. 함께할 루틴만 제안해요.</p>{goalError && <small role="alert">{errorState(goalError) === 'stale' ? '데이터가 조금 오래됐어요.' : '목표를 만들지 못했어요.'}</small>}<button className={styles.primary} disabled={complete.isPending || confirmGoal.isPending} type="submit">{watchedGoal.title || '유럽 여행 자금'} 목표 만들기</button>{onboarding.data?.status !== 'COMPLETED' && <button className={styles.secondary} disabled={complete.isPending || confirmGoal.isPending} type="button" onClick={() => void explore()}>일단 탐색하기</button>}</form></section></MobileShell>
 }
 
 function GoalSuccess() { const navigate = useNavigate(); return <MobileShell><section className={styles.page}><ShieldCheck size={42} className={styles.successIcon}/><p className={styles.eyebrow}>목표가 시작됐어요</p><h1>여행까지 한 걸음</h1><p>목표 금액과 현재 저축 흐름을 바탕으로 홈 레이드를 준비했어요.</p><button className={styles.primary} onClick={() => navigate('/home')}>홈으로 가기</button></section></MobileShell> }
@@ -84,11 +107,22 @@ function HomeScreen() {
   const navigate = useNavigate(); const home = useHome(); const waiting = QueryState({ loading: home.isLoading, error: home.error, retry: () => void home.refetch() }); if (waiting) return waiting; if (!home.data) return null
   const { mainGoal, raid, activeRoutineBuild } = home.data
   if (home.data.mode === 'EXPLORE_ONLY' || !mainGoal || !raid) return <MobileShell><section className={styles.page}><header className={styles.topline}><span className={styles.brand}>FinMate</span></header><p className={styles.eyebrow}>탐색 모드</p><h1>목표를 정하면 레이드가 시작돼요</h1><p>메이트 루틴은 둘러볼 수 있지만, 퀘스트 수락과 루틴 적용은 목표 확정 후 가능해요.</p><Link className={styles.primary} to="/goal/confirm">목표 설정</Link></section><Tabs/></MobileShell>
-  const progress = Math.round(mainGoal.currentAmountKrw / mainGoal.targetAmountKrw * 100); const goalCompleted = mainGoal.state === 'COMPLETED' || raid.stage === 3
+  const progress = Math.round(mainGoal.currentAmountKrw / mainGoal.targetAmountKrw * 100); const goalCompleted = mainGoal.state === 'COMPLETED' || raid.status === 'COMPLETED'
   return <MobileShell><section className={styles.page}><header className={styles.topline}><span className={styles.brand}>FinMate</span><button aria-label="동물 리포트" className={styles.iconButton} onClick={() => navigate('/report')}><Heart size={20}/></button></header><p className={styles.muted}>MyData 기준 마지막 동기화: {home.data.lastSyncedAt ?? '확인 중'}</p><DataStateNotice dataState={home.data.dataState} lastSyncedAt={home.data.lastSyncedAt}/><h1>{mainGoal.title} 목표를 향해 가고 있어요.</h1><p>{goalCompleted ? '목표 상태: 완료' : '목표 상태: 진행 중'}</p><div className={styles.raid}><span>RAID STAGE {raid.stage}</span><h2>생활비 드래곤</h2><div className={styles.boss}><i style={{ width: `${100 - raid.bossHpBps / 100}%` }}/></div><p>이번 주 저축 루틴으로 보스를 약하게 만들고 있어요.</p></div><div className={styles.goalRow}><div><span>{mainGoal.title}</span><strong>{formatKrw(mainGoal.currentAmountKrw)}</strong></div><span>{progress}%</span></div>{activeRoutineBuild && <div className={styles.routine}><span>현재 루틴</span><h2>현재 루틴: {activeRoutineBuild.steps[0]}</h2><p>{activeRoutineBuild.difficulty} · {activeRoutineBuild.domain}</p></div>}<button className={styles.secondary} onClick={() => navigate('/report')}>동물 리포트 보기</button></section><Tabs/></MobileShell>
 }
 
-function AnimalReportScreen() { const report = useMonthlyReport(); const navigate = useNavigate(); const waiting = QueryState({ loading: report.isLoading, error: report.error, retry: () => void report.refetch() }); if (waiting) return waiting; if (!report.data) return null; return <MobileShell><section className={styles.page}><p className={styles.eyebrow}>MONTHLY MYDATA REPORT</p><h1>오늘의 동물 리포트</h1><DataStateNotice dataState={report.data.dataState} lastSyncedAt={report.data.lastSyncedAt}/><div className={styles.report}><Heart size={36}/><h2>저축 HP가 안정적으로 자랐어요.</h2><p>저축 지수 {report.data.financialStats.savingHpBps / 100}% · 퀘스트 완료 {report.data.completedQuestCount}회</p><p>금융 통계는 MyData 계산 결과이며 퀘스트 보상으로 늘어나지 않아요.</p></div><button className={styles.primary} onClick={() => navigate('/mates')}>메이트 루틴 살펴보기</button></section><Tabs/></MobileShell> }
+const reportTypes: Array<{ type: Schema['CharacterReportType']; label: string }> = [
+  { type: 'SPENDING_DEFENSE', label: '곰 · 소비' },
+  { type: 'SAVING_HP', label: '물개 · 저축' },
+  { type: 'INVESTMENT_JUDGMENT', label: '토끼 · 투자 판단' },
+  { type: 'QUEST_XP', label: '새 · 퀘스트' },
+]
+
+function AnimalReportScreen() {
+  const [reportType, setReportType] = useState<Schema['CharacterReportType']>('SAVING_HP')
+  const report = useCharacterReport(reportType); const navigate = useNavigate(); const waiting = QueryState({ loading: report.isLoading, error: report.error, retry: () => void report.refetch() }); if (waiting) return waiting; if (!report.data) return null
+  return <MobileShell><section className={styles.page}><p className={styles.eyebrow}>MYDATA CHARACTER REPORT</p><h1>분야별 동물 리포트</h1><div className={styles.choiceList}>{reportTypes.map((item) => <button aria-pressed={reportType === item.type} className={styles.choice} key={item.type} onClick={() => setReportType(item.type)}>{item.label}</button>)}</div><DataStateNotice dataState={report.data.dataState} lastSyncedAt={report.data.lastSyncedAt}/><div className={styles.report}><Heart size={36}/><h2>{report.data.characterName} · {report.data.scoreBps / 100}점</h2>{report.data.metrics.map((metric) => <p key={metric.label}>{metric.label} {metric.displayValue}</p>)}<p>금융 스탯은 검증 데이터로, 퀘스트 XP는 완료 원장으로 계산해요.</p></div><button className={styles.primary} onClick={() => navigate('/mates')}>메이트 루틴 살펴보기</button></section><Tabs/></MobileShell>
+}
 
 function MateGroups() { const groups = useMateGroups(); const waiting = QueryState({ loading: groups.isLoading, error: groups.error, retry: () => void groups.refetch() }); if (waiting) return waiting; if (!groups.data) return null; return <MobileShell><section className={styles.page}><p className={styles.eyebrow}>메이트</p><h1>함께 갈 루틴을 고르세요</h1><p>메이트는 여행 목표 대신, 현재의 루틴 빌드를 바꿔요.</p><div className={styles.groupList}>{groups.data.items.map((group) => <Link className={styles.group} to={`/mates/group/${group.groupId}`} key={group.groupId}><Users size={22}/><div><strong>{group.name}</strong><span>{group.memberCount}명 · 익명 루틴</span></div><ChevronRight size={20}/></Link>)}</div></section><Tabs/></MobileShell> }
 
@@ -133,12 +167,12 @@ function DemoAdvance() {
   const completeDemo = async () => {
     const goalId = home.data?.mainGoal?.goalId
     if (!goalId) return
-    let expectedFrameIndex = getDemoExpectedStage(goalId)
+    let expectedFrameIndex = getDemoExpectedFrameIndex(goalId)
     try {
       while (expectedFrameIndex < 6) {
         const timeline = await advance.mutateAsync(expectedFrameIndex)
         expectedFrameIndex = timeline.currentFrameIndex + 1
-        saveDemoExpectedStage(goalId, expectedFrameIndex)
+        saveDemoExpectedFrameIndex(goalId, expectedFrameIndex)
       }
       navigate('/goal/complete')
     } catch {

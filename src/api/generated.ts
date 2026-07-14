@@ -258,8 +258,8 @@ export interface components {
       /** @enum {string} */
       status: "IN_PROGRESS" | "COMPLETED";
       onboardingState: components["schemas"]["OnboardingState"];
-      displayName: string;
-      context: components["schemas"]["ProfileContext"];
+      displayName?: string;
+      context?: components["schemas"]["ProfileContext"];
       baseline: components["schemas"]["BaselineSummary"];
       mainGoal?: components["schemas"]["UserGoal"];
       calculationVersion: string;

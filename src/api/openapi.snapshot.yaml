@@ -1435,8 +1435,6 @@ components:
       required:
         - status
         - onboardingState
-        - displayName
-        - context
         - baseline
         - calculationVersion
         - dataState

@@ -52,6 +52,7 @@ describe('FinMate representative flow', () => {
     const user = userEvent.setup()
     const requests: string[] = []
     server.use(
+      http.get('/api/v1/onboarding', () => HttpResponse.json({ status: 'IN_PROGRESS', onboardingState: 'EXPLORE_ONLY', baseline: { disposableIncomeKrw: 1100000, spendingRateBps: 5200, savingRateBps: 1800, investmentJudgmentBps: 4000 }, calculationVersion: 'baseline-calc-v2', dataState: 'INSUFFICIENT' })),
       http.put('/api/v1/onboarding', async ({ request }) => {
         requests.push('onboarding')
         expect(await request.json()).toMatchObject({ finishMode: 'EXPLORE_ONLY' })
@@ -71,6 +72,30 @@ describe('FinMate representative flow', () => {
     expect(requests).toEqual(['onboarding', 'goal'])
   })
 
+  it('lets an explore-only user confirm a goal later without repeating onboarding', async () => {
+    const user = userEvent.setup()
+    let completed = false
+    let onboardingWrites = 0
+    let goalWrites = 0
+    server.use(
+      http.get('/api/v1/onboarding', () => HttpResponse.json(completed
+        ? { status: 'COMPLETED', onboardingState: 'EXPLORE_ONLY', displayName: '민지', context: { incomeRegularity: 'REGULAR', housingType: 'RENT', fixedCostBurden: 'MEDIUM' }, baseline: { disposableIncomeKrw: 1100000, spendingRateBps: 5200, savingRateBps: 1800, investmentJudgmentBps: 4000 }, calculationVersion: 'baseline-calc-v2', dataState: 'FRESH', lastSyncedAt: '2026-07-13T09:00:00+09:00' }
+        : { status: 'IN_PROGRESS', onboardingState: 'EXPLORE_ONLY', baseline: { disposableIncomeKrw: 1100000, spendingRateBps: 5200, savingRateBps: 1800, investmentJudgmentBps: 4000 }, calculationVersion: 'baseline-calc-v2', dataState: 'INSUFFICIENT' })),
+      http.put('/api/v1/onboarding', () => { completed = true; onboardingWrites += 1; return HttpResponse.json({ status: 'COMPLETED', onboardingState: 'EXPLORE_ONLY', displayName: '민지', context: { incomeRegularity: 'REGULAR', housingType: 'RENT', fixedCostBurden: 'MEDIUM' }, baseline: { disposableIncomeKrw: 1100000, spendingRateBps: 5200, savingRateBps: 1800, investmentJudgmentBps: 4000 }, calculationVersion: 'baseline-calc-v2', dataState: 'FRESH', lastSyncedAt: '2026-07-13T09:00:00+09:00' }) }),
+      http.get('/api/v1/home', () => HttpResponse.json({ mode: 'EXPLORE_ONLY', totalAssetsKrw: 4280000, financialStats: { spendingDefenseBps: 5200, savingHpBps: 1800, investmentJudgmentBps: 4000, questXp: 0 }, lockedActions: ['RAID', 'QUEST_ACCEPT', 'ROUTINE_IMPORT', 'PERSONALIZED_PRODUCT_INFO'], calculationVersion: 'home-calc-v2', dataState: 'FRESH', lastSyncedAt: '2026-07-13T09:00:00+09:00' })),
+      http.post('/api/v1/goals', async ({ request }) => { goalWrites += 1; const body = await request.json() as Schema['ConfirmUserGoalRequest']; return HttpResponse.json({ goalId: 'goal-after-explore', ...body.goal, state: 'ACTIVE', confirmedAt: '2026-07-13T09:10:00+09:00', calculationVersion: 'goal-calc-v2', dataState: 'FRESH', lastSyncedAt: '2026-07-13T09:00:00+09:00' }, { status: 201 }) }),
+    )
+    renderApp('/goal/confirm')
+
+    await user.click(await screen.findByRole('button', { name: '일단 탐색하기' }))
+    await user.click(await screen.findByRole('link', { name: '목표 설정' }))
+    await user.click(await screen.findByRole('button', { name: '유럽 여행 자금 목표 만들기' }))
+
+    expect(await screen.findByRole('heading', { name: '여행까지 한 걸음' })).toBeInTheDocument()
+    expect(onboardingWrites).toBe(1)
+    expect(goalWrites).toBe(1)
+  })
+
   it('renders an explore-only home without assuming a goal or raid exists', async () => {
     server.use(http.get('/api/v1/home', () => HttpResponse.json({ mode: 'EXPLORE_ONLY', totalAssetsKrw: 4280000, financialStats: { spendingDefenseBps: 5200, savingHpBps: 1800, investmentJudgmentBps: 4000, questXp: 0 }, lockedActions: ['RAID', 'QUEST_ACCEPT', 'ROUTINE_IMPORT', 'PERSONALIZED_PRODUCT_INFO'], calculationVersion: 'home-calc-v2', dataState: 'FRESH', lastSyncedAt: '2026-07-13T09:00:00+09:00' })))
 
@@ -87,7 +112,7 @@ describe('FinMate representative flow', () => {
     await user.click(await screen.findByRole('link', { name: /북쪽의 모험가/ }))
     await user.click(await screen.findByRole('link', { name: '루틴을 내 생활에 맞추기' }))
     await user.click(await screen.findByRole('button', { name: '내 기준으로 추천 받기' }))
-    await user.click(await screen.findByRole('button', { name: 'STANDARD · 주 3회 저축 챌린지' }))
+    await user.click(await screen.findByRole('button', { name: 'STANDARD · 월급날 50만원 먼저 저축' }))
     await user.click(screen.getByRole('button', { name: '이 루틴으로 바꾸기' }))
     expect(screen.getByRole('dialog', { name: '루틴 변경 확인' })).toBeInTheDocument()
     expect(screen.getByText('여행 목표는 그대로 유지돼요.')).toBeInTheDocument()
@@ -96,7 +121,7 @@ describe('FinMate representative flow', () => {
     expect(await screen.findByRole('heading', { name: '활성 루틴이 바뀌었어요' })).toBeInTheDocument()
 
     await user.click(screen.getByRole('link', { name: '홈' }))
-    expect(await screen.findByText('현재 루틴: 월요일 저축 확인')).toBeInTheDocument()
+    expect(await screen.findByText('현재 루틴: 월급 입금일 확인')).toBeInTheDocument()
     expect(screen.getByText('유럽 여행')).toBeInTheDocument()
     expect(screen.getByText('2,000,000 KRW')).toBeInTheDocument()
   })
@@ -148,6 +173,9 @@ describe('FinMate representative flow', () => {
     const signup = await fetch('/api/v1/auth/signup', { method: 'POST' })
     expect(signup.status).toBe(201)
 
+    await apiRequest('/onboarding', 'PUT', onboardingCompletionForTest())
+    await apiRequest('/goals', 'POST', { goal: { title: '유럽 여행', domain: 'SAVING', currentAmountKrw: 2000000, targetAmountKrw: 5000000, targetMonth: '2027-01' }, confirm: true })
+
     expect((await apiGet<HomeResponse>('/home')).raid?.stage).toBe(1)
     for (const expectedFrameIndex of [0, 1, 2, 3, 4, 5]) await apiRequest('/demo/timeline/advance', 'POST', { fixtureId: 'EUROPE_TRAVEL_JANUARY', expectedFrameIndex })
     const completedHome = await apiGet<HomeResponse>('/home')
@@ -156,3 +184,7 @@ describe('FinMate representative flow', () => {
     expect(completedHome.raid?.stage).toBe(3)
   })
 })
+
+function onboardingCompletionForTest(): Schema['CompleteOnboardingRequest'] {
+  return { displayName: '민지', context: { incomeRegularity: 'REGULAR', housingType: 'RENT', fixedCostBurden: 'MEDIUM' }, moneyConcern: 'SAVING', financialTendency: 'BALANCED', lifestyleTags: ['자취'], anonymousShareConsent: true, syntheticMyDataConsent: true, finishMode: 'EXPLORE_ONLY' }
+}

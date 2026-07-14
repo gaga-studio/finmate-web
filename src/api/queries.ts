@@ -37,8 +37,26 @@ const invalidateRoutineViews = (queryClient: ReturnType<typeof useQueryClient>) 
   Promise.all([queryClient.invalidateQueries({ queryKey: ['home'] }), queryClient.invalidateQueries({ queryKey: ['active-routine'] })])
 
 export const useOnboarding = () => useQuery({ queryKey: ['onboarding'], queryFn: () => apiGet<OnboardingView>('/onboarding') })
-export const useCompleteOnboarding = () => useMutation({ mutationFn: (body: CompleteOnboarding) => apiRequest<OnboardingView>('/onboarding', 'PUT', body) })
-export const useConfirmGoal = () => useMutation({ mutationFn: (body: ConfirmGoal) => apiRequest<UserGoal>('/goals', 'POST', body) })
+export const useCompleteOnboarding = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (body: CompleteOnboarding) => apiRequest<OnboardingView>('/onboarding', 'PUT', body),
+    onSuccess: () => Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['onboarding'] }),
+      queryClient.invalidateQueries({ queryKey: ['home'] }),
+    ]),
+  })
+}
+export const useConfirmGoal = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (body: ConfirmGoal) => apiRequest<UserGoal>('/goals', 'POST', body),
+    onSuccess: () => Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['onboarding'] }),
+      queryClient.invalidateQueries({ queryKey: ['home'] }),
+    ]),
+  })
+}
 export const useHome = () => useQuery({ queryKey: ['home'], queryFn: () => apiGet<HomeResponse>('/home') })
 export const useRaid = () => useQuery({ queryKey: ['raid'], queryFn: () => apiGet<RaidView>('/raids/current') })
 export const useCharacterReport = (reportType: Schema['CharacterReportType']) => useQuery({ queryKey: ['character-report', reportType], queryFn: () => apiGet<CharacterReport>(`/reports/characters/${reportType}`) })
