@@ -105,6 +105,18 @@ describe('FinMate representative flow', () => {
     expect(screen.getByRole('link', { name: '목표 설정' })).toHaveAttribute('href', '/goal/confirm')
   })
 
+  it('presents the active goal as a travel raid with four report entry points', async () => {
+    renderApp('/home')
+
+    expect(await screen.findByRole('heading', { name: '유럽 여행 자금 레이드' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '곰 소비 리포트 보기' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '물개 저축 리포트 보기' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '토끼 투자 판단 리포트 보기' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '새 퀘스트 XP 리포트 보기' })).toBeInTheDocument()
+    expect(screen.queryByText('생활비 드래곤')).not.toBeInTheDocument()
+    expect(screen.queryByText('AUTO')).not.toBeInTheDocument()
+  })
+
   it('persists a confirmed routine replacement while preserving the active main goal', async () => {
     const user = userEvent.setup()
     renderApp('/mates/group/savers')
@@ -112,7 +124,7 @@ describe('FinMate representative flow', () => {
     await user.click(await screen.findByRole('link', { name: /북쪽의 모험가/ }))
     await user.click(await screen.findByRole('link', { name: '루틴을 내 생활에 맞추기' }))
     await user.click(await screen.findByRole('button', { name: '내 기준으로 추천 받기' }))
-    await user.click(await screen.findByRole('button', { name: 'STANDARD · 월급날 50만원 먼저 저축' }))
+    await user.click(await screen.findByRole('button', { name: '표준 · 월급날 50만원 먼저 저축' }))
     await user.click(screen.getByRole('button', { name: '이 루틴으로 바꾸기' }))
     expect(screen.getByRole('dialog', { name: '루틴 변경 확인' })).toBeInTheDocument()
     expect(screen.getByText('여행 목표는 그대로 유지돼요.')).toBeInTheDocument()
@@ -122,14 +134,24 @@ describe('FinMate representative flow', () => {
 
     await user.click(screen.getByRole('link', { name: '홈' }))
     expect(await screen.findByText('현재 루틴: 월급 입금일 확인')).toBeInTheDocument()
-    expect(screen.getByText('유럽 여행')).toBeInTheDocument()
-    expect(screen.getByText('2,000,000 KRW')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '유럽 여행 목표를 향해 가고 있어요.' })).toBeInTheDocument()
+    expect(screen.getByText('2,000,000원')).toBeInTheDocument()
   })
 
   it('resolves the mate group from the route parameter', async () => {
     renderApp('/mates/group/budget')
 
     expect(await screen.findByRole('heading', { name: '생활비 탐험대' })).toBeInTheDocument()
+  })
+
+  it('frames mate discovery around anonymous routines without public ranking', async () => {
+    renderApp('/mates')
+
+    expect(await screen.findByRole('heading', { name: '비슷한 출발점의 루틴을 발견해요' })).toBeInTheDocument()
+    expect(screen.getByText('정확한 금액과 순위는 숨기고, 검증된 루틴만 보여드려요.')).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: '꾸준저축 원정대 대표 캐릭터' })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: '생활비 탐험대 대표 캐릭터' })).toBeInTheDocument()
+    expect(screen.queryByText(/1위|랭킹/)).not.toBeInTheDocument()
   })
 
   it('shows synthetic financial quests as waiting for MyData evidence', async () => {
@@ -141,6 +163,59 @@ describe('FinMate representative flow', () => {
 
     expect(await screen.findByRole('status')).toHaveTextContent('MyData 반영을 기다리고 있어요')
     expect(screen.getByRole('button', { name: '자동저축 입금 반영 확인하기 완료' })).toBeDisabled()
+  })
+
+  it('explains that quest rewards and financial growth are calculated separately', async () => {
+    renderApp('/quests')
+
+    expect(await screen.findByText('퀘스트는 XP를 쌓고, 금융 스탯은 데이터 동기화 후 다시 계산돼요.')).toBeInTheDocument()
+    expect(screen.queryByText(/보스 진행률 \+\d/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/저축 HP \+\d/)).not.toBeInTheDocument()
+  })
+
+  it('shows the current week as large chronological journey steps', async () => {
+    renderApp('/record')
+
+    expect(await screen.findByRole('heading', { name: '30일 금융 여정' })).toBeInTheDocument()
+    const visibleDates = [7, 8, 9, 10, 11, 12, 13].map((day) => screen.getByRole('button', { name: `2026-07-${String(day).padStart(2, '0')} 기록` }))
+    expect(visibleDates).toHaveLength(7)
+    expect(screen.getByText('월급 입금')).toBeInTheDocument()
+    expect(screen.getByText('비상금 자동저축')).toBeInTheDocument()
+    expect(screen.getByText('저축 · 투자 · +2')).toBeInTheDocument()
+    expect(visibleDates[0]).not.toHaveClass('undefined')
+  })
+
+  it('loads another record month when the month navigation is used', async () => {
+    const user = userEvent.setup()
+    renderApp('/record')
+
+    expect(await screen.findByText('2026년 7월')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: '다음 달' }))
+
+    expect(await screen.findByText('2026년 8월')).toBeInTheDocument()
+  })
+
+  it('opens an activity-first day sheet without duplicate summaries or footer actions', async () => {
+    const user = userEvent.setup()
+    renderApp('/record')
+
+    await user.click(await screen.findByRole('button', { name: '2026-07-11 기록' }))
+
+    const sheet = await screen.findByRole('dialog', { name: '7월 11일 금융 기록' })
+    expect(sheet).toHaveTextContent('월급 입금')
+    expect(sheet).toHaveTextContent('+2,800,000원')
+    expect(sheet).toHaveTextContent('지출 3건')
+    expect(sheet).toHaveTextContent('-19,600원')
+    expect(sheet).toHaveTextContent('비상금 자동저축')
+    expect(sheet).toHaveTextContent('+100,000원')
+    expect(sheet).toHaveTextContent('투자계좌 입금')
+    expect(sheet).toHaveTextContent('+50,000원')
+    expect(sheet).toHaveTextContent('카페비 기록 퀘스트 완료')
+    expect(sheet).toHaveTextContent('남은 예산 12,400원')
+    expect(sheet).toHaveTextContent('데이터 반영 후 금융 스탯을 다시 계산해요')
+    expect(screen.queryByText('오늘의 돈 흐름')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '기록 수정' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '상세 기록 보기' })).not.toBeInTheDocument()
   })
 
   it('returns an expired protected session to login', async () => {

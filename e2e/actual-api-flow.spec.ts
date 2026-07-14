@@ -13,13 +13,19 @@ test('runs the representative flow against the demo-profile API', async ({ page 
   await page.getByRole('button', { name: '여행 목표 보기' }).click()
   await page.getByRole('button', { name: '유럽 여행 자금 목표 만들기' }).click()
   await page.getByRole('button', { name: '홈으로 가기' }).click()
-  await expect(page.getByText('목표 상태: 진행 중')).toBeVisible()
+  await expect(page.getByRole('heading', { name: '유럽 여행 자금 목표를 향해 가고 있어요.' })).toBeVisible()
+  await expect(page.getByText('2,000,000원')).toBeVisible()
 
   await page.getByRole('button', { name: '동물 리포트', exact: true }).click()
   await expect(page.getByRole('heading', { name: '분야별 동물 리포트' })).toBeVisible()
-  for (const label of ['곰 · 소비', '물개 · 저축', '토끼 · 투자 판단', '새 · 퀘스트']) {
+  for (const [label, reportTitle] of [
+    ['곰 · 소비', '곰 · 소비 방어력'],
+    ['물개 · 저축', '물개 · 저축 HP'],
+    ['토끼 · 투자 판단', '토끼 · 투자 판단력'],
+    ['새 · 퀘스트', '새 · 퀘스트 XP'],
+  ]) {
     await page.getByRole('button', { name: label }).click()
-    await expect(page.getByText(/BEAR|SEAL|RABBIT|BIRD/).first()).toBeVisible()
+    await expect(page.getByText(reportTitle).first()).toBeVisible()
   }
   await page.getByRole('link', { name: '홈' }).click()
 
@@ -43,7 +49,7 @@ test('runs the representative flow against the demo-profile API', async ({ page 
   await expect(page.getByRole('heading', { name: 'Weekly travel saving' })).toBeVisible()
   await page.getByRole('link', { name: '루틴을 내 생활에 맞추기' }).click()
   await page.getByRole('button', { name: '내 기준으로 추천 받기' }).click()
-  await expect(page.getByRole('button', { name: 'STANDARD · 월급날 50만원 먼저 저축' })).toHaveAttribute('aria-pressed', 'true')
+  await expect(page.getByRole('button', { name: '표준 · 월급날 50만원 먼저 저축' })).toHaveAttribute('aria-pressed', 'true')
   await page.getByRole('button', { name: '이 루틴으로 바꾸기' }).click()
   await expect(page.getByRole('heading', { name: '활성 루틴이 바뀌었어요' })).toBeVisible()
   await page.getByRole('link', { name: '홈' }).click()
@@ -54,7 +60,7 @@ test('runs the representative flow against the demo-profile API', async ({ page 
   await page.getByRole('link', { name: /Cobalt Compass/ }).click()
   await page.getByRole('link', { name: '루틴을 내 생활에 맞추기' }).click()
   await page.getByRole('button', { name: '내 기준으로 추천 받기' }).click()
-  await page.getByRole('button', { name: 'CHALLENGE · 월급날 70만원 먼저 저축' }).click()
+  await page.getByRole('button', { name: '도전 · 월급날 70만원 먼저 저축' }).click()
   await page.getByRole('button', { name: '이 루틴으로 바꾸기' }).click()
   await expect(page.getByRole('dialog', { name: '루틴 변경 확인' })).toBeVisible()
   await page.getByRole('button', { name: '교체 확정' }).click()
@@ -67,14 +73,17 @@ test('runs the representative flow against the demo-profile API', async ({ page 
 
   await page.getByRole('link', { name: '기록' }).click()
   await page.getByRole('button', { name: /기록$/ }).first().click()
-  await expect(page.getByRole('heading', { name: /오늘의 금융 활동|기록을 기다리는 날이에요/ })).toBeVisible()
+  const recordDialog = page.getByRole('dialog')
+  await expect(recordDialog).toBeVisible()
+  await expect(recordDialog.getByRole('heading', { name: '활동 내역' })).toBeVisible()
   await page.getByRole('button', { name: '닫기' }).click()
-  await page.getByRole('button', { name: '데모 진행' }).click()
+  await page.getByRole('button', { name: '시연 시간 진행' }).click()
   await page.getByRole('button', { name: '목표 완료 보기' }).click()
   await expect(page.getByText('유럽 여행 자금 목표를 완주했어요')).toBeVisible()
   await page.getByRole('link', { name: '새 여정 시작하기' }).click()
-  await expect(page.getByText('목표 상태: 완료')).toBeVisible()
-  await expect(page.getByText('RAID STAGE 3')).toBeVisible()
+  await expect(page.getByRole('heading', { name: '유럽 여행 자금 목표를 향해 가고 있어요.' })).toBeVisible()
+  await expect(page.getByText('STAGE 3')).toBeVisible()
+  await expect(page.getByText('완료 기록 확인하기')).toBeVisible()
 
   const journeyMonths = await page.evaluate(async () => {
     const auth = JSON.parse(sessionStorage.getItem('finmate.auth-session') ?? '{}') as { accessToken?: string }
@@ -101,7 +110,8 @@ test('runs the representative flow against the demo-profile API', async ({ page 
   await page.getByLabel('이메일').fill(email)
   await page.getByLabel('비밀번호').fill('FinMate!2026#')
   await page.getByRole('button', { name: '로그인' }).click()
-  await expect(page.getByText('목표 상태: 완료')).toBeVisible()
+  await expect(page.getByText('STAGE 3')).toBeVisible()
+  await expect(page.getByText('완료 기록 확인하기')).toBeVisible()
 })
 
 test('resumes a partially advanced demo after logout and login', async ({ page }) => {
@@ -132,7 +142,7 @@ test('resumes a partially advanced demo after logout and login', async ({ page }
   await page.getByLabel('이메일').fill(email)
   await page.getByLabel('비밀번호').fill('FinMate!2026#')
   await page.getByRole('button', { name: '로그인' }).click()
-  await expect(page.getByText('목표 상태: 진행 중')).toBeVisible()
+  await expect(page.getByRole('heading', { name: '유럽 여행 자금 목표를 향해 가고 있어요.' })).toBeVisible()
   await page.goto('/demo')
   await page.getByRole('button', { name: '목표 완료 보기' }).click()
   await expect(page.getByText('유럽 여행 자금 목표를 완주했어요')).toBeVisible()

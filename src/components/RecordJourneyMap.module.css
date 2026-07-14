@@ -1,0 +1,261 @@
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 28px 22px 6px;
+}
+
+.header div {
+  display: grid;
+  gap: 4px;
+}
+
+.header p {
+  color: var(--mint-700);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.header h1 {
+  font-size: 28px;
+}
+
+.header span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.header img {
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: #dff8f1;
+  box-shadow: var(--shadow-soft);
+}
+
+.monthHeader {
+  display: grid;
+  grid-template-columns: 42px 1fr 42px;
+  align-items: center;
+  margin: 12px 22px;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: var(--shadow-soft);
+}
+
+.monthHeader button {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink);
+}
+
+.monthHeader div {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+}
+
+.monthHeader strong {
+  color: var(--ink);
+  font-size: 16px;
+}
+
+.monthHeader span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.moneySummary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0 22px 8px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--shadow-soft);
+}
+
+.moneySummary div {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+  padding: 12px 8px;
+  text-align: center;
+}
+
+.moneySummary div + div {
+  border-left: 1px solid var(--line);
+}
+
+.moneySummary span {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.moneySummary strong {
+  overflow: hidden;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.income { color: #3078d6; }
+.expense { color: #e26968; }
+.saving { color: #0b9a78; }
+.investment { color: #7158c9; }
+.quest { color: #9b720d; }
+
+.journey {
+  position: relative;
+  display: grid;
+  gap: 22px;
+  min-height: 930px;
+  padding: 26px 22px 54px;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(245, 253, 251, 0.65), rgba(255, 255, 255, 0.8)),
+    url('/assets/backgrounds/roadmap-bg.webp') center / cover no-repeat;
+}
+
+.path {
+  position: absolute;
+  top: 45px;
+  bottom: 65px;
+  left: 50%;
+  width: 10px;
+  transform: translateX(-50%);
+  border-radius: 99px;
+  background: repeating-linear-gradient(180deg, #9ad9cd 0 20px, transparent 20px 31px);
+  opacity: 0.7;
+}
+
+.step {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: min(68%, 280px);
+  min-height: 112px;
+  align-content: center;
+  gap: 3px;
+  padding: 14px 48px 14px 18px;
+  border: 1px solid rgba(74, 153, 136, 0.24);
+  border-radius: 50px 22px 22px 50px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 12px 24px rgba(45, 103, 91, 0.12), inset 0 -5px 0 rgba(111, 180, 164, 0.1);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.step::after {
+  position: absolute;
+  top: 50%;
+  right: -21px;
+  width: 24px;
+  height: 24px;
+  transform: translateY(-50%);
+  border: 6px solid #fff;
+  border-radius: 50%;
+  background: var(--mint-500);
+  box-shadow: 0 0 0 2px #93d8ca;
+  content: '';
+}
+
+.right {
+  justify-self: end;
+  padding: 14px 18px 14px 48px;
+  border-radius: 22px 50px 50px 22px;
+}
+
+.right::after {
+  right: auto;
+  left: -21px;
+}
+
+.step:disabled {
+  border-color: #dce4e6;
+  background: rgba(247, 249, 249, 0.88);
+  box-shadow: 0 8px 20px rgba(70, 88, 94, 0.06);
+  color: #8b989c;
+  cursor: default;
+}
+
+.step:disabled::after {
+  background: #d4dddf;
+  box-shadow: 0 0 0 2px #e7edef;
+}
+
+.today {
+  border: 2px solid #e3b43e;
+  background: rgba(255, 251, 235, 0.97);
+  box-shadow: 0 15px 30px rgba(124, 88, 10, 0.18), inset 0 -5px 0 rgba(227, 180, 62, 0.13);
+}
+
+.today::after {
+  background: #f1bb37;
+  box-shadow: 0 0 0 2px #f5d87f;
+}
+
+.day {
+  color: var(--mint-700);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.step strong {
+  font-size: 14px;
+}
+
+.step b {
+  font-size: 13px;
+}
+
+.step small {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.currentCharacter {
+  position: absolute;
+  right: -9px;
+  bottom: -22px;
+  display: grid;
+  width: 68px;
+  height: 68px;
+  place-items: center;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: #dff8f1;
+  box-shadow: var(--shadow-card);
+}
+
+.right .currentCharacter {
+  right: auto;
+  left: -9px;
+}
+
+.currentCharacter img {
+  width: 58px;
+  height: 64px;
+  object-fit: contain;
+}
+
+@media (max-width: 370px) {
+  .header, .journey { padding-inline: 16px; }
+  .monthHeader, .moneySummary { margin-inline: 16px; }
+  .step { width: 72%; }
+}

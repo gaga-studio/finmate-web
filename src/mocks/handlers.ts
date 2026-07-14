@@ -48,9 +48,86 @@ const page = (groupId: string): Schema['RecommendedAdventurerPage'] => ({
   items: [{ adventurerId: groupId === 'budget' ? 'adventurer-budget' : 'adventurer-saver', groupId, alias: groupId === 'budget' ? '남쪽의 모험가' : '북쪽의 모험가', contextTags: ['사회초년생', '자취'], similarityReasons: ['익명 저축 루틴을 꾸준히 유지했어요.'], goalAchievementLabel: '여행 자금 목표 달성', routines: [{ routineId: groupId === 'budget' ? 'routine-budget' : 'routine-savers', title: groupId === 'budget' ? '하루 한 번 지출 점검' : '주 3회 저축 챌린지', domain: 'SAVING', maintenanceDays: 42 }], verifiedAt: now, approvedAt: now }],
   calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now,
 })
-const dailyActivity = (index: number): Schema['DailyActivity'] => ({ activityId: `activity-${index}`, activityType: index === 10 ? 'INCOME' : index === 9 ? 'SAVING' : 'EXPENSE', title: index === 10 ? '월급 입금' : index === 9 ? '비상금 자동저축' : '일상 지출', amountKrw: index === 10 ? 2800000 : index === 9 ? 100000 : -12000, occurredAt: now, primary: true, categoryLabels: [index === 10 ? '정기수입' : '생활'] })
-const journey: Schema['DailyRecord'][] = Array.from({ length: 31 }, (_, index) => ({ date: `2026-07-${String(index + 1).padStart(2, '0')}`, status: index < 11 ? (index === 10 ? 'TODAY' : 'RECORDED') : 'PLANNED', activities: index < 11 ? [dailyActivity(index)] : [], budget: { budgetKrw: 32000, spentKrw: index < 11 ? 12000 : 0, remainingKrw: index < 11 ? 20000 : 32000, usedBps: index < 11 ? 3750 : 0 }, xpEarned: index < 11 ? 5 : 0, reflection: null, calculationVersion: 'record-calc-v2', dataState: 'FRESH', lastSyncedAt: now }))
-const journeyMonth: Schema['DailyJourneyMonth'] = { month: '2026-07', recordedDayCount: 11, dayCount: 31, moneySummary: { incomeKrw: 2800000, expenseKrw: 163400, savingKrw: 100000 }, nodes: journey.map((record, index) => ({ date: record.date, status: index < 11 ? (index === 10 ? 'TODAY' : 'RECORDED') : index === 11 ? 'PLANNED' : 'LOCKED', primaryActivity: record.activities[0] ?? { activityId: `planned-${index}`, activityType: 'QUEST', title: '기록 예정', occurredAt: now, primary: true, categoryLabels: ['잠김'] }, secondaryActivityTypes: index === 10 ? ['SAVING', 'INVESTMENT'] : [], hiddenActivityCount: index === 10 ? 2 : 0, detailAvailable: index <= 11 })), calculationVersion: 'journey-calc-v1', dataState: 'FRESH', lastSyncedAt: now }
+const activity = (activityId: string, activityType: Schema['DailyActivity']['activityType'], title: string, amountKrw: number | undefined, primary: boolean, categoryLabels: string[]): Schema['DailyActivity'] => ({ activityId, activityType, title, ...(amountKrw !== undefined ? { amountKrw } : {}), occurredAt: now, primary, categoryLabels })
+const activitiesForDay = (day: number): Schema['DailyActivity'][] => {
+  if (day === 7) return [activity('activity-07-expense', 'EXPENSE', '식비·교통 지출', -24500, true, ['식비', '교통'])]
+  if (day === 8) return [activity('activity-08-expense', 'EXPENSE', '예산 안에서 지출', -8900, true, ['생활'])]
+  if (day === 9) return [activity('activity-09-expense', 'EXPENSE', '통신비 자동이체', -48000, true, ['고정비'])]
+  if (day === 10) return [activity('activity-10-saving', 'SAVING', '비상금 자동저축', 100000, true, ['자동저축'])]
+  if (day === 11) return [
+    activity('activity-11-income', 'INCOME', '월급 입금', 2800000, true, ['정기수입']),
+    activity('activity-11-expense', 'EXPENSE', '지출 3건', -19600, false, ['식비 12,000원', '카페 4,600원', '교통 3,000원']),
+    activity('activity-11-saving', 'SAVING', '비상금 자동저축', 100000, false, ['자동저축']),
+    activity('activity-11-investment', 'INVESTMENT', '투자계좌 입금', 50000, false, ['자산 이동']),
+    activity('activity-11-quest', 'QUEST', '카페비 기록 퀘스트 완료', undefined, false, ['행동 완료']),
+  ]
+  return [activity(`activity-${day}`, 'EXPENSE', '일상 지출', -12000, true, ['생활'])]
+}
+const journey: Schema['DailyRecord'][] = Array.from({ length: 31 }, (_, index) => {
+  const day = index + 1
+  const recorded = day <= 11
+  const today = day === 11
+  const budget = today
+    ? { budgetKrw: 32000, spentKrw: 19600, remainingKrw: 12400, usedBps: 6125 }
+    : { budgetKrw: 32000, spentKrw: recorded ? 12000 : 0, remainingKrw: recorded ? 20000 : 32000, usedBps: recorded ? 3750 : 0 }
+  return {
+    date: `2026-07-${String(day).padStart(2, '0')}`,
+    status: recorded ? (today ? 'TODAY' : 'RECORDED') : 'PLANNED',
+    activities: recorded ? activitiesForDay(day) : [],
+    budget,
+    xpEarned: today ? 20 : recorded ? 5 : 0,
+    reflection: null,
+    ...(today ? { recalculationSummary: '데이터 반영 후 금융 스탯을 다시 계산해요' } : {}),
+    calculationVersion: 'record-calc-v2',
+    dataState: 'FRESH',
+    lastSyncedAt: now,
+  }
+})
+const journeyMonth: Schema['DailyJourneyMonth'] = {
+  month: '2026-07',
+  recordedDayCount: 11,
+  dayCount: 31,
+  moneySummary: { incomeKrw: 2800000, expenseKrw: 163400, savingKrw: 100000 },
+  nodes: journey.map((record, index) => {
+    const day = index + 1
+    const plannedActivity = day === 12
+      ? activity('planned-12', 'ROUTINE', '오늘 예산 28,000원', undefined, true, ['예정 2개'])
+      : activity(`planned-${day}`, 'QUEST', day === 13 ? '퀘스트 예정' : '기록 예정', undefined, true, ['잠김'])
+    return {
+      date: record.date,
+      status: day <= 11 ? (day === 11 ? 'TODAY' : 'RECORDED') : day === 12 ? 'PLANNED' : 'LOCKED',
+      primaryActivity: record.activities[0] ?? plannedActivity,
+      secondaryActivityTypes: day === 11 ? ['SAVING', 'INVESTMENT'] : [],
+      hiddenActivityCount: day === 11 ? 2 : 0,
+      detailAvailable: day <= 12,
+    }
+  }),
+  calculationVersion: 'journey-calc-v1',
+  dataState: 'FRESH',
+  lastSyncedAt: now,
+}
+
+const emptyJourneyMonth = (month: string): Schema['DailyJourneyMonth'] => {
+  const [year, monthNumber] = month.split('-').map(Number)
+  const dayCount = new Date(Date.UTC(year, monthNumber, 0)).getUTCDate()
+  return {
+    month,
+    recordedDayCount: 0,
+    dayCount,
+    moneySummary: { incomeKrw: 0, expenseKrw: 0, savingKrw: 0 },
+    nodes: Array.from({ length: dayCount }, (_, index) => ({
+      date: `${month}-${String(index + 1).padStart(2, '0')}`,
+      status: 'LOCKED',
+      primaryActivity: activity(`planned-${month}-${index + 1}`, 'QUEST', '기록 예정', undefined, true, ['잠김']),
+      secondaryActivityTypes: [],
+      hiddenActivityCount: 0,
+      detailAvailable: false,
+    })),
+    calculationVersion: 'journey-calc-v1',
+    dataState: 'FRESH',
+    lastSyncedAt: now,
+  }
+}
 
 export const handlers = [
   http.post('/api/v1/auth/signup', async ({ request }) => { await delay(100); onboardingComplete = false; activeGoal = null; demoFrameIndex = 0; const body = await request.json().catch(() => ({})) as { email?: string; displayName?: string }; return HttpResponse.json({ accessToken: 'access-token', tokenType: 'Bearer', expiresAt: now, user: { userId: '5d8c0a2f-8f86-4fc5-af80-f833fb8d7703', email: body.email ?? 'minji@example.com', displayName: body.displayName ?? '민지', onboardingStatus: 'NOT_STARTED' } }, { status: 201 }) }),
@@ -96,7 +173,10 @@ export const handlers = [
     return HttpResponse.json({ quest, xpAwarded: pending ? 0 : quest.xpReward, pointsAwarded: pending ? 0 : quest.pointReward, financialStatsChanged: false }, { status: pending ? 202 : 200 })
   }),
   http.get('/api/v1/records', () => HttpResponse.json({ items: journey, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now })),
-  http.get('/api/v1/records/journey', () => HttpResponse.json(journeyMonth)),
+  http.get('/api/v1/records/journey', ({ request }) => {
+    const month = new URL(request.url).searchParams.get('month') ?? journeyMonth.month
+    return HttpResponse.json(month === journeyMonth.month ? journeyMonth : emptyJourneyMonth(month))
+  }),
   http.get('/api/v1/records/:date', ({ params }) => HttpResponse.json(journey.find((record) => record.date === String(params.date)) ?? journey[0])),
   http.post('/api/v1/demo/timeline/advance', async ({ request }) => {
     const key = request.headers.get('Idempotency-Key') ?? ''
