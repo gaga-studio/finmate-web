@@ -22,8 +22,14 @@ cleanup() {
 }
 trap cleanup EXIT
 
+contract_hash_before="$(shasum -a 256 src/api/generated.ts src/api/openapi.snapshot.yaml)"
 npm run generate:api
-git diff --exit-code -- src/api/generated.ts src/api/openapi.snapshot.yaml
+contract_hash_after="$(shasum -a 256 src/api/generated.ts src/api/openapi.snapshot.yaml)"
+if [[ "$contract_hash_before" != "$contract_hash_after" ]]; then
+  echo "Generated API client is out of sync with finmate-api OpenAPI." >&2
+  git diff -- src/api/generated.ts src/api/openapi.snapshot.yaml >&2
+  exit 1
+fi
 
 (
   cd "$api_root"

@@ -193,6 +193,60 @@
   font-size: 12px;
 }
 
+.baselineHero {
+  display: grid;
+  gap: 9px;
+  padding: 22px;
+  border: 1px solid #cfe7e1;
+  border-radius: 8px;
+  background: linear-gradient(145deg, #173d48, #236b63);
+  color: #fff;
+  box-shadow: var(--shadow-card);
+}
+
+.baselineHero > div {
+  display: grid;
+  gap: 4px;
+}
+
+.baselineHero span,
+.baselineHero p {
+  color: #d4eae6;
+  font-size: 11px;
+}
+
+.baselineHero strong {
+  font-size: 30px;
+}
+
+.baselineGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.baselineGrid article {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+  padding: 14px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.baselineGrid span,
+.baselineGrid small {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.baselineGrid strong {
+  color: var(--mint-700);
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+
 .successIcon {
   color: var(--mint-600);
 }
@@ -522,6 +576,60 @@
   font-size: 11px;
 }
 
+.mateNavWrap {
+  display: grid;
+  gap: 12px;
+  padding: 22px 22px 0;
+  background: #eefaf7;
+}
+
+.explorePage {
+  background: linear-gradient(180deg, #eefaf7 0, var(--surface) 280px);
+}
+
+.filterPanel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: var(--shadow-soft);
+}
+
+.filterPanel label {
+  display: grid;
+  min-width: 0;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.filterPanel select {
+  width: 100%;
+  min-height: 43px;
+  padding: 0 30px 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #f8fbfb;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+}
+
+.filterPanel .primary {
+  grid-column: 1 / -1;
+}
+
+.productBoundary {
+  margin-top: -8px;
+  color: var(--muted);
+  font-size: 10px;
+  text-align: center;
+}
+
 .groupList {
   display: grid;
   gap: 10px;
@@ -661,6 +769,8 @@
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fff;
+  color: var(--ink);
+  text-decoration: none;
   box-shadow: var(--shadow-soft);
 }
 
@@ -717,6 +827,10 @@
 .questAction:disabled {
   background: #d6dfdf;
   color: #879394;
+}
+
+.questCard > svg:last-child {
+  color: #839295;
 }
 
 .education {
@@ -799,6 +913,22 @@
   gap: 10px;
 }
 
+.floatingError {
+  position: fixed;
+  right: 18px;
+  bottom: 88px;
+  left: 18px;
+  z-index: 30;
+  max-width: 436px;
+  margin-inline: auto;
+  padding: 12px 14px;
+  border-radius: 7px;
+  background: #702c2b;
+  color: #fff;
+  font-size: 11px;
+  box-shadow: var(--shadow-card);
+}
+
 .state {
   display: grid;
   min-height: 70svh;
@@ -868,5 +998,21 @@
 
   .characterReport > img {
     width: 94px;
+  }
+
+  .baselineGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .filterPanel {
+    grid-template-columns: 1fr;
+  }
+
+  .filterPanel .primary {
+    grid-column: 1;
+  }
+
+  .mateNavWrap {
+    padding-inline: 16px;
   }
 }

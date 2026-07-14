@@ -24,14 +24,14 @@
 
 | Screen ID | Route proposal | 화면 책임 | 계약 기준 | MVP 상태 | Web 상태 | Handoff |
 | --- | --- | --- | --- | --- | --- | --- |
-| AUTH-01 | `/signup`, `/login` | 이메일 가입·로그인과 온보딩 복원 | `signUp`, `logIn` | MVP | Needs alignment | `REBUILD` |
-| ONB-01 | `/onboarding/life-context` | 소득 규칙성·주거·고정비 부담 | onboarding draft | MVP | Needs alignment | `REBUILD` |
-| ONB-02 | `/onboarding/money-concern` | 현재 돈 고민 선택 | onboarding draft | MVP | Needs alignment | `REBUILD` |
-| ONB-03 | `/onboarding/tendency` | 금융성향·위험성향·학습 선호 | onboarding draft | MVP | Needs alignment | `REBUILD` |
-| ONB-04 | `/onboarding/tags-and-sharing` | 생활태그·익명 공개 설정 | onboarding draft | MVP | Needs alignment | `REBUILD` |
-| ONB-05 | `/onboarding/mydata` | 합성 마이데이터 동의·연결 상태 | onboarding draft | MVP | Needs alignment | `REBUILD` |
-| ONB-06 | `/onboarding/baseline` | 기준선 진단 후 목표 설정/탐색 선택 | `completeOnboarding` | MVP | Planned | `REBUILD` |
-| GOAL-01 | `/goal/confirm` | 목표 이름·현재값·목표값·목표 월 확정 | `confirmUserGoal` | MVP | Needs alignment | `REBUILD` |
+| AUTH-01 | `/signup`, `/login` | 이메일 가입·로그인과 온보딩 복원 | `signUp`, `logIn` | MVP | Implemented | `REBUILD` |
+| ONB-01 | `/onboarding/1` | 소득 규칙성·주거·고정비 부담 | onboarding draft | MVP | Implemented | `REBUILD` |
+| ONB-02 | `/onboarding/2` | 현재 돈 고민 선택 | onboarding draft | MVP | Implemented | `REBUILD` |
+| ONB-03 | `/onboarding/3` | 금융성향·위험성향·학습 선호 | onboarding draft | MVP | Implemented | `REBUILD` |
+| ONB-04 | `/onboarding/4` | 생활태그·익명 공개 설정 | onboarding draft | MVP | Implemented | `REBUILD` |
+| ONB-05 | `/onboarding/5` | 합성 마이데이터 동의·연결 상태 | onboarding draft | MVP | Implemented | `REBUILD` |
+| ONB-06 | `/onboarding/baseline` | 기준선 진단 후 목표 설정/탐색 선택 | `completeOnboarding` | MVP | Implemented | `REBUILD` |
+| GOAL-01 | `/goal/confirm` | 목표 이름·현재값·목표값·목표 월 확정 | `confirmUserGoal` | MVP | Implemented | `REBUILD` |
 
 ## 홈·리포트
 
@@ -39,29 +39,29 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | HOME-01 | `/home` | 목표 없는 빈 레이드와 메이트 탐색·목표 설정 진입 | `getHome` with `EXPLORE_ONLY` | MVP | Implemented | `REBUILD` |
 | HOME-02 | `/home` | 목표·자동 레이드·네 동물·루틴·추천 퀘스트·동기화 | `getHome`, `getCurrentRaid` | MVP | Implemented | `REFINE` |
-| REPORT-01 | `/reports/:reportType` | 곰·물개·토끼·새의 실제값·산정 이유·30일 추세 | `getCharacterReport` | MVP | Implemented | `REFINE` |
-| HOME-03 | `/goal/completed` | 200만→500만원 달성 근거와 다음 목표 | `getHome`, demo fixture | MVP fixture | Implemented | `REBUILD` |
+| REPORT-01 | `/report?type=:reportType` | 곰·물개·토끼·새의 실제값·산정 이유·30일 추세 | `getCharacterReport` | MVP | Implemented | `REFINE` |
+| HOME-03 | `/goal/complete` | 200만→500만원 달성 근거와 다음 목표 | `getHome`, demo fixture | MVP fixture | Implemented | `REBUILD` |
 
 ## 퀘스트
 
 | Screen ID | Route proposal | 화면 책임 | 계약 기준 | MVP 상태 | Web 상태 | Handoff |
 | --- | --- | --- | --- | --- | --- | --- |
 | QUEST-01 | `/quests` | 요약·진행 중·추천·반영 대기·완료 | `listQuests` | MVP | Implemented | `REFINE` |
-| QUEST-02 | `/quests/:questId` | 현재값·목표값·검증 방식·XP 확인 후 수락 | `getQuest`, `acceptQuest` | MVP | Planned | `REBUILD` |
+| QUEST-02 | `/quests/:questId` | 현재값·목표값·검증 방식·XP 확인 후 수락 | `getQuest`, `acceptQuest` | MVP | Implemented | `REBUILD` |
 
 ## 메이트
 
 | Screen ID | Route proposal | 화면 책임 | 계약 기준 | MVP 상태 | Web 상태 | Handoff |
 | --- | --- | --- | --- | --- | --- | --- |
-| MATE-01 | `/mates/friends` | 오늘 완료 N/M, 금액 없는 근황, 3스탯, 공개 루틴 | `getMateFriendOverview`, `getMateFriendFeed` | Synthetic read-only | Planned | `REFINE` |
-| MATE-02 | `/mates/groups` | 내 유사그룹·목표 달성 그룹·분포·인기 루틴 | `listMateGroups` | MVP | Implemented | `REFINE` |
-| MATE-03 | `/mates/explore` | 검수된 필터 조합으로 익명 모험가 탐색 | `searchMateAdventurers` | Synthetic read-only | Planned | `REFINE` |
-| MATE-04 | `/mates/groups/:groupId` | 그룹 기준·표본·분포·달성 모험가 목록 | `getMateGroupReport`, `listRecommendedAdventurers` | MVP | Implemented | `REFINE` |
-| MATE-05 | `/mates/groups/:groupId/adventurers/:adventurerId` | 익명 맥락·유사 이유·달성 여부·루틴 유지기간 | `getRecommendedAdventurer` | MVP | Planned | `REFINE` |
-| MATE-06 | `/mates/groups/:groupId/adventurers/:adventurerId/report` | 범위화된 나 vs 모험가 비교와 루틴 근거 | `getAdventurerReport` | MVP | Planned | `REFINE` |
+| MATE-01 | `/mates/friends` | 오늘 완료 N/M, 금액 없는 근황, 공개 루틴 연속기록 | `getMateFriendOverview`, `getMateFriendFeed`, `getMateStreaks` | Synthetic read-only | Implemented | `REFINE` |
+| MATE-02 | `/mates` | 내 유사그룹·목표 달성 그룹·분포·인기 루틴 | `listMateGroups` | MVP | Implemented | `REFINE` |
+| MATE-03 | `/mates/explore` | 검수된 필터 조합으로 익명 모험가 탐색 | `searchMateAdventurers` | Synthetic read-only | Implemented | `REFINE` |
+| MATE-04 | `/mates/group/:groupId` | 그룹 기준·표본·분포·달성 모험가 목록 | `getMateGroupReport`, `listRecommendedAdventurers` | MVP | Implemented | `REFINE` |
+| MATE-05 | `/mates/group/:groupId/adventurer/:adventurerId` | 익명 맥락·유사 이유·달성 여부·루틴 유지기간 | `getRecommendedAdventurer` | MVP | Implemented | `REFINE` |
+| MATE-06 | `/mates/group/:groupId/adventurer/:adventurerId/report` | 범위화된 나 vs 모험가 비교와 루틴 근거 | `getAdventurerReport` | MVP | Implemented | `REFINE` |
 | ROUTINE-01 | `/routine/recommendation` | 추천 서브퀘스트 하나 우선, 강도 변경은 선택 | `createRoutineRecommendation` | MVP | Implemented | `REFINE` |
 | ROUTINE-02 | `/routine/confirm` | 신규 적용 또는 기존 활성 루틴 교체 확인 | `importRoutineAdaptationCandidate`, `replaceActiveRoutineBuild` | MVP | Implemented | `REFINE` |
-| PRODUCT-01 | `/products/:productId` | 검수된 하나 상품 조건·기준일·유의사항·공식 링크 | `getRelatedHanaProductInfo` | MVP info-only | Planned | `REBUILD` |
+| PRODUCT-01 | `/products/:productId` | 검수된 하나 상품 조건·기준일·유의사항·공식 링크 | `getRelatedHanaProductInfo` | MVP info-only | Implemented | `REBUILD` |
 
 친구 추가·팔로잉 관리와 자유 조건 검색은 `Deferred`다. 하나 상품 화면은 가입·신청
 동작을 제공하지 않으며 열람 전후 XP·금융 스탯·레이드 값이 동일해야 한다.
@@ -70,21 +70,22 @@
 
 | Screen ID | Route proposal | 화면 책임 | 계약 기준 | MVP 상태 | Web 상태 | Handoff |
 | --- | --- | --- | --- | --- | --- | --- |
-| RECORD-01 | `/records?month=YYYY-MM` | 월간 요약과 1~말일 대형 발판 여정 | `getDailyJourneyMonth` | MVP | Implemented | `KEEP` |
-| RECORD-02 | `/records?month=YYYY-MM&date=YYYY-MM-DD` | 활동 목록·예산·퀘스트·데이터 반영 바텀시트 | `getDailyRecord` | MVP | Implemented | `REFINE` |
-| DEMO-01 | `/demo/timeline` | 8월~1월 50만원×6회 합성 시간 진행 제어 | `advanceDemoTimeline` | Demo-only | Implemented | `REBUILD` |
+| RECORD-01 | `/record?month=YYYY-MM` | 월간 요약과 1~말일 대형 발판 여정 | `getDailyJourneyMonth` | MVP | Implemented | `KEEP` |
+| RECORD-02 | `/record?month=YYYY-MM&date=YYYY-MM-DD` | 활동 목록·예산·퀘스트·데이터 반영 바텀시트 | `getDailyRecord` | MVP | Implemented | `REFINE` |
+| DEMO-01 | `/demo` | 8월~1월 50만원×6회 합성 시간 진행 제어 | `advanceDemoTimeline` | Demo-only | Implemented | `REBUILD` |
 
 ## 대표 화면 연결
 
-이번 PR에서 실제로 연결하고 검증하는 대표 수직 흐름은 다음과 같다.
+현재 웹과 실제 API에서 연결하고 검증하는 대표 수직 흐름은 다음과 같다.
 
 ```text
-AUTH-01 → ONB-01~05 → GOAL-01 → HOME-02 → REPORT-01
-→ MATE-02 → MATE-04 → ROUTINE-01 → ROUTINE-02
-→ QUEST-01 → RECORD-01 → RECORD-02 → DEMO-01 → HOME-03
+AUTH-01 → ONB-01~06 → GOAL-01 → HOME-02 → REPORT-01
+→ MATE-01 → MATE-02 → MATE-03 → MATE-04 → MATE-05 → MATE-06
+→ ROUTINE-01 → PRODUCT-01 → ROUTINE-02
+→ QUEST-01 → QUEST-02 → RECORD-01 → RECORD-02 → DEMO-01 → HOME-03
 ```
 
-아래는 승인된 전체 IA 연결이며, `Planned` 화면은 이번 PR 범위에 포함하지 않는다.
+아래는 승인된 전체 MVP IA 연결이다.
 
 ```text
 AUTH-01

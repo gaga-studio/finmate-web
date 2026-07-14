@@ -100,11 +100,11 @@ The operational app keeps these vNext foundations unchanged:
 Only approved assets, visual tokens, and screen composition patterns are copied into the
 operational branch. Source API, route, session, mock, calculation, and old E2E files are not copied.
 
-## Representative-flow Integration Verification
+## Full MVP IA Integration Verification
 
-- API contract source: `gaga-studio/finmate-api` branch `codex/close-vnext-runtime-gaps`,
-  commit `f50deff7591eb674c768bb01eca3518b214f307b`
-- Unit/component tests: `28 passed`
+- API contract source: `gaga-studio/finmate-api` `main`,
+  commit `ae088f55cf564b3a76a627664c0e86783d2de9a2`
+- Unit/component tests: `33 passed`
 - TypeScript typecheck: passed
 - Lint: passed
 - Production PWA build: passed
@@ -114,11 +114,13 @@ operational branch. Source API, route, session, mock, calculation, and old E2E f
   - full representative flow and goal completion
   - partial demo logout/login resume
   - explore-only onboarding followed by later goal confirmation
-- Mobile visual audit: home, report, mate, routine, quest, record, and daily sheet at
+- Mobile visual audit: baseline, home, character report, friends, comparison explore,
+  group, adventurer, comparison report, routine, product information, quest detail,
+  record, and daily sheet at
   `360px`, `390px`, and `430px`
 - Browser audit: no console errors, failed image requests, or horizontal overflow
-- Planned screens intentionally excluded: friend detail, comparison exploration, product
-  information, and quest detail
+- MVP IA completion: all seven formerly planned screens are implemented against Mock and
+  actual API contracts; social writes, free-form search, and in-app product enrollment remain deferred
 
 Generated screenshots and temporary capture automation were used only for verification and are
 not committed.
