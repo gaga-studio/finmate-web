@@ -114,7 +114,7 @@ export function AdventurerProfileView({ adventurer }: { adventurer: Schema['Reco
       <Link className="mate-back-link" to={`/mates/group/${adventurer.groupId}`}><ArrowLeft size={19} />그룹으로</Link>
       <section className="mate-card mate-adventurer-card">
         <div className="mate-adventurer-top"><span className="mate-adventurer-match">추천 익명 모험가</span><span className="mate-card-link">검증 {new Date(adventurer.verifiedAt).toLocaleDateString('ko-KR')}</span></div>
-        <div className="mate-adventurer-body"><MateAvatar species={speciesFor(adventurer.groupId)} size={118} fit="contain" className="mate-adventurer-avatar"/><div><h1 className="mate-adventurer-name">{adventurer.alias}</h1><p className="mate-adventurer-tagline">{adventurer.goalAchievementLabel}</p></div></div>
+        <div className="mate-adventurer-body"><MateAvatar species={speciesFor(adventurer.groupId)} size={118} fit="cover" className="mate-adventurer-avatar"/><div><h1 className="mate-adventurer-name">{adventurer.alias}</h1><p className="mate-adventurer-tagline">{adventurer.goalAchievementLabel}</p></div></div>
         <div className="mate-adventurer-badges">{adventurer.contextTags.map((tag) => <MateStatBadge icon="profile" label={tag} key={tag}/>)}</div>
       </section>
       <MateSectionCard eyebrowIcon="shield" title="출발점이 이렇게 닮았어요"><ul className="mate-reason-list">{adventurer.similarityReasons.map((reason) => <li key={reason}>{reason}</li>)}</ul></MateSectionCard>
@@ -138,8 +138,14 @@ export function AdventurerReportView({ report }: { report: Schema['AdventurerRep
       <MateSectionCard eyebrowIcon="chart" title="금융 습관 비교">
         <div className="mate-vs-gauges">{report.comparisonMetrics.map((metric) => <div className="mate-gauge-row" key={metric.label}><div className="mate-gauge-row-head"><span>{metric.label}</span><b>{approvedCopy(metric.interpretationCopyKey)}</b></div><div className="mate-comparison-ranges"><span>나 <strong>{metric.myRange}</strong></span><span>모험가 <strong>{metric.adventurerRange}</strong></span></div></div>)}</div>
       </MateSectionCard>
-      <MateSectionCard eyebrowIcon="shield" title="이 루틴을 추천하는 이유"><ul className="mate-reason-list">{report.routineEvidence.map((evidence) => <li key={evidence}>{approvedCopy(evidence)}</li>)}</ul></MateSectionCard>
-      {routine ? <Link className="app-button primary" to={`/routine/${report.adventurer.groupId}/${report.adventurer.adventurerId}/${routine.routineId}`}>이 루틴을 내 상황에 맞추기<ChevronRight size={20}/></Link> : null}
+      <section className="compare-report-summary-panel is-ai-coach">
+        <strong>이 루틴을 추천하는 이유</strong>
+        <div className="compare-report-coach-row">
+          <MateAvatar species="coach" size={86} fit="contain" className="compare-report-coach-avatar"/>
+          <div className="compare-report-checklist">{report.routineEvidence.map((evidence) => <span key={evidence}>{approvedCopy(evidence)}</span>)}</div>
+        </div>
+      </section>
+      {routine ? <Link className="app-button primary compare-report-sticky-cta" to={`/routine/${report.adventurer.groupId}/${report.adventurer.adventurerId}/${routine.routineId}`}>이 루틴을 내 상황에 맞추기<ChevronRight size={20}/></Link> : null}
       <p className="mate-build-note">비교 결과는 행동을 고르는 참고 정보이며 금융상품이나 투자를 추천하지 않아요.</p>
     </section>
   )

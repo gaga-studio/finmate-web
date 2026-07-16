@@ -1858,6 +1858,253 @@
   }
 }
 
+/* frontend-v2@dca4837: final operational mate layout. */
+.screen-mate-main {
+  --screen-top-bg: #EAF6F4;
+  background: linear-gradient(180deg, #EAF6F4 0 132px, var(--teal-50) 132px, var(--paper) 260px);
+}
+
+.screen.screen-mate-main {
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  position: relative;
+  overflow: hidden;
+  padding: 0 16px calc(var(--bottom-nav-height) + 14px);
+}
+
+.screen.screen-mate-main .screen-stack {
+  gap: 16px;
+}
+
+.screen-mate-main .mate-reference-status.roadmap-status {
+  height: 48px;
+  margin: 0 -16px;
+  padding: 12px 36px 0;
+  background: var(--screen-top-bg);
+}
+
+.screen-mate-main .mate-reference-topline {
+  position: relative;
+  z-index: 55;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  margin: 0 -16px;
+  padding: 6px 16px 10px;
+  background: var(--screen-top-bg);
+}
+
+.screen-mate-main > .mate-main-stack {
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  padding-top: 16px;
+  padding-bottom: calc(var(--bottom-nav-height) + 24px);
+  scrollbar-width: none;
+}
+
+.screen-mate-main > .mate-main-stack::-webkit-scrollbar {
+  display: none;
+}
+
+.screen-mate-main > .segmented-control {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  height: 48px;
+  margin-top: 8px;
+  padding: 0;
+  border: none;
+  border-bottom: 1px solid rgba(21, 38, 35, .14);
+  border-radius: 0;
+  background: var(--screen-top-bg);
+  box-shadow: none;
+}
+
+.screen-mate-main > .segmented-control a {
+  position: relative;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  border-radius: 0;
+  padding: 0 4px 12px;
+  color: var(--ink-500);
+  background: transparent;
+  box-shadow: none;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  transition: color var(--motion-fast);
+}
+
+.screen-mate-main > .segmented-control a::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -1px;
+  width: 0;
+  height: 3px;
+  border-radius: 999px 999px 0 0;
+  background: #111827;
+  transform: translateX(-50%);
+  transition: width var(--motion-fast);
+}
+
+.screen-mate-main > .segmented-control a.is-active,
+.screen-mate-main > .segmented-control a[aria-current='page'] {
+  color: #111827;
+  background: transparent;
+  font-weight: 900;
+  box-shadow: none;
+}
+
+.screen-mate-main > .segmented-control a.is-active::after,
+.screen-mate-main > .segmented-control a[aria-current='page']::after {
+  width: min(76px, calc(100% - 16px));
+}
+
+.screen-mate-main .mate-group-section {
+  display: grid;
+  gap: 12px;
+}
+
+.screen-mate-main .mate-outside-heading {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: 10px;
+  row-gap: 8px;
+}
+
+.screen-mate-main .mate-outside-heading h2 {
+  margin: 0;
+  color: var(--ink-900);
+  font-size: 21px;
+  font-weight: 900;
+}
+
+.screen-mate-main .mate-group-live-count {
+  grid-column: 2;
+  position: relative;
+  width: fit-content;
+  padding-left: 13px;
+  color: var(--teal-600);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.screen-mate-main .mate-group-live-count::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 2px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(21, 38, 35, .16);
+  transform: translateY(-50%);
+}
+
+.screen-mate-main .mate-group-card {
+  grid-template-columns: minmax(0, 1fr) 132px;
+  min-height: 142px;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid rgba(83, 158, 153, .16);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 88% 18%, rgba(86, 176, 116, .20), transparent 30%),
+    linear-gradient(145deg, #EAF7EF, #FFFFFF) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .9),
+    0 14px 28px rgba(83, 158, 153, .12);
+}
+
+.screen-mate-main .mate-group-copy {
+  align-self: stretch;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+}
+
+.screen-mate-main .mate-group-copy strong {
+  color: var(--ink-900);
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.35;
+  word-break: keep-all;
+}
+
+.screen-mate-main .mate-group-copy p {
+  margin: 0;
+  color: var(--ink-600);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.42;
+}
+
+.screen-mate-main .mate-group-trio {
+  align-self: center;
+  width: 132px;
+  height: 106px;
+  border: 1px solid rgba(83, 158, 153, .12);
+  border-radius: 16px;
+  background: linear-gradient(145deg, #E4F5E9, #F8FFFB);
+  overflow: hidden;
+}
+
+.screen-mate-main .mate-group-trio .mate-avatar {
+  border: 0;
+  filter: drop-shadow(0 10px 12px rgba(17, 24, 39, .18));
+}
+
+.screen-mate-main .mate-group-trio .mate-avatar:nth-child(1) { left: 5px; bottom: 3px; }
+.screen-mate-main .mate-group-trio .mate-avatar:nth-child(2) { left: 37px; bottom: 6px; }
+.screen-mate-main .mate-group-trio .mate-avatar:nth-child(3) { left: 70px; bottom: 3px; }
+
+.screen-mate-main .mate-adventurer-body {
+  grid-template-columns: 134px minmax(0, 1fr) !important;
+}
+
+.screen-mate-main .mate-adventurer-avatar {
+  width: 126px !important;
+  height: 126px !important;
+  margin: 0 !important;
+  border-radius: 50%;
+  background: radial-gradient(circle, #FFF8CF 0 28%, #F8E6B7 29% 100%) !important;
+}
+
+.screen-mate-main .mate-adventurer-avatar::before { inset: -7px !important; }
+.screen-mate-main .mate-adventurer-avatar::after {
+  left: 3px !important;
+  bottom: 14px !important;
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.screen-mate-main .mate-adventurer-avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+  transform: translateY(18px) scale(2.05) !important;
+}
+
+@media (max-width: 390px) {
+  .screen-mate-main > .segmented-control {
+    height: 44px;
+    margin-top: 6px;
+  }
+
+  .screen-mate-main > .segmented-control a {
+    padding-bottom: 10px;
+    font-size: 13px;
+  }
+}
+
 /* ── UI_이미지 기준 보정 레이어 ───────────────────────────── */
 .mate-friend-summary .mate-card-head-title {
   flex: 1 1 auto;

@@ -181,11 +181,15 @@ describe('FinMate representative flow', () => {
   it('frames mate discovery around anonymous routines without public ranking', async () => {
     renderApp('/mates')
 
-    expect(await screen.findByRole('heading', { name: '나와 비슷한 그룹' })).toBeInTheDocument()
+    const groupHeading = await screen.findByRole('heading', { name: '나와 비슷한 그룹' })
+    expect(groupHeading.closest('.mate-group-section')).not.toBeNull()
+    expect(groupHeading.closest('.mate-card')).toBeNull()
+    expect(document.querySelector('.mate-group-section > .mate-group-card')).not.toBeNull()
     expect(screen.getByRole('heading', { name: '추천 유사그룹' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /꾸준저축 원정대/ })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /생활비 탐험대/ })).toBeInTheDocument()
     expect(screen.queryByText(/1위|랭킹/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/Hana Card|SAMSUNG|toss/)).not.toBeInTheDocument()
   })
 
   it('shows read-only friend activity without amounts or ranking', async () => {
@@ -224,7 +228,8 @@ describe('FinMate representative flow', () => {
     expect(screen.getByText('20–30%')).toBeInTheDocument()
     expect(screen.getByText('차이는 부담 없는 저축 행동부터 줄일 수 있어요.')).toBeInTheDocument()
     expect(screen.queryByText('SAVING GAP IS ACTIONABLE')).not.toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /이 루틴을 내 상황에 맞추기/ })).toBeInTheDocument()
+    expect(document.querySelector('.compare-report-summary-panel.is-ai-coach')).toHaveTextContent('42일 동안 월급날 먼저 저축을 유지했어요.')
+    expect(screen.getByRole('link', { name: /이 루틴을 내 상황에 맞추기/ })).toHaveClass('compare-report-sticky-cta')
   })
 
   it('keeps reviewed Hana product information separate from game progress', async () => {
@@ -253,6 +258,10 @@ describe('FinMate representative flow', () => {
     renderApp('/quests')
 
     expect(await screen.findByText(/퀘스트 보상과 금융 성장은 분리돼요/)).toBeInTheDocument()
+    expect(document.querySelector('.quest-summary-section')).not.toBeNull()
+    expect(document.querySelectorAll('.quest-summary-dots i')).toHaveLength(2)
+    expect(document.querySelector('.quest-progress-section')).not.toBeNull()
+    expect(document.querySelector('.quest-progress-main')).not.toBeNull()
     expect(screen.getByText(/금융 스탯과 레이드는 데이터 동기화 후 다시 계산해요/)).toBeInTheDocument()
     expect(screen.queryByText(/보스 진행률 \+\d/)).not.toBeInTheDocument()
     expect(screen.queryByText(/저축 HP \+\d/)).not.toBeInTheDocument()
