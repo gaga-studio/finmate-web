@@ -186,7 +186,7 @@ describe('FinMate representative flow', () => {
     expect(groupHeading.closest('.mate-card')).toBeNull()
     expect(document.querySelector('.mate-group-section > .mate-group-card')).not.toBeNull()
     expect(screen.getByRole('heading', { name: '추천 유사그룹' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /꾸준저축 원정대/ })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /꾸준저축 원정대/ })).toHaveClass('mate-group-recommendation-card')
     expect(screen.getByRole('link', { name: /생활비 탐험대/ })).toBeInTheDocument()
     expect(screen.queryByText(/1위|랭킹/)).not.toBeInTheDocument()
     expect(screen.queryByText(/Hana Card|SAMSUNG|toss/)).not.toBeInTheDocument()

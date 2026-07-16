@@ -2681,3 +2681,20 @@
     font-size: 8.5px;
   }
 }
+
+/* Operational group links keep their nested metadata in one copy column. */
+@media (max-width: 390px) {
+  .screen-mate-main .mate-group-recommendation-card {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .screen-mate-main .mate-group-recommendation-card .mate-anonymous-copy > .mate-anonymous-stat-strip {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 360px) {
+  .screen-mate-main .mate-group-recommendation-card {
+    grid-template-columns: 62px minmax(0, 1fr) auto;
+  }
+}
