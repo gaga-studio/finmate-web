@@ -145,6 +145,11 @@ operational branch. Source API, route, session, mock, calculation, and old E2E f
   product recommendations, immediate financial-stat gains, and legacy source behavior
 - CSS policy: only the final effective cascade was recreated in the operational CSS;
   the source repository's accumulated override blocks were not copied wholesale
+- Verification: `42/42` unit/component tests, typecheck, lint, production build,
+  `1/1` Mock E2E, and `4/4` isolated PostgreSQL + actual API E2E passed
+- Mobile visual audit: 33 captures across the approved home, report, mate, quest,
+  record and daily-sheet states at `360px`, `390px`, and `430px`; no horizontal
+  overflow, failed image, browser console error, or bottom-navigation overlap
 
 Generated screenshots and temporary capture automation were used only for verification and are
 not committed. Global screenshot similarity is not reported as a synthetic percentage because
