@@ -25,6 +25,10 @@ import {
   type QuestAcceptance,
   type QuestCompletion,
   type DailyRecord,
+  type PointLedger,
+  type CosmeticCatalog,
+  type DisclosureConsent,
+  type DisclosurePreview,
   type RaidView,
   type RoutineRecommendation,
   type RoutineReplacement,
@@ -99,6 +103,18 @@ export const useRecords = () => useQuery({ queryKey: ['records'], queryFn: () =>
 export const useDailyJourney = (month = '2026-07') => useQuery({ queryKey: ['records', 'journey', month], queryFn: () => apiGet<DailyJourneyMonth>(`/records/journey?month=${month}`) })
 export const useDailyRecord = (date: string | null) => useQuery({ queryKey: ['record', date], queryFn: () => apiGet<DailyRecord>(`/records/${date}`), enabled: Boolean(date) })
 export const useHanaProductInfo = (productId: string | null) => useQuery({ queryKey: ['hana-product', productId], queryFn: () => apiGet<HanaProductInfo>(`/hana-products/${productId}`), enabled: Boolean(productId) })
+export const usePointLedger = () => useQuery({ queryKey: ['rewards', 'points'], queryFn: () => apiGet<PointLedger>('/rewards/points') })
+export const useCosmetics = () => useQuery({ queryKey: ['rewards', 'cosmetics'], queryFn: () => apiGet<CosmeticCatalog>('/rewards/cosmetics') })
+export const useDisclosureConsent = () => useQuery({ queryKey: ['disclosures'], queryFn: () => apiGet<DisclosureConsent>('/me/disclosures') })
+export const usePreviewDisclosure = () => useMutation({ mutationFn: (body: Schema['DisclosureRequest']) => apiRequest<DisclosurePreview>('/me/disclosures/preview', 'POST', body) })
+export const useUpdateDisclosure = () => {
+  const queryClient = useQueryClient()
+  return useMutation({ mutationFn: (body: Schema['DisclosureRequest']) => apiRequest<DisclosureConsent>('/me/disclosures', 'PUT', body), onSuccess: (result) => queryClient.setQueryData(['disclosures'], result) })
+}
+export const useWithdrawDisclosure = () => {
+  const queryClient = useQueryClient()
+  return useMutation({ mutationFn: () => apiRequest<void>('/me/disclosures', 'DELETE'), onSuccess: () => queryClient.invalidateQueries({ queryKey: ['disclosures'] }) })
+}
 export const useAdvanceDemo = () => {
   const queryClient = useQueryClient()
   return useMutation({ mutationFn: (expectedFrameIndex: number) => apiRequest<DemoTimeline>('/demo/timeline/advance', 'POST', { fixtureId: 'EUROPE_TRAVEL_JANUARY', expectedFrameIndex }), onSuccess: () => Promise.all([queryClient.refetchQueries({ queryKey: ['home'] }), queryClient.refetchQueries({ queryKey: ['raid'] }), queryClient.invalidateQueries({ queryKey: ['goal'] })]) })
