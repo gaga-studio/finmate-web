@@ -12,7 +12,7 @@
 
 .phone-shell {
   position: relative;
-  --bottom-nav-height: calc(64px + var(--space-6) + env(safe-area-inset-bottom));
+  --bottom-nav-height: calc(72px + env(safe-area-inset-bottom));
   width: min(100%, 430px);
   height: min(920px, calc(100vh - var(--space-9)));
   min-height: 760px;
@@ -32,6 +32,7 @@
 }
 
 .screen {
+  --screen-top-bg: var(--surface);
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
@@ -54,10 +55,16 @@
 }
 
 .status-bar {
+  position: sticky;
+  top: 0;
+  z-index: 60;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-inline: calc(var(--space-5) * -1);
+  padding-inline: var(--space-5);
+  background: var(--screen-top-bg);
   color: var(--ink-800);
   font-size: 14px;
   font-weight: 800;
@@ -90,12 +97,16 @@
 }
 
 .app-header {
+  position: sticky;
+  top: 32px;
+  z-index: 55;
   display: grid;
   grid-template-columns: 44px 1fr 44px;
   align-items: center;
   min-height: 52px;
-  padding-bottom: var(--space-2);
-  background: var(--surface);
+  margin-inline: calc(var(--space-5) * -1);
+  padding: 0 var(--space-5) var(--space-2);
+  background: var(--screen-top-bg);
 }
 
 .app-header h1 {
@@ -118,6 +129,7 @@
 }
 
 .screen-home-reference {
+  --screen-top-bg: var(--surface);
   padding:
     calc(var(--space-2) + max(env(safe-area-inset-top), 52px))
     var(--space-5)
@@ -6020,27 +6032,24 @@ button.profile-activity-row:active {
 
 .bottom-nav {
   position: absolute;
-  left: var(--space-4);
-  right: var(--space-4);
-  bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 50;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 0;
-  height: 64px;
-  padding: var(--space-2);
+  gap: 8px;
+  height: calc(72px + env(safe-area-inset-bottom));
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
   border: 1px solid color-mix(in srgb, var(--line) 72%, var(--clay-stroke));
-  border-radius: var(--r-pill);
+  border-right: 0;
+  border-bottom: 0;
+  border-left: 0;
+  border-radius: 0;
   background: linear-gradient(180deg, rgba(255, 255, 255, .96) 0%, color-mix(in srgb, var(--surface) 86%, var(--teal-50) 14%) 100%);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   box-shadow: var(--clay-shadow-raised);
-  transition: transform .25s cubic-bezier(.4, 0, .2, 1);
-  will-change: transform;
-}
-
-.bottom-nav.is-compact {
-  transform: scale(0.92);
 }
 
 .bottom-nav button,
@@ -6049,13 +6058,15 @@ button.profile-activity-row:active {
   display: grid;
   place-items: center;
   align-content: center;
-  gap: var(--space-1);
+  gap: 4px;
   border: 0;
-  border-radius: var(--r-pill);
+  border-radius: 6px;
+  padding: 6px 4px;
   color: var(--ink-500);
   background: transparent;
-  font-size: 11px;
-  font-weight: 800;
+  font-size: 11pt;
+  font-weight: 500;
+  line-height: 1.2;
   text-decoration: none;
   cursor: pointer;
   transition: color .15s ease, background-color .15s ease;
@@ -6068,8 +6079,8 @@ button.profile-activity-row:active {
 }
 
 .bottom-nav svg {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
 }
 
 .visually-hidden {

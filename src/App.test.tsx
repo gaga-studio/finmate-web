@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { http, HttpResponse } from 'msw'
@@ -133,6 +133,22 @@ describe('FinMate representative flow', () => {
     expect(screen.getAllByRole('button', { name: '새 퀘스트 XP 리포트 보기' })).toHaveLength(2)
     expect(screen.queryByText('생활비 드래곤')).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'AUTO' })).toBeInTheDocument()
+    expect(document.querySelector('.home-identity-bar')).not.toContainElement(document.querySelector('.home-profile-strip'))
+  })
+
+  it('switches the character report status bar background after the report sheet reaches the top', async () => {
+    renderApp('/report?type=SPENDING_DEFENSE')
+
+    expect(await screen.findByRole('heading', { name: '든든곰' })).toBeInTheDocument()
+    const reportScreen = document.querySelector<HTMLElement>('.screen-home-report')
+    const reportStatus = document.querySelector('.home-report-status')
+    expect(reportScreen).not.toBeNull()
+    expect(reportStatus).not.toHaveClass('is-on-sheet')
+
+    Object.defineProperty(reportScreen, 'scrollTop', { configurable: true, value: 252 })
+    fireEvent.scroll(reportScreen!)
+
+    expect(reportStatus).toHaveClass('is-on-sheet')
   })
 
   it('persists a confirmed routine replacement while preserving the active main goal', async () => {

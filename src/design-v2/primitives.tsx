@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useMemo, type ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 type TabKey = 'home' | 'mates' | 'quests' | 'record'
@@ -65,7 +65,6 @@ export function AppShell({ children }: { children: ReactNode }) {
 
 export function BottomNav() {
   const { pathname } = useLocation()
-  const compact = useScrollCompact()
   const active: TabKey = pathname.startsWith('/mates') || pathname.startsWith('/routine') || pathname.startsWith('/products')
     ? 'mates'
     : pathname.startsWith('/quests')
@@ -74,7 +73,7 @@ export function BottomNav() {
         ? 'record'
         : 'home'
   return (
-    <nav className={`bottom-nav${compact ? ' is-compact' : ''}`} aria-label="주요 메뉴">
+    <nav className="bottom-nav" aria-label="주요 메뉴">
       {tabItems.map((item) => (
         <Link
           className={item.key === active ? 'active' : ''}
@@ -88,34 +87,6 @@ export function BottomNav() {
       ))}
     </nav>
   )
-}
-
-function useScrollCompact() {
-  const [compact, setCompact] = useState(false)
-  const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => {
-    const handleScroll = (event: Event) => {
-      const target = event.target as HTMLElement | null
-      if (!target?.classList?.contains('screen')) {
-        return
-      }
-      setCompact(true)
-      if (idleTimer.current) {
-        clearTimeout(idleTimer.current)
-      }
-      idleTimer.current = setTimeout(() => setCompact(false), 400)
-    }
-    window.addEventListener('scroll', handleScroll, { capture: true, passive: true })
-    return () => {
-      window.removeEventListener('scroll', handleScroll, { capture: true })
-      if (idleTimer.current) {
-        clearTimeout(idleTimer.current)
-      }
-    }
-  }, [])
-
-  return compact
 }
 
 export function IconButton({ icon, label, onClick }: { icon: IconName; label: string; onClick?: () => void }) {

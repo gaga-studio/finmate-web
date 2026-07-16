@@ -230,17 +230,17 @@ export function HomeRaidScene({
         <button className="home-menu-button" type="button" aria-label="공개 범위와 설정" onClick={onOpenSettings}>
           <AppIcon name="settings" />
         </button>
-        <div className="home-profile-strip">
-          <button className="home-identity-avatar" type="button" onClick={onOpenSettings} aria-label="공개 범위와 설정 열기">
-            <HomeCharacterImg src={`${HOME_ASSET_DIR}/home-avatar-me.png`} emoji="🐰" />
-          </button>
-          <div className="home-identity-meta">
-            <strong>{displayName}</strong>
-            <span>{view.goalTitle ?? '탐색 중'}</span>
-            <HomeHPBar percent={view.goalProgressPercent} tone="blue" />
-          </div>
-        </div>
       </header>
+      <div className="home-profile-strip">
+        <button className="home-identity-avatar" type="button" onClick={onOpenSettings} aria-label="공개 범위와 설정 열기">
+          <HomeCharacterImg src={`${HOME_ASSET_DIR}/home-avatar-me.png`} emoji="🐰" />
+        </button>
+        <div className="home-identity-meta">
+          <strong>{displayName}</strong>
+          <span>{view.goalTitle ?? '탐색 중'}</span>
+          <HomeHPBar percent={view.goalProgressPercent} tone="blue" />
+        </div>
+      </div>
 
       <section className="home-battle-scene" aria-labelledby="home-raid-title">
         <div className="home-scene-toggles">
