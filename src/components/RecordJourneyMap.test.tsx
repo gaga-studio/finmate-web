@@ -25,7 +25,7 @@ describe('RecordJourneyMap', () => {
       lastSyncedAt: '2026-07-11T09:00:00+09:00',
     } satisfies Schema['DailyJourneyMonth']
 
-    render(
+    const { container } = render(
       <RecordJourneyMap
         journey={journey}
         pointBalance={0}
@@ -36,5 +36,7 @@ describe('RecordJourneyMap', () => {
 
     expect(screen.getByText('12일')).toBeInTheDocument()
     expect(screen.getByText('기록 예정')).toBeInTheDocument()
+    expect(container.querySelector('.roadmap-stage-scroll')).not.toBeNull()
+    expect(container.querySelector('.roadmap-stone.is-planned')).not.toBeNull()
   })
 })

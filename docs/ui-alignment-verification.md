@@ -4,8 +4,10 @@
 
 - Operational baseline: `gaga-studio/finmate-web@dfb2f31`
 - Visual source of truth: `gaga-studio/finmate-frontend-v2@e7faff8`
+- Visual delta: `gaga-studio/finmate-frontend-v2@dca4837052bc90480cba1bd4a1004bfcab717451`
 - API contract: `gaga-studio/finmate-api@f50deff7`
-- Integration branch: `codex/align-ui-to-frontend-v2`
+- Integration base: `codex/connect-synthetic-runtime-ui` (`PR #7`)
+- Integration branch: `codex/sync-frontdesign-dca4837`
 
 The visual source repository was not modified. Its obsolete API client, router, finance-like
 client calculations, birthday fund, point locks, random boxes, and unsafe investment rewards
@@ -17,7 +19,8 @@ The 58 copied font and image assets are listed in
 [`frontend-v2-assets.sha256`](frontend-v2-assets.sha256). Each recorded digest was checked
 against both the source file and the operational copy.
 
-The following modules are byte-identical to the design source:
+At the `e7faff8` alignment point, the following modules were byte-identical to the design
+source:
 
 - `index.css`
 - `home.css`
@@ -27,9 +30,24 @@ The following modules are byte-identical to the design source:
 - `signature.css`
 - `homeBattleOrbit.ts`
 
-`App.css` starts from the source file and adds only vNext composition rules for API-only
-screens and approved state variants. The journey selector override reindexes the seven visible
-steps after the API month is reduced to the current seven-day window.
+The `dca4837` delta intentionally changes `home.css`, `mate.css`, `quest.css`, and `App.css`.
+It recreates only the source's final effective cascade for the approved operational DOM rather
+than copying its accumulated overrides. The journey selector override still reindexes exactly
+seven visible steps after the API month is reduced to the current seven-day window. No static
+asset was added or changed, so all 58 recorded hashes remain valid.
+
+## `dca4837` selective-sync boundary
+
+The synced visual surface includes the fixed 72px bottom navigation; sticky status and header
+backgrounds; current home/profile/report sizing; mate promotional group structure and AI
+evidence checklist; quest completion dots, icon summaries and two-stage progress rows; and the
+record journey's internal scroll wrapper, circular future steps, and animated full-screen daily
+sheet.
+
+The operational OpenAPI client, generated types, TanStack Query hooks, React Router routes,
+Mock payloads, copy rules, component props, dependencies, and four-tab IA remain unchanged.
+The new source auth entry, branded product media, external image URLs, ranking/product content,
+immediate financial-stat gain language, and legacy interactions were not imported.
 
 ## Screen mapping
 

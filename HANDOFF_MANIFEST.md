@@ -130,6 +130,22 @@ operational branch. Source API, route, session, mock, calculation, and old E2E f
 - MVP IA completion: all seven formerly planned screens are implemented against Mock and
   actual API contracts; social writes, free-form search, and in-app product enrollment remain deferred
 
+### `frontdesign@dca4837` delta
+
+- Integration base: `codex/connect-synthetic-runtime-ui` (`PR #7`)
+- Integration branch: `codex/sync-frontdesign-dca4837`
+- Design delta: `e7faff8..dca4837052bc90480cba1bd4a1004bfcab717451`
+- Included: fixed 72px four-link navigation, sticky per-screen status/header treatment,
+  updated home/profile/report scale, promotional mate groups, AI evidence checklist,
+  quest progress composition, seven-step record scroll wrapper, circular planned/locked
+  steps, and full-screen animated daily sheet
+- Preserved: OpenAPI types, queries, routes, Mock contracts, product copy, four-tab IA,
+  component props, dependencies, and the existing 58 asset hashes
+- Excluded: new auth entry, branded product images, external image URLs, rankings,
+  product recommendations, immediate financial-stat gains, and legacy source behavior
+- CSS policy: only the final effective cascade was recreated in the operational CSS;
+  the source repository's accumulated override blocks were not copied wholesale
+
 Generated screenshots and temporary capture automation were used only for verification and are
 not committed. Global screenshot similarity is not reported as a synthetic percentage because
 the approved IA intentionally changes content, goal semantics, tab labels, and removed unsafe
@@ -139,6 +155,7 @@ are verified separately.
 ## Sign-off
 
 - Design handoff audit: Codex, `2026-07-14`
+- `frontdesign@dca4837` selective sync: Codex, `2026-07-16`
 - Product/asset license owner confirmation: pending
 - Frontend owner review: pending
 - Next review: stacked Draft PR review and product/asset license confirmation

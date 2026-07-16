@@ -8904,3 +8904,168 @@ button.journey-card {
     height: 68px !important;
   }
 }
+
+/* frontend-v2@dca4837: final seven-step record journey and daily sheet. */
+.phone-shell:has(.roadmap-screen),
+.phone-shell:has(.roadmap-screen) .app-main {
+  background: #eaf6f4;
+}
+
+.roadmap-screen {
+  padding-top: 0;
+  background:
+    radial-gradient(circle at 8% 46%, rgba(108, 194, 139, .32) 0 26px, transparent 27px),
+    radial-gradient(circle at 92% 40%, rgba(108, 194, 139, .34) 0 34px, transparent 35px),
+    radial-gradient(circle at 12% 76%, rgba(108, 194, 139, .28) 0 32px, transparent 33px),
+    radial-gradient(circle at 86% 78%, rgba(108, 194, 139, .30) 0 38px, transparent 39px),
+    linear-gradient(180deg, #eaf6f4 0 21%, #ecf8e9 31%, #dff5e0 68%, #eef8ec 100%);
+}
+
+.roadmap-screen .roadmap-hero {
+  display: contents;
+}
+
+.roadmap-screen .roadmap-status {
+  position: sticky;
+  top: 0;
+  z-index: 80;
+  height: 46px;
+  margin: 0 -12px;
+  padding: 8px 32px 0;
+  background: #eaf6f4;
+}
+
+.roadmap-screen .roadmap-topline {
+  padding-top: 10px;
+}
+
+.roadmap-screen .roadmap-month-card {
+  position: sticky;
+  top: 46px;
+  z-index: 50;
+}
+
+.roadmap-stage {
+  min-height: 0;
+  padding-bottom: 0;
+  overflow: visible;
+}
+
+.roadmap-stage-scroll {
+  position: relative;
+  min-height: 1200px;
+  padding-bottom: calc(var(--bottom-nav-height) + 28px);
+}
+
+.roadmap-stage-scroll .roadmap-map-bg {
+  opacity: .34;
+}
+
+.roadmap-stone.is-planned:not(.is-primary),
+.roadmap-stone.is-locked:not(.is-primary) {
+  left: clamp(64px, var(--stone-x), calc(100% - 64px)) !important;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  align-content: center;
+  gap: 4px;
+  width: 112px;
+  min-height: 112px;
+  aspect-ratio: 1;
+  padding: 10px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, .96) 0 21%, transparent 22%),
+    linear-gradient(155deg, rgba(255, 255, 255, .98), rgba(226, 238, 237, .96));
+  box-shadow:
+    inset 0 -6px 0 rgba(150, 174, 173, .18),
+    -5px -5px 12px rgba(255, 255, 255, .7),
+    8px 12px 20px rgba(37, 54, 65, .12);
+}
+
+.roadmap-stone.is-planned:not(.is-primary) .stone-icon,
+.roadmap-stone.is-locked:not(.is-primary) .stone-icon {
+  display: grid;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+}
+
+.roadmap-stone.is-planned:not(.is-primary) .stone-copy,
+.roadmap-stone.is-locked:not(.is-primary) .stone-copy {
+  justify-items: center;
+  gap: 3px;
+  text-align: center;
+}
+
+.roadmap-stone.is-planned:not(.is-primary) .stone-copy strong,
+.roadmap-stone.is-locked:not(.is-primary) .stone-copy strong {
+  font-size: 18px;
+}
+
+.roadmap-stone.is-planned:not(.is-primary) .stone-copy em,
+.roadmap-stone.is-locked:not(.is-primary) .stone-copy em {
+  display: block;
+  max-width: 84px;
+  color: #61727c;
+  font-size: 11px;
+  text-align: center;
+}
+
+.roadmap-stone.is-planned:not(.is-primary) .stone-tags,
+.roadmap-stone.is-locked:not(.is-primary) .stone-tags,
+.roadmap-stone.is-planned:not(.is-primary)::after,
+.roadmap-stone.is-locked:not(.is-primary)::after {
+  display: none;
+}
+
+.phone-shell:has(.roadmap-screen) .roadmap-sheet-layer {
+  position: absolute;
+  z-index: 120;
+  inset: 0;
+  display: grid;
+  align-items: end;
+  overflow: hidden;
+}
+
+.phone-shell:has(.roadmap-screen) .roadmap-sheet-dim {
+  background: rgba(11, 28, 34, .56);
+  backdrop-filter: blur(2px);
+}
+
+.phone-shell:has(.roadmap-screen) .roadmap-sheet {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  left: auto;
+  z-index: 1;
+  width: 100%;
+  max-height: calc(100% - 48px);
+  padding: 40px 20px 36px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border-radius: 30px 30px 0 0;
+  background: #f7f9f9;
+  box-shadow: 0 -18px 44px rgba(16, 37, 43, .24);
+  animation: roadmap-sheet-rise .28s cubic-bezier(.22, .9, .28, 1) both;
+}
+
+.phone-shell:has(.roadmap-screen) .roadmap-sheet .sheet-activity,
+.phone-shell:has(.roadmap-screen) .roadmap-sheet .budget-card,
+.phone-shell:has(.roadmap-screen) .roadmap-sheet .quest-card {
+  background: #fff;
+}
+
+.roadmap-demo-link {
+  bottom: calc(var(--bottom-nav-height) + 12px);
+}
+
+@keyframes roadmap-sheet-rise {
+  from {
+    opacity: 0;
+    transform: translateY(42px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

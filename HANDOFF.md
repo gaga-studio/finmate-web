@@ -59,6 +59,25 @@
 화면·브라우저 검증 결과는
 [`docs/ui-alignment-verification.md`](docs/ui-alignment-verification.md)에 기록한다.
 
+## `frontdesign@dca4837` 시각 동기화
+
+2026-07-16에 `frontend-v2`의 `frontdesign` 브랜치
+`dca4837052bc90480cba1bd4a1004bfcab717451`까지 추가된 최종 시각 효과를
+`codex/connect-synthetic-runtime-ui` 위에 선택적으로 동기화했다. 공통 셸·홈·캐릭터
+리포트, 메이트, 퀘스트, 7개 발판 기록 여정과 일일 기록 시트의 최종 cascade만
+운영 DOM에 맞춰 다시 구성했으며, 기존 OpenAPI·React Query·React Router·카피·4탭
+IA와 공개 컴포넌트 인터페이스는 유지했다.
+
+다음 항목은 이번 동기화에서도 제외했다.
+
+- 새 인증 시작 화면과 소스의 레거시 인증·라우팅 동작
+- 브랜드 상품 이미지와 외부 이미지 URL
+- 랭킹, 상품 추천, 즉시 금융 스탯 상승 문구
+- 신규 정적 자산과 소스의 누적 CSS 오버라이드 전체 복사
+
+기존 58개 에셋과 [`docs/frontend-v2-assets.sha256`](docs/frontend-v2-assets.sha256)은
+변경하지 않았다.
+
 최종 검증 수치와 화면별 상태는 [`HANDOFF_MANIFEST.md`](HANDOFF_MANIFEST.md)와
 [`docs/screen-inventory.md`](docs/screen-inventory.md)에 기록한다.
 
