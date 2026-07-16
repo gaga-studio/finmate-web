@@ -8,3 +8,8 @@ export function apiBaseUrl(): string {
   const origin = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/+$/, '')
   return `${origin.replace(/\/api\/v1$/, '')}/api/v1`
 }
+
+export function developmentDataSourceLabel(): 'Mock 데이터' | 'Local API' | null {
+  if (!import.meta.env.DEV) return null
+  return isMockMode() || import.meta.env.MODE === 'test' ? 'Mock 데이터' : 'Local API'
+}

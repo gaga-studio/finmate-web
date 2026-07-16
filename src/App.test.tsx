@@ -187,10 +187,14 @@ describe('FinMate representative flow', () => {
     renderApp('/mates/explore')
 
     expect(await screen.findByRole('heading', { name: '비교 조건 설정' })).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { name: /검색하기/ }))
-    const result = await screen.findByRole('link', { name: /남쪽의 모험가/ })
-    expect(result).toHaveAttribute('href', '/mates/group/budget/adventurer/adventurer-budget')
-  })
+	  await user.click(screen.getByRole('button', { name: /검색하기/ }))
+	  expect(await screen.findByText(/Mock 데이터/)).toBeInTheDocument()
+	  expect(await screen.findByText('6명의 익명 모험가')).toBeInTheDocument()
+	  expect(screen.getByText(/일부 생활 조건을 넓혀 찾았어요/)).toBeInTheDocument()
+	  const results = await screen.findAllByRole('link', { name: /익명 모험가/ })
+	  expect(results).toHaveLength(6)
+	  expect(results[0]).toHaveAttribute('href', '/mates/group/synthetic-runtime/adventurer/adv-0000000000000001')
+	})
 
   it('separates the adventurer profile, comparison report, and routine action', async () => {
     const user = userEvent.setup()

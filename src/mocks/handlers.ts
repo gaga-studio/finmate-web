@@ -1,5 +1,5 @@
 import { delay, http, HttpResponse } from 'msw'
-import type { Schema } from '../api/client'
+import type { MateExploreSearchCard, MateExploreSearchPage, Schema } from '../api/client'
 
 const now = '2026-07-24T00:06:31Z'
 const initialGoal: Schema['UserGoal'] = { goalId: 'europe-trip', title: '유럽 여행', domain: 'SAVING', currentAmountKrw: 2000000, targetAmountKrw: 5000000, targetMonth: '2026-12', state: 'ACTIVE', confirmedAt: now, calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now }
@@ -84,6 +84,31 @@ const page = (groupId: string): Schema['RecommendedAdventurerPage'] => ({
   items: [{ adventurerId: groupId === 'budget' ? 'adventurer-budget' : 'adventurer-saver', groupId, alias: groupId === 'budget' ? '남쪽의 모험가' : '북쪽의 모험가', contextTags: ['사회초년생', '자취'], similarityReasons: ['익명 저축 루틴을 꾸준히 유지했어요.'], goalAchievementLabel: '여행 자금 목표 달성', routines: [{ routineId: groupId === 'budget' ? 'routine-budget' : 'routine-savers', title: groupId === 'budget' ? '하루 한 번 지출 점검' : '주 3회 저축 챌린지', domain: 'SAVING', maintenanceDays: 42 }], verifiedAt: now, approvedAt: now }],
   calculationVersion: 'goal-calc-1.0.0', dataState: 'FRESH', lastSyncedAt: now,
 })
+const exploreItems: MateExploreSearchCard[] = Array.from({ length: 6 }, (_, index) => ({
+  adventurerId: `adv-${String(index + 1).padStart(16, '0')}`,
+  groupId: 'synthetic-runtime',
+  sourceGroupId: `cluster-${index % 3 + 1}`,
+  alias: `익명 모험가 ${index + 1}`,
+  contextTags: ['24–29세', '사회초년생', index % 2 === 0 ? '자취' : '고정비 보통'],
+  representativeRoutine: {
+    routineId: index % 2 === 0 ? `automatic-saving-${index + 1}` : `budget-check-${index + 1}`,
+    title: index % 2 === 0 ? '월급날 먼저 저축' : '지출 전 예산 확인',
+    domain: index % 2 === 0 ? 'SAVING' : 'SPENDING',
+  },
+  maintenanceDays: 180 - index * 15,
+  similarityScoreBps: 9600 - index * 250,
+  matchedFilters: ['occupationGroup', 'incomeBand', 'spendingTendency', 'savingRateBand', 'investmentTendency'],
+  dataAsOf: '2026-07-01',
+}))
+const exploreResponse: MateExploreSearchPage = {
+  items: exploreItems,
+  totalEligible: 42,
+  matchMode: 'RELAXED',
+  relaxedFilters: ['ageBand'],
+  calculationVersion: 'mate-search-runtime-v1',
+  dataState: 'FRESH',
+  lastSyncedAt: now,
+}
 const adventurerFor = (groupId: string, adventurerId?: string) => ({ ...page(groupId).items[0], ...(adventurerId ? { adventurerId } : {}) }) satisfies Schema['RecommendedAdventurerCard']
 const reportFor = (groupId: string): Schema['MateGroupReport'] => ({
   group: groups.find((group) => group.groupId === groupId) ?? groups[0],
@@ -252,7 +277,7 @@ export const handlers = [
   http.get('/api/v1/mate/groups/:groupId/adventurers/:adventurerId', ({ params }) => HttpResponse.json(adventurerFor(String(params.groupId), String(params.adventurerId)))),
   http.get('/api/v1/mate/groups/:groupId/adventurers/:adventurerId/report', ({ params }) => HttpResponse.json(adventurerReportFor(String(params.groupId), String(params.adventurerId)))),
   http.get('/api/v1/mate/groups/:groupId/adventurers/:adventurerId/routines/:routineId', ({ params }) => HttpResponse.json({ routineId: String(params.routineId), adventurerId: String(params.adventurerId), groupId: String(params.groupId), title: String(params.routineId) === 'routine-budget' ? '하루 한 번 지출 점검' : '주 3회 저축 챌린지', domain: 'SAVING', maintenanceDays: 42, steps: ['월급날 먼저 저축'], evidenceCopyKeys: ['ROUTINE_MAINTAINED_42_DAYS'] })),
-  http.post('/api/v1/mate/explore/search', async ({ request }) => { const body = await request.json() as Schema['MateExploreSearchRequest']; const selectedGroup = body.savingRateBand === 'OVER_20' ? 'savers' : 'budget'; return HttpResponse.json(page(selectedGroup)) }),
+  http.post('/api/v1/mate/explore/search', () => HttpResponse.json(exploreResponse)),
   http.post('/api/v1/routine-adaptations', () => HttpResponse.json(recommendation, { status: 201 })),
   http.post('/api/v1/routine-adaptations/:adaptationId/candidates/:candidateId/import', () => problem(409, 'ACTIVE_ROUTINE_BUILD_EXISTS', 'An active routine build already exists.', '/api/v1/routine-adaptations/import')),
   http.get('/api/v1/routine-builds/active', () => HttpResponse.json(activeRoutine)),

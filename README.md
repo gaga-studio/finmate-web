@@ -11,9 +11,9 @@ npm install
 npm run dev
 ```
 
-`.env.example` starts the app with MSW fixtures so the representative flow can
-run without the API. To use the real local API, set `VITE_USE_MOCKS=false` and
-start `finmate-api` on the URL configured by `VITE_API_BASE_URL`.
+The default `.env.example` uses the real local API. Start `finmate-api` on the
+URL configured by `VITE_API_BASE_URL`. To run the representative flow with MSW
+fixtures instead, use `npm run dev:mock`.
 
 ```bash
 npm run lint

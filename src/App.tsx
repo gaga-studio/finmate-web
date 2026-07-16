@@ -6,6 +6,7 @@ import { Link, Navigate, Route, Routes, useNavigate, useParams, useSearchParams 
 import { Search, ShieldCheck, Target } from 'lucide-react'
 import { ApiError, apiRequest, currentSession, type Schema } from './api/client'
 import { getDemoExpectedFrameIndex, saveDemoExpectedFrameIndex } from './api/demoProgress'
+import { currentSeoulMonth } from './api/dates'
 import { getOnboardingDraft, saveGoalDraft, saveOnboardingAnswer } from './api/onboardingDraft'
 import { useAcceptQuest, useActiveRoutine, useAdvanceDemo, useAdventurer, useAdventurerReport, useAdventurerRoutine, useAdventurers, useCharacterReport, useCompleteOnboarding, useCompleteQuest, useConfirmGoal, useCosmetics, useCreateRecommendation, useDailyJourney, useDailyRecord, useDisclosureConsent, useHanaProductInfo, useHome, useImportRoutine, useMateExploreSearch, useMateFriendFeed, useMateFriendOverview, useMateFriendStreaks, useMateGroupReport, useMateGroups, useOnboarding, usePointLedger, usePreviewDisclosure, useQuest, useQuests, useReplaceRoutine, useRaid, useUpdateDisclosure, useWithdrawDisclosure } from './api/queries'
 import { HomeRaidScene } from './components/HomeRaidScene'
@@ -294,7 +295,7 @@ function shiftMonth(value: string, offset: -1 | 1) {
 }
 
 function RecordJourney() {
-  const [month, setMonth] = useState('2026-07')
+  const [month, setMonth] = useState(currentSeoulMonth)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const records = useDailyJourney(month)
   const points = usePointLedger()

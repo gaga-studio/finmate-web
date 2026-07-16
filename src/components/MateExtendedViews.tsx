@@ -4,7 +4,8 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import type { Schema } from '../api/client'
+import type { MateExploreSearchPage, Schema } from '../api/client'
+import { developmentDataSourceLabel } from '../api/runtime'
 import { EmptyState } from '../design-v2/components'
 import { MateAvatar, MateCoachCard, MatePointPill, MateSectionCard, MateStatBadge, RpgIcon, type MateSpecies } from '../design-v2/MateShared'
 
@@ -74,18 +75,32 @@ export function GroupInsightView({ report }: { report: Schema['MateGroupReport']
   )
 }
 
-export function ExploreResults({ results }: { results: Schema['RecommendedAdventurerPage'] | null }) {
+const relaxedFilterLabels: Record<MateExploreSearchPage['relaxedFilters'][number], string> = {
+  ageBand: '나이',
+  occupationGroup: '직업',
+  spendingTendency: '소비 성향',
+  investmentTendency: '투자 성향',
+}
+
+const routineDomainLabel = (domain: Schema['AdaptationDomain']) => domain === 'SAVING' ? '저축' : domain === 'SPENDING' ? '소비' : '투자 판단'
+
+export function ExploreResults({ results }: { results: MateExploreSearchPage | null }) {
+  const dataSource = developmentDataSourceLabel()
   if (!results) return <EmptyState title="비교 조건을 정해보세요" subtitle="검수된 조합 안에서 나와 비슷한 합성 모험가를 찾아드려요." />
   if (results.items.length === 0) return <EmptyState title="조건에 맞는 모험가가 없어요" subtitle="금융여력 조건은 유지하고 생활 조건을 한 단계 넓혀보세요." />
   return (
     <section className="mate-card mate-explore-results-card">
-      <header className="mate-explore-results-head"><span>추천 결과</span><h2>{results.items.length}명의 익명 모험가</h2><p>공개 동의된 합성 데이터만 보여드려요.</p></header>
+      <header className="mate-explore-results-head">
+        <span>추천 결과{dataSource ? ` · ${dataSource}` : ''}</span>
+        <h2>{results.items.length}명의 익명 모험가</h2>
+        <p>{results.matchMode === 'RELAXED' ? `일부 생활 조건을 넓혀 찾았어요 · ${results.relaxedFilters.map((filter) => relaxedFilterLabels[filter]).join(' · ')}` : `정확 조건으로 찾은 ${results.totalEligible}명 중 유사한 순서예요.`}</p>
+      </header>
       <div className="mate-anonymous-list">
         {results.items.map((adventurer) => (
           <Link className="mate-anonymous-card" to={`/mates/group/${adventurer.groupId}/adventurer/${adventurer.adventurerId}`} key={adventurer.adventurerId}>
-            <MateAvatar species={speciesFor(adventurer.groupId)} size={82} fit="contain" className="mate-anonymous-avatar" />
-            <span className="mate-anonymous-copy"><strong>{adventurer.alias}</strong><small>{adventurer.goalAchievementLabel}</small><em>{adventurer.contextTags.join(' · ')}</em></span>
-            <span className="mate-anonymous-stat-strip"><i>{adventurer.routines.length}개 루틴</i><ChevronRight size={18} /></span>
+            <MateAvatar species={speciesFor(adventurer.adventurerId)} size={82} fit="contain" className="mate-anonymous-avatar" />
+            <span className="mate-anonymous-copy"><strong>{adventurer.alias}</strong><small>{adventurer.representativeRoutine.title} · {adventurer.maintenanceDays}일</small><em>{adventurer.contextTags.join(' · ')}</em></span>
+            <span className="mate-anonymous-stat-strip"><i>{routineDomainLabel(adventurer.representativeRoutine.domain)} · 유사도 {percent(adventurer.similarityScoreBps)}</i><ChevronRight size={18} /></span>
           </Link>
         ))}
       </div>

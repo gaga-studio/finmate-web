@@ -2399,3 +2399,38 @@
 .mate-build-screen .mate-option-row + .mate-option-row {
   margin-top: 2px;
 }
+
+@media (max-width: 390px) {
+  .mate-anonymous-card {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .mate-anonymous-stat-strip {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
+
+@media (max-width: 360px) {
+  .mate-anonymous-card {
+    grid-template-columns: 62px minmax(0, 1fr);
+    gap: 6px;
+    padding: 10px;
+  }
+
+  .mate-anonymous-avatar {
+    width: 62px !important;
+    height: 62px !important;
+  }
+
+  .mate-anonymous-stat-strip {
+    grid-column: 2;
+    justify-self: start;
+    gap: 3px;
+  }
+
+  .mate-anonymous-stat-strip i {
+    padding-inline: 5px;
+    font-size: 8.5px;
+  }
+}

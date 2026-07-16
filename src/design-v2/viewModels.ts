@@ -182,9 +182,9 @@ export function toJourneyView(journey: Schema['DailyJourneyMonth']) {
     nodes: journey.nodes.map((node) => ({
       date: node.date,
       status: node.status,
-      title: node.primaryActivity.title,
-      amountKrw: node.primaryActivity.amountKrw,
-      activityType: node.primaryActivity.activityType,
+      title: node.primaryActivity?.title ?? (node.status === 'LOCKED' ? '아직 잠김' : '기록 예정'),
+      amountKrw: node.primaryActivity?.amountKrw,
+      activityType: node.primaryActivity?.activityType,
       secondaryActivityTypes: node.secondaryActivityTypes,
       hiddenActivityCount: node.hiddenActivityCount,
       detailAvailable: node.detailAvailable,

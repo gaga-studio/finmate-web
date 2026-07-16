@@ -43,50 +43,60 @@ test('runs the representative flow against the demo-profile API', async ({ page 
   const contractViews = await page.evaluate(async () => {
     const auth = JSON.parse(sessionStorage.getItem('finmate.auth-session') ?? '{}') as { accessToken?: string }
     const headers = { Authorization: `Bearer ${auth.accessToken ?? ''}`, 'Content-Type': 'application/json' }
-    const supported = await fetch('http://127.0.0.1:18080/api/v1/mate/explore/search', { method: 'POST', credentials: 'include', headers, body: JSON.stringify({ ageBand: 'AGE_24_29', occupationGroup: 'EARLY_CAREER', incomeBand: 'FROM_200_TO_300', spendingTendency: 'BALANCED', savingRateBand: 'FROM_10_TO_20', investmentTendency: 'BALANCED' }) }).then((response) => response.json()) as { items: unknown[] }
-    const unsupported = await fetch('http://127.0.0.1:18080/api/v1/mate/explore/search', { method: 'POST', credentials: 'include', headers, body: JSON.stringify({ ageBand: 'AGE_30_34', occupationGroup: 'FREELANCER', incomeBand: 'OVER_300', spendingTendency: 'VARIABLE', savingRateBand: 'UNDER_10', investmentTendency: 'LEARNING' }) }).then((response) => response.json()) as { items: unknown[] }
+    type SearchResponse = { items: Array<{ adventurerId: string; sourceGroupId: string }>; matchMode: 'EXACT' | 'RELAXED' | 'NONE'; relaxedFilters: string[]; totalEligible: number }
+    const supported = await fetch('http://127.0.0.1:18080/api/v1/mate/explore/search', { method: 'POST', credentials: 'include', headers, body: JSON.stringify({ ageBand: 'AGE_24_29', occupationGroup: 'EARLY_CAREER', incomeBand: 'FROM_200_TO_300', spendingTendency: 'BALANCED', savingRateBand: 'FROM_10_TO_20', investmentTendency: 'BALANCED' }) }).then((response) => response.json()) as SearchResponse
+    const relaxed = await fetch('http://127.0.0.1:18080/api/v1/mate/explore/search', { method: 'POST', credentials: 'include', headers, body: JSON.stringify({ ageBand: 'AGE_30_34', occupationGroup: 'FREELANCER', incomeBand: 'OVER_300', spendingTendency: 'VARIABLE', savingRateBand: 'UNDER_10', investmentTendency: 'LEARNING' }) }).then((response) => response.json()) as SearchResponse
     const product = await fetch('http://127.0.0.1:18080/api/v1/hana-products/hana-saving-info-001', { credentials: 'include', headers }).then((response) => response.json()) as { reviewedCatalog: boolean; inAppEnrollmentAvailable: boolean; affectsProgress: boolean }
-    return { supported: supported.items.length, unsupported: unsupported.items.length, product }
+    return { supported, relaxed, product }
   })
-  expect(contractViews.supported).toBeGreaterThan(0)
-  expect(contractViews.unsupported).toBe(0)
+  expect(contractViews.supported.items).toHaveLength(6)
+  expect(contractViews.supported.totalEligible).toBeGreaterThanOrEqual(6)
+  expect(contractViews.supported.items.every((item) => /^adv-[0-9a-f]{16}$/.test(item.adventurerId) && /^cluster-[0-9]+$/.test(item.sourceGroupId))).toBe(true)
+  expect(contractViews.relaxed.items).toHaveLength(6)
+  expect(contractViews.relaxed.matchMode).toBe('RELAXED')
+  expect(contractViews.relaxed.relaxedFilters.length).toBeGreaterThan(0)
   expect(contractViews.product).toEqual(
     expect.objectContaining({ reviewedCatalog: true, inAppEnrollmentAvailable: false, affectsProgress: false }),
   )
 
   await page.goto('/mates/friends')
-  await expect(page.getByRole('heading', { name: /친구 \d+명 중 3명이/ })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /친구 \d+명 중 \d+명이/ })).toBeVisible()
   await expect(page.getByText('읽기 전용').first()).toBeVisible()
   await page.goto('/mates/explore')
   await page.getByRole('button', { name: /검색하기/ }).click()
-  await expect(page.locator('a[href*="/adventurer/"]').first()).toBeVisible()
+  await expect(page.locator('a[href*="/adventurer/"]')).toHaveCount(6)
   await page.goto('/products/hana-saving-info-001')
   await expect(page.getByText('루틴과 상품 정보는 분리돼요')).toBeVisible()
   await expect(page.getByRole('link', { name: /공식 정보에서 확인/ })).toBeVisible()
 
   await page.getByRole('link', { name: '메이트', exact: true }).click()
-  await page.getByRole('link', { name: /Travel saving party/ }).click()
-  await page.getByRole('link', { name: /Cobalt Compass/ }).click()
+  await page.locator('a[href^="/mates/group/"]').first().click()
+  const adventurerLink = page.locator('a[href*="/adventurer/"]').first()
+  await expect(adventurerLink).toBeVisible()
+  await adventurerLink.click()
   await page.getByRole('link', { name: /나와 비교한 리포트 보기/ }).click()
   await expect(page.getByText('순위가 아니라 습관 범위를 비교해요.')).toBeVisible()
   await page.getByRole('link', { name: '모험가로' }).click()
-  await page.getByRole('link', { name: /루틴 보기/ }).click()
-  await expect(page.getByRole('heading', { name: 'Weekly travel saving' })).toBeVisible()
+  await page.getByRole('link', { name: /루틴 보기/ }).first().click()
+  await expect(page.getByRole('link', { name: '루틴을 내 생활에 맞추기' })).toBeVisible()
   await page.getByRole('link', { name: '루틴을 내 생활에 맞추기' }).click()
   await page.getByRole('button', { name: '내 기준으로 추천 받기' }).click()
-  await expect(page.getByRole('button', { name: '표준 · 월급날 50만원 먼저 저축' })).toHaveAttribute('aria-pressed', 'true')
+  const recommendedCandidate = page.locator('button[aria-pressed="true"]')
+  await expect(recommendedCandidate).toHaveCount(1)
   await page.getByRole('button', { name: '이 루틴으로 퀘스트 시작하기' }).click()
   await expect(page.getByRole('heading', { name: '활성 루틴이 바뀌었어요' })).toBeVisible()
   await page.getByRole('link', { name: '홈' }).click()
-  await expect(page.getByText('현재 루틴: 월급 입금일 확인')).toBeVisible()
+  await expect(page.getByText(/현재 루틴:/)).toBeVisible()
 
   await page.getByRole('link', { name: '메이트' }).click()
-  await page.getByRole('link', { name: /Travel saving party/ }).click()
-  await page.getByRole('link', { name: /Cobalt Compass/ }).click()
-  await page.getByRole('link', { name: /루틴 보기/ }).click()
+  await page.locator('a[href^="/mates/group/"]').first().click()
+  await page.locator('a[href*="/adventurer/"]').first().click()
+  await page.getByRole('link', { name: /루틴 보기/ }).first().click()
   await page.getByRole('link', { name: '루틴을 내 생활에 맞추기' }).click()
   await page.getByRole('button', { name: '내 기준으로 추천 받기' }).click()
-  await page.getByRole('button', { name: '도전 · 월급날 70만원 먼저 저축' }).click()
+  const alternativeCandidate = page.locator('button[aria-pressed="false"]').last()
+  await expect(alternativeCandidate).toBeVisible()
+  await alternativeCandidate.click()
   await page.getByRole('button', { name: '이 루틴으로 퀘스트 시작하기' }).click()
   await expect(page.getByRole('dialog', { name: '루틴 변경 확인' })).toBeVisible()
   await page.getByRole('button', { name: '교체 확정' }).click()
@@ -189,4 +199,66 @@ test('starts in explore mode and confirms a goal later without replaying onboard
   await expect(page.getByRole('button', { name: '유럽 여행 자금 목표 만들기' })).toBeVisible()
   await page.getByRole('button', { name: '유럽 여행 자금 목표 만들기' }).click()
   await expect(page.getByRole('heading', { name: '여행까지 한 걸음' })).toBeVisible()
+})
+
+test('keeps runtime screens within supported mobile viewports', async ({ page }, testInfo) => {
+  const pageErrors: string[] = []
+  const consoleErrors: string[] = []
+  const failedImages: string[] = []
+  page.on('pageerror', (error) => pageErrors.push(error.message))
+  page.on('console', (message) => {
+    if (message.type() === 'error') consoleErrors.push(message.text())
+  })
+  page.on('response', (response) => {
+    if (response.request().resourceType() === 'image' && response.status() >= 400) {
+      failedImages.push(`${response.status()} ${response.url()}`)
+    }
+  })
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/signup')
+  await page.getByLabel('이름').fill('모바일 검수')
+  await page.getByLabel('이메일').fill(`playwright-mobile-${Date.now()}@example.com`)
+  await page.getByLabel('비밀번호').fill('FinMate!2026#')
+  await page.getByRole('button', { name: '회원가입' }).click()
+  await completeOnboarding(page)
+  await page.getByRole('button', { name: '유럽 여행 자금 목표 만들기' }).click()
+  await page.getByRole('button', { name: '홈으로 가기' }).click()
+
+  for (const width of [360, 390, 430]) {
+    await page.setViewportSize({ width, height: 844 })
+    for (const [name, path, ready] of [
+      ['home', '/home', '유럽 여행 자금 레이드'],
+      ['explore', '/mates/explore', '비교 탐색'],
+      ['records', '/record', '30일 금융 여정'],
+    ] as const) {
+      await page.goto(path)
+      await expect(page.getByText(ready, { exact: false }).first()).toBeVisible()
+      if (name === 'explore') {
+        await page.getByRole('button', { name: /검색하기/ }).click()
+        await expect(page.locator('a[href*="/adventurer/"]')).toHaveCount(6)
+        const clippedAliases = await page.locator('.mate-anonymous-copy strong').evaluateAll((aliases) =>
+          aliases
+            .filter((alias) => alias.scrollWidth > alias.clientWidth)
+            .map((alias) => ({ text: alias.textContent, clientWidth: alias.clientWidth, scrollWidth: alias.scrollWidth })),
+        )
+        expect(clippedAliases, `${width}px 모험가 별칭이 카드에서 잘렸어요`).toEqual([])
+      }
+      await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
+      await page.screenshot({ path: testInfo.outputPath(`${name}-${width}.png`), fullPage: true })
+    }
+
+    const detailButton = page.getByRole('button', { name: /기록 상세 보기$/ }).first()
+    if (await detailButton.isEnabled()) {
+      await detailButton.click()
+      await expect(page.getByRole('dialog')).toBeVisible()
+      await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true)
+      await page.screenshot({ path: testInfo.outputPath(`record-detail-${width}.png`), fullPage: true })
+      await page.getByRole('button', { name: '상세 기록 닫기' }).last().click()
+    }
+  }
+
+  expect(pageErrors).toEqual([])
+  expect(consoleErrors).toEqual([])
+  expect(failedImages).toEqual([])
 })
