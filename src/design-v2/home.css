@@ -1171,7 +1171,7 @@
 
 .home-report-nameplate h1 {
   margin: 0;
-  font-size: 30px;
+  font-size: var(--text-display);
   font-weight: 800;
   color: var(--report-ink);
   line-height: 1.05;

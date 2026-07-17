@@ -47,14 +47,14 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  height: 42px;
+  height: 38px;
   border-radius: var(--r-pill);
   padding: 0 12px;
   background: var(--surface);
   border: 1px solid var(--line);
   box-shadow: var(--shadow-1);
   color: var(--ink-800);
-  font-size: 17px;
+  font-size: 14px;
   font-weight: 800;
 }
 
@@ -92,7 +92,7 @@
 .mate-hero-header h1 {
   margin: 0;
   color: #102743;
-  font-size: 29px;
+  font-size: var(--text-display);
   line-height: 1.05;
   font-weight: 900;
   white-space: nowrap;
@@ -140,11 +140,11 @@
 .mate-card {
   display: grid;
   gap: 14px;
-  border-radius: 26px;
+  border-radius: var(--r-lg);
   border: 1px solid var(--line);
   background: var(--surface);
-  padding: 16px;
-  box-shadow: var(--shadow-2);
+  padding: var(--space-5);
+  box-shadow: var(--clay-shadow-soft);
 }
 
 .mate-card-head {
@@ -1207,7 +1207,7 @@
   border: 0;
   color: var(--ink-500);
   background: transparent;
-  font-size: 13px;
+  font-size: var(--text-caption);
   font-weight: 700;
   line-height: 1.3;
   text-decoration: none;
@@ -2075,14 +2075,13 @@
 }
 
 .mate-build-screen .compare-flow-header {
-  min-height: 54px;
-  padding: 14px 6px 16px;
+  min-height: 52px;
   grid-template-columns: auto minmax(0, 1fr) auto;
 }
 
 .mate-build-screen .compare-flow-header h1 {
   color: #102743;
-  font-size: 29px;
+  font-size: var(--text-title);
   line-height: 1.05;
   font-weight: 900;
   text-align: left;
@@ -2154,7 +2153,7 @@
 /* ── readability pass: 메이트/퀘스트/로드맵 기준 화면 과대 폰트 보정 ── */
 .screen-mate-main .mate-hero-header h1,
 .screen-quest-main .mate-hero-header h1 {
-  font-size: 24px;
+  font-size: var(--text-display);
   line-height: 1.12;
 }
 
@@ -2227,13 +2226,12 @@
 
 .mate-build-screen .compare-flow-header {
   grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 6px;
+  gap: var(--space-2);
 }
 
 .mate-build-screen .compare-flow-header h1 {
   min-width: 0;
   overflow: hidden;
-  font-size: 22px;
   text-overflow: ellipsis;
 }
 

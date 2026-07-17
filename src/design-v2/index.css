@@ -110,6 +110,13 @@
   --font-display: "Paperlogy Display", "Paperlogy", sans-serif; /* big numbers/amounts/percentages */
   --font-sans: "Paperlogy", -apple-system, sans-serif; /* everything else */
 
+  /* Type scale — 화면 타이틀부터 라벨까지 이 다섯 단계로 수렴 */
+  --text-display: 28px; /* 화면 h1 타이틀 (온볼딩/탭 히어로 헤더) */
+  --text-title: 20px; /* 플로우 헤더·섹션 카드 타이틀 */
+  --text-body: 15px; /* 본문 */
+  --text-caption: 13px; /* 보조 설명·뒤로 링크 */
+  --text-eyebrow: 12px; /* 라벨·eyebrow */
+
   font-family: var(--font-sans);
   color: var(--ink-800);
   background: var(--paper);
@@ -120,7 +127,15 @@
 }
 
 /* Amounts/counters never jitter across digits. */
-.num {
+.num,
+.home-currency-pill b,
+.home-report-primary-stat strong,
+.quest-pill,
+.quest-points-hero strong,
+.quest-progress-reward strong,
+.quest-point-amount,
+.quest-stat-box strong,
+.mate-insight-card b {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
 }

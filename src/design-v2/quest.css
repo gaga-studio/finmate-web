@@ -647,11 +647,6 @@
 }
 
 /* ── readability pass: 퀘스트 화면 과대 폰트/아이콘 보정 ── */
-.screen-quest-main .mate-hero-header h1 {
-  font-size: 24px;
-  line-height: 1.12;
-}
-
 .quest-tab {
   font-size: 13px;
 }
