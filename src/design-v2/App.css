@@ -2563,6 +2563,7 @@
   color: var(--ink-500);
   font-size: 13px;
   font-weight: 800;
+  text-decoration: none;
 }
 
 .screen-mate-main > .segmented-control a.active,

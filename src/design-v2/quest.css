@@ -314,6 +314,7 @@
   padding: var(--space-3);
   background: var(--teal-50);
   text-align: left;
+  text-decoration: none;
   width: 100%;
 }
 

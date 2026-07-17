@@ -177,6 +177,11 @@ a {
   color: inherit;
 }
 
+/* 카드·버튼형 링크의 기본 밑줄 방지 — 인라인 텍스트 링크(.text-link, .mate-card-link)만 밑줄 허용 */
+a[class]:not(.text-link):not(.mate-card-link) {
+  text-decoration: none;
+}
+
 button,
 input,
 textarea {

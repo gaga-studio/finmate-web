@@ -918,6 +918,7 @@
   box-shadow: var(--clay-shadow-soft);
   color: inherit;
   text-align: left;
+  text-decoration: none;
 }
 
 .mate-anonymous-avatar {
@@ -950,6 +951,16 @@
   line-height: 1.35;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+}
+
+.mate-anonymous-copy em {
+  overflow: hidden;
+  color: var(--ink-600);
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .mate-anonymous-stat-strip {
