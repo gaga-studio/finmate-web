@@ -513,25 +513,43 @@
 
 /* ── 포인트 탭 ───────────────────────────────────────────── */
 .quest-points-hero {
-  display: grid;
-  justify-items: center;
-  gap: var(--space-2);
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  text-align: left;
   background: linear-gradient(150deg, #FFF7E6 0%, #FFF1CF 100%);
   border-color: #FBE3A6;
 }
 
 .quest-points-hero-label {
+  display: block;
   font-size: 12px;
   font-weight: 800;
   color: var(--ink-500);
 }
 
+.quest-points-hero strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--ink-900);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
 .quest-points-hero p {
-  margin: 0;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--ink-700);
+  margin: 4px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-500);
+}
+
+.quest-points-hero .icon-badge {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 auto;
 }
 
 .quest-points-hero .app-button {
