@@ -112,19 +112,51 @@ export function AdventurerProfileView({ adventurer }: { adventurer: Schema['Reco
   )
 }
 
+const rangeNumbers = (raw: string): [number, number] | null => {
+  const numbers = raw.match(/\d+(?:\.\d+)?/g)?.map(Number) ?? []
+  if (numbers.length >= 2) return [numbers[0], numbers[1]]
+  if (numbers.length === 1) return [0, numbers[0]]
+  return null
+}
+
+const metricScale = (myRaw: string, otherRaw: string) => Math.max(rangeNumbers(myRaw)?.[1] ?? 0, rangeNumbers(otherRaw)?.[1] ?? 0, 1)
+
+/* 수치가 없는 범위(예: '시작 단계')는 트랙의 12%만 채운 추정 구간으로 표시한다. */
+const rangeSegment = (raw: string, scale: number): { left: string; width: string } => {
+  const [lo, hi] = rangeNumbers(raw) ?? [0, scale * 0.12]
+  const start = Math.max(0, Math.min(100, (lo / scale) * 100))
+  const end = Math.max(start + 4, Math.min(100, (hi / scale) * 100))
+  return { left: `${start}%`, width: `${end - start}%` }
+}
+
 export function AdventurerReportView({ report }: { report: Schema['AdventurerReport'] }) {
   const routine = report.adventurer.routines[0]
   return (
     <section className="screen-stack tab-main-stack mate-profile-detail-stack">
       <Link className="mate-back-link" to={`/mates/group/${report.adventurer.groupId}/adventurer/${report.adventurer.adventurerId}`}><ChevronLeft size={18}/>모험가로</Link>
-      <section className="mate-card mate-adventurer-card">
-        <div className="mate-adventurer-body"><MateAvatar species="me" size={92} fit="contain"/><div><span className="mate-adventurer-match">익명 1:1 비교</span><h1 className="mate-adventurer-name">나와 {report.adventurer.alias}</h1><p className="mate-adventurer-tagline">순위가 아니라 습관 범위를 비교해요.</p></div><MateAvatar species={speciesFor(report.adventurer.groupId)} size={92} fit="contain"/></div>
+      <section className="mate-card mate-adventurer-card mate-report-hero">
+        <span className="mate-report-side"><MateAvatar species="me" size={76} fit="contain"/><i>나</i></span>
+        <div className="mate-report-hero-copy"><span className="mate-adventurer-match">익명 1:1 비교</span><h1 className="mate-adventurer-name">나와 {report.adventurer.alias}</h1><p className="mate-adventurer-tagline">순위가 아니라 습관 범위를 비교해요.</p></div>
+        <span className="mate-report-side"><MateAvatar species={speciesFor(report.adventurer.groupId)} size={76} fit="contain"/><i>모험가</i></span>
       </section>
       <MateSectionCard eyebrowIcon="chart" title="금융 습관 비교">
-        <div className="mate-vs-gauges">{report.comparisonMetrics.map((metric) => <div className="mate-gauge-row" key={metric.label}><div className="mate-gauge-row-head"><span>{metric.label}</span><b>{approvedCopy(metric.interpretationCopyKey)}</b></div><div className="mate-comparison-ranges"><span>나 <strong>{metric.myRange}</strong></span><span>모험가 <strong>{metric.adventurerRange}</strong></span></div></div>)}</div>
+        <div className="mate-compare-table">
+          <div className="mate-compare-legend"><span>나</span><span>항목</span><span>모험가</span></div>
+          {report.comparisonMetrics.map((metric) => {
+            const scale = metricScale(metric.myRange, metric.adventurerRange)
+            const my = rangeSegment(metric.myRange, scale)
+            const other = rangeSegment(metric.adventurerRange, scale)
+            return <div className="mate-compare-row" key={metric.label}>
+              <div className="mate-compare-values"><strong className="me">{metric.myRange}</strong><span>{metric.label}</span><strong className="other">{metric.adventurerRange}</strong></div>
+              <span className="mate-compare-track" aria-hidden="true"><i className="me" style={my}/><i className="other" style={other}/></span>
+              <p className="mate-compare-copy">{approvedCopy(metric.interpretationCopyKey)}</p>
+            </div>
+          })}
+        </div>
       </MateSectionCard>
       <MateSectionCard eyebrowIcon="shield" title="이 루틴을 추천하는 이유"><ul className="mate-reason-list">{report.routineEvidence.map((evidence) => <li key={evidence}>{approvedCopy(evidence)}</li>)}</ul></MateSectionCard>
       {routine ? <Link className="app-button primary" to={`/routine/${report.adventurer.groupId}/${report.adventurer.adventurerId}/${routine.routineId}`}>이 루틴을 내 상황에 맞추기<ChevronRight size={20}/></Link> : null}
+      <MateCoachCard message="비교는 순위가 아니라 참고 범위예요. 부담 없는 행동부터 골라 내 기준으로 다시 계산해요."/>
       <p className="mate-build-note">비교 결과는 행동을 고르는 참고 정보이며 금융상품이나 투자를 추천하지 않아요.</p>
     </section>
   )

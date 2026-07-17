@@ -381,11 +381,6 @@
   border: 1px solid var(--line);
 }
 
-.mate-vs-gauges {
-  display: grid;
-  gap: var(--space-3);
-}
-
 /* ── 친구들과 나 비교: 1대1 대신 친구 행동 시그널 리포트 ───── */
 .mate-friend-compare-card {
   overflow: hidden;
@@ -670,95 +665,6 @@
   white-space: nowrap;
 }
 
-/* ── 게이지(비교 바) ─────────────────────────────────── */
-.mate-gauge-row {
-  display: grid;
-  gap: 6px;
-}
-
-.mate-gauge-row-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-2);
-}
-
-.mate-gauge-row-head span {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--ink-800);
-}
-
-.mate-gauge-row-head b {
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--teal-600);
-  white-space: nowrap;
-}
-
-.mate-gauge-track {
-  position: relative;
-  height: 10px;
-  border-radius: var(--r-pill);
-  background: var(--surface-muted);
-  overflow: visible;
-}
-
-.mate-gauge-fill {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  border-radius: var(--r-pill);
-  transition: width var(--motion-base);
-}
-
-.mate-gauge-fill-other {
-  background: var(--ink-300);
-  opacity: 0.6;
-}
-
-.mate-gauge-fill-mine {
-  background: linear-gradient(90deg, var(--teal-400), var(--teal));
-}
-
-.mate-gauge-marker {
-  position: absolute;
-  top: 50%;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--teal-700);
-  border: 2px solid var(--surface);
-  transform: translate(-50%, -50%);
-  box-shadow: var(--shadow-1);
-}
-
-.mate-gauge-legend {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--ink-500);
-}
-
-.mate-gauge-legend span {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.mate-gauge-legend i {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.mate-gauge-legend i.mine { background: var(--teal); }
-.mate-gauge-legend i.other { background: var(--ink-300); }
-
 /* ── 연속기록 ────────────────────────────────────────── */
 .mate-streak-list {
   display: grid;
@@ -876,61 +782,218 @@
   word-break: keep-all;
 }
 
-/* ── 메이트 찾기: 나와 비슷한 그룹 ───────────────────── */
-.mate-group-card {
-  grid-template-columns: minmax(0, 1fr) auto;
+/* ── 메이트 찾기/그룹 상세: 그라디언트 그룹 히어로 ────────── */
+.mate-group-hero {
+  justify-items: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+
+.screen-mate-main .mate-card.mate-group-hero {
+  border-color: color-mix(in srgb, var(--teal-100) 72%, var(--clay-stroke));
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, .92), transparent 54%),
+    linear-gradient(155deg, #EAFBF3 0%, #CDF0E1 52%, #B9E4D3 100%);
+  box-shadow: var(--clay-shadow-soft);
+}
+
+.mate-group-hero-head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.mate-group-hero-head h2 {
+  margin: 0;
+  color: var(--teal-700);
+  font-size: var(--text-eyebrow);
+  font-weight: 800;
+  letter-spacing: .01em;
+}
+
+.mate-group-trio {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.mate-group-trio .mate-avatar {
+  border: 3px solid var(--surface);
+  box-shadow: 0 6px 14px rgba(21, 38, 35, .12);
+}
+
+.mate-group-trio .mate-avatar + .mate-avatar {
+  margin-left: -22px;
+}
+
+.mate-group-trio .mate-avatar:nth-child(2) {
+  z-index: 2;
+  transform: translateY(-10px);
+}
+
+.mate-group-hero-copy {
   display: grid;
+  justify-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.mate-group-hero-copy > strong {
+  color: var(--ink-800);
+  font-size: var(--text-title);
+  font-weight: 900;
+  line-height: 1.2;
+  word-break: keep-all;
+}
+
+.mate-group-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--r-pill);
+  padding: 4px var(--space-3);
+  border: 1px solid color-mix(in srgb, var(--teal-100) 68%, transparent);
+  background: rgba(255, 255, 255, .82);
+  color: var(--teal-700);
+  font-size: var(--text-eyebrow);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.mate-group-hero-copy p {
+  margin: 0;
+  color: var(--ink-700);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  line-height: 1.45;
+  word-break: keep-all;
+}
+
+.mate-group-hero-cta {
+  width: 100%;
+}
+
+/* ── 그룹 상세/루틴 플로우 공용 헤더 (뒤로 + 화면 제목) ────── */
+.mate-flow-header {
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-2);
+}
+
+.mate-flow-header h1 {
+  min-width: 0;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── 비교 리포트: 나 vs 모험가 3열 비교표 ───────────────── */
+.mate-report-hero {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--space-3);
 }
 
-.mate-group-copy {
+.mate-report-side {
   display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+
+.mate-report-side i {
+  color: var(--ink-500);
+  font-size: var(--text-eyebrow);
+  font-style: normal;
+  font-weight: 800;
+}
+
+.mate-report-hero-copy {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  min-width: 0;
+  text-align: center;
+}
+
+.mate-compare-table {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.mate-compare-legend,
+.mate-compare-values {
+  display: grid;
+  grid-template-columns: minmax(72px, 1fr) minmax(0, 1.2fr) minmax(72px, 1fr);
+  align-items: baseline;
   gap: var(--space-2);
 }
 
-.mate-group-copy p {
-  margin: 0;
-  display: flex;
-  align-items: center;
+.mate-compare-legend span {
+  color: var(--ink-400);
+  font-size: 10.5px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.mate-compare-legend span:first-child { text-align: left; }
+.mate-compare-legend span:last-child { text-align: right; }
+
+.mate-compare-row {
+  display: grid;
   gap: 6px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--ink-500);
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--line);
+}
+
+.mate-compare-values strong {
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 900;
   word-break: keep-all;
 }
 
-.mate-group-trio {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  width: 108px;
-  height: 68px;
-  flex: 0 0 auto;
+.mate-compare-values strong.me { color: var(--teal-600); }
+
+.mate-compare-values strong.other {
+  color: var(--warning);
+  text-align: right;
 }
 
-.mate-group-trio .mate-avatar {
-  position: absolute;
-  bottom: 0;
-  border: 3px solid var(--surface);
-}
-
-.mate-group-trio .mate-avatar:nth-child(1) { left: 0; z-index: 1; }
-.mate-group-trio .mate-avatar:nth-child(2) { left: 26px; z-index: 3; }
-.mate-group-trio .mate-avatar:nth-child(3) { left: 52px; z-index: 2; }
-
-.mate-group-count {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  border-radius: var(--r-pill);
-  padding: var(--space-2);
-  background: var(--teal-50);
-  color: var(--teal-700);
-  font-size: 12px;
+.mate-compare-values span {
+  color: var(--ink-800);
+  font-size: var(--text-caption);
   font-weight: 800;
+  text-align: center;
+  word-break: keep-all;
+}
+
+.mate-compare-track {
+  position: relative;
+  display: block;
+  height: 8px;
+  overflow: hidden;
+  border-radius: var(--r-pill);
+  background: var(--surface-muted);
+}
+
+.mate-compare-track i {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-radius: var(--r-pill);
+}
+
+.mate-compare-track i.me { background: color-mix(in srgb, var(--teal-400) 74%, transparent); }
+.mate-compare-track i.other { background: color-mix(in srgb, var(--warning) 64%, transparent); }
+
+.mate-compare-copy {
+  margin: 0;
+  color: var(--ink-500);
+  font-size: 11.5px;
+  font-weight: 600;
+  line-height: 1.45;
+  word-break: keep-all;
 }
 
 /* ── 메이트 찾기: 내 위치는 어떤가요 ─────────────────── */
@@ -1924,40 +1987,6 @@
   margin-top: 22px;
 }
 
-.mate-vs-gauges {
-  gap: 8px;
-}
-
-.mate-gauge-row {
-  gap: 4px;
-}
-
-.mate-gauge-row-head span {
-  font-size: 13px;
-}
-
-.mate-group-card {
-  grid-template-columns: minmax(0, 1fr) 178px;
-}
-
-.mate-group-trio {
-  width: 160px;
-  height: 108px;
-}
-
-.mate-group-trio .mate-avatar img {
-  padding: 5px;
-}
-
-.mate-group-trio .mate-avatar:nth-child(1) { left: 0; }
-.mate-group-trio .mate-avatar:nth-child(2) { left: 40px; }
-.mate-group-trio .mate-avatar:nth-child(3) { left: 80px; }
-
-.mate-group-count {
-  margin-left: auto;
-  width: 178px;
-}
-
 .mate-position-head {
   gap: 22px;
 }
@@ -2348,7 +2377,6 @@
 .screen-mate-main .mate-stat-badge,
 .screen-mate-main .mate-adventurer-like,
 .screen-mate-main .mate-habit-card,
-.screen-mate-main .mate-group-count,
 .screen-mate-main .mate-position-level,
 .mate-build-screen .mate-card,
 .mate-build-screen .mate-build-profile,
@@ -2380,8 +2408,7 @@
 
 .screen-mate-main .mate-banner,
 .screen-mate-main .mate-coach-card,
-.screen-mate-main .mate-filter-cta,
-.screen-mate-main .mate-group-count {
+.screen-mate-main .mate-filter-cta {
   background: linear-gradient(145deg, rgba(241, 253, 250, .96), rgba(255, 255, 255, .82));
 }
 

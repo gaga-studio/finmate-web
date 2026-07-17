@@ -14,9 +14,10 @@ export function MateGroupDetailView({
 }) {
   return (
     <div className="mate-tab-stack">
-      <MateSectionCard className="mate-group-card" eyebrowIcon="profile" title={group.name} subtitle="비슷한 출발점에서 꾸준히 유지한 루틴을 살펴보세요.">
-        <div className="mate-group-copy"><p>{group.memberCount}명의 익명 모험가</p><div className="mate-group-trio"><MateAvatar species="bird" size={86} fit="contain"/><MateAvatar species={adventurerSpecies(group.groupId)} size={86} fit="contain"/><MateAvatar species="otter" size={86} fit="contain"/></div></div>
-      </MateSectionCard>
+      <section className="mate-card mate-group-hero">
+        <div className="mate-group-trio"><MateAvatar species="bird" size={86} fit="contain"/><MateAvatar species={adventurerSpecies(group.groupId)} size={86} fit="contain"/><MateAvatar species="otter" size={86} fit="contain"/></div>
+        <div className="mate-group-hero-copy"><span className="mate-group-hero-badge">{group.memberCount}명의 익명 모험가</span><p>비슷한 출발점에서 꾸준히 유지한 루틴을 살펴보세요.</p></div>
+      </section>
       <aside className="mate-banner"><ShieldCheck size={22}/><p>목표 달성 경험과 루틴 유지 근거가 확인된 익명 모험가예요.</p></aside>
       <section className="mate-card"><header className="mate-card-head"><div className="mate-card-head-title"><RpgIcon name="medal" size={40}/><div><h2>추천 모험가</h2><p>정확 금액과 공개 순위는 표시하지 않아요.</p></div></div></header><div className="mate-anonymous-list">
         {adventurers.map((adventurer) => {
