@@ -40,19 +40,6 @@ const tabItems: Array<{ key: TabKey; label: string; icon: IconName; path: string
   { key: 'record', label: '기록', icon: 'calendar', path: '/record' },
 ]
 
-export function StatusBar({ time }: { time: string }) {
-  return (
-    <div className="status-bar">
-      <strong>{time}</strong>
-      <span>
-        <i />
-        <i />
-        <i />
-      </span>
-    </div>
-  )
-}
-
 export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="app-canvas">

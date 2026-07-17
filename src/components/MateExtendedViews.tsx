@@ -37,7 +37,7 @@ export function MateSectionNav({ active }: { active: 'friends' | 'groups' | 'exp
 }
 
 export function MateTopHeader({ subtitle, pointBalance, title = '메이트' }: { subtitle: string; pointBalance: number; title?: string }) {
-  return <><div className="mate-reference-status roadmap-status" aria-hidden="true"><strong>9:41</strong><span><i/><i/><i/></span></div><header className="mate-hero-header mate-reference-topline"><div><h1>{title}</h1><p>{subtitle}</p></div><div className="mate-top-bar"><MatePointPill value={pointBalance}/><Link className="mate-top-avatar-button" to="/settings" aria-label="공개 범위와 설정"><MateAvatar species="me" size={52} fit="contain" className="mate-top-avatar"/></Link></div></header></>
+  return <><header className="mate-hero-header mate-reference-topline"><div><h1>{title}</h1><p>{subtitle}</p></div><div className="mate-top-bar"><MatePointPill value={pointBalance}/><Link className="mate-top-avatar-button" to="/settings" aria-label="공개 범위와 설정"><MateAvatar species="me" size={52} fit="contain" className="mate-top-avatar"/></Link></div></header></>
 }
 
 export function FriendOverviewView({

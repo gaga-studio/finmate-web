@@ -108,11 +108,6 @@
   white-space: normal;
 }
 
-.mate-reference-status {
-  padding-left: 20px;
-  padding-right: 20px;
-}
-
 .mate-reference-topline {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;

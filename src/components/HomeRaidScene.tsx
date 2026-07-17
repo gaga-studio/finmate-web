@@ -218,10 +218,6 @@ export function HomeRaidScene({
 
   return (
     <div className="screen screen-home screen-home-battle">
-      <div className="home-status roadmap-status" aria-hidden="true">
-        <strong>9:41</strong>
-        <span><i /><i /><i /></span>
-      </div>
       <header className="home-identity-bar">
         <img className="home-brand-logo" src="/FinMate_Logo.png" alt="FinMate" draggable={false} />
         <div className="home-identity-currency" aria-label="내부 성장 자원">
@@ -353,11 +349,6 @@ export function HomeRaidScene({
               </button>
             </div>
           ))}
-          <div className="home-chest-slot">
-            <img className="home-chest-icon" src="/assets/rpg-icons/rpg-icon-chest.png" alt="" draggable={false} />
-            <span className="home-chest-timer">꾸미기 {view.rewardProgressPercent}%</span>
-            <button className="home-chest-claim" type="button" onClick={onOpenSettings}>보기</button>
-          </div>
         </div>
       </section>
 

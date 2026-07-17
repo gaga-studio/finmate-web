@@ -20,7 +20,6 @@ const skillIcon: Record<Schema['CharacterReportType'], 'spend' | 'saving' | 'sto
 export function CharacterReportView({ report, onBack, onHome, onQuest }: { report: Schema['CharacterReport']; onBack: () => void; onHome: () => void; onQuest: (questId: string) => void }) {
   const view = toCharacterReportView(report)
   return <div className={`screen screen-home-report tone-${view.tone}`}>
-    <div className="home-report-status roadmap-status" aria-hidden="true"><strong>9:41</strong><span><i/><i/><i/></span></div>
     <header className="home-report-topbar"><button type="button" onClick={onBack} aria-label="뒤로"><AppIcon name="back"/></button><strong>금융 리포트</strong><button type="button" onClick={onHome} aria-label="홈으로"><AppIcon name="home"/></button></header>
     <section className="home-report-arena" aria-labelledby="home-report-title"><div className="home-report-arc" aria-hidden="true"/><div className="home-report-gridmark" aria-hidden="true"/><div className="home-report-character-wrap"><HomeCharacterImg src={`${HOME_ASSET_DIR}/home-char-${view.assetStem}.png`} emoji="●" className="home-report-character" alt=""/></div></section>
     <section className="home-report-sheet" aria-label={`${characterName[report.reportType]} 캐릭터 능력치`}>

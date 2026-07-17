@@ -14,11 +14,6 @@
   background: linear-gradient(180deg, var(--teal-50) 0%, var(--paper) 220px);
 }
 
-.home-status {
-  height: 26px;
-  padding: 0 20px;
-}
-
 /* ── 상단 아이덴티티 바 ──────────────────────────────────── */
 .home-identity-bar {
   display: grid;
@@ -607,45 +602,6 @@
 .home-skill-button.tone-purple { background: #E7DBFF; }
 .home-skill-button.tone-green { background: #DBF6E1; }
 
-.home-chest-slot {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  justify-items: start;
-  gap: 6px;
-  border-radius: var(--r-md);
-  padding: 7px 10px;
-  background: rgba(255, 255, 255, 0.82);
-}
-
-.home-chest-icon {
-  width: 34px;
-  height: 34px;
-  object-fit: contain;
-  font-size: 18px;
-  animation: home-chest-glow 2.2s ease-in-out infinite;
-}
-
-.home-chest-timer {
-  font-size: 10.5px;
-  font-weight: 800;
-  color: var(--ink-600);
-  white-space: nowrap;
-}
-
-.home-chest-claim {
-  height: 20px;
-  border-radius: var(--r-pill);
-  border: none;
-  padding: 0 var(--space-2);
-  background: var(--teal);
-  color: #fff;
-  font-size: 9.5px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
 /* ── 하단 요약 카드 ──────────────────────────────────────── */
 .home-below-grid {
   display: grid;
@@ -827,18 +783,12 @@
   100% { transform: translate(-50%, -50%) translateY(-64px); opacity: 0; }
 }
 
-@keyframes home-chest-glow {
-  0%, 100% { filter: drop-shadow(0 0 0 rgba(255, 196, 64, 0)); }
-  50% { filter: drop-shadow(0 0 8px rgba(255, 196, 64, .85)); }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .home-party-slot .home-party-img,
   .home-boss.is-hit,
   .home-boss.is-hit .home-boss-img,
   .home-boss.is-hit::after,
   .home-hit-spark,
-  .home-chest-icon,
   .home-float-number {
     animation: none !important;
   }
@@ -848,10 +798,6 @@
   .screen.screen-home-battle {
     padding-right: var(--space-4);
     padding-left: var(--space-4);
-  }
-
-  .home-status {
-    padding: 0 16px;
   }
 
   .home-identity-bar {
@@ -971,11 +917,6 @@
   font-weight: 400;
 }
 
-.screen-home-battle .home-chest-timer {
-  font-family: var(--font-sans);
-  font-weight: 500;
-}
-
 /* ── 홈 캐릭터 리포트: 게임 상태창 ─────────────────────── */
 .screen-home-report {
   --report-accent: var(--teal);
@@ -1014,13 +955,6 @@
   --report-bg-top: #7E68BE;
   --report-bg-mid: #AC93DD;
   --report-bg-bottom: #DCCFF4;
-}
-
-.home-report-status {
-  position: relative;
-  z-index: 5;
-  padding: 0 2px;
-  color: #fff;
 }
 
 .home-report-topbar {
@@ -1474,7 +1408,6 @@
 .screen-home-battle .home-battle-scene,
 .screen-home-battle .home-quest-scroll,
 .screen-home-battle .home-stat-card,
-.screen-home-battle .home-chest-slot,
 .screen-home-battle .mate-card,
 .screen-home-battle .mate-coach-card {
   border: 1px solid color-mix(in srgb, var(--clay-stroke) 88%, transparent);
@@ -1487,7 +1420,6 @@
 }
 
 .screen-home-battle .home-quest-scroll,
-.screen-home-battle .home-chest-slot,
 .screen-home-battle .mate-card,
 .screen-home-battle .mate-coach-card {
   background: linear-gradient(145deg, rgba(255, 255, 255, .94), rgba(236, 250, 247, .82));
