@@ -949,7 +949,7 @@
 }
 
 /* ── 비교 리포트: 나 vs 모험가 3열 비교표 ───────────────── */
-.mate-report-hero {
+.mate-adventurer-card.mate-report-hero {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
