@@ -401,6 +401,7 @@
   padding: var(--space-3);
   background: var(--paper);
   text-align: left;
+  text-decoration: none;
 }
 
 .quest-progress-body {
@@ -418,7 +419,14 @@
 
 .quest-progress-meta {
   display: flex;
-  justify-content: flex-end;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.quest-progress-meta span + span::before {
+  content: '·';
+  margin-right: 4px;
+  color: var(--ink-300);
 }
 
 .quest-progress-meta span {
@@ -602,7 +610,6 @@
 
 .quest-stat-box strong,
 .quest-ai-recommend strong,
-.quest-progress-body strong,
 .quest-progress-reward strong {
   font-size: 12px;
 }
