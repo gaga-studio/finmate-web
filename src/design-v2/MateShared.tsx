@@ -36,6 +36,12 @@ export function MateStatBadge({ icon, label, tone = 'teal' }: { icon: string; la
   return <span className="mate-stat-badge"><IconBadge icon={icon} tone={tone}/><b>{label}</b></span>
 }
 
+const routineStepLabels = ['루틴 확인', '강도 선택', '적용 완료'] as const
+
+export function RoutineSteps({ current }: { current: 1 | 2 | 3 }) {
+  return <ol className="routine-steps" aria-label="루틴 적용 단계">{routineStepLabels.map((label, index) => { const step = index + 1; const state = step < current ? 'done' : step === current ? 'current' : 'todo'; return <li className={`is-${state}`} aria-current={step === current ? 'step' : undefined} key={label}><i aria-hidden="true">{step < current ? '✓' : step}</i><span>{label}</span></li> })}</ol>
+}
+
 export function MatePointPill({ value }: { value: number }) {
   return <span className="mate-point-pill"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#FFD35C" stroke="#E8A93A" strokeWidth="1.5"/><path d="m12 6 1.4 4.4L18 12l-4.6 1.6L12 18l-1.4-4.4L6 12l4.6-1.6L12 6Z" fill="#FFF3D0"/></svg><b className="num">{value.toLocaleString('ko-KR')}</b></span>
 }

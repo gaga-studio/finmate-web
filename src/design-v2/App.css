@@ -7569,6 +7569,8 @@ button.journey-card {
 .option-card {
   min-height: 92px;
   display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
   align-content: start;
   gap: var(--space-2);
   padding: var(--space-3);
@@ -7585,6 +7587,25 @@ button.journey-card {
   border-color: var(--teal);
   background: var(--teal-50);
   box-shadow: 0 0 0 4px var(--focus-ring);
+}
+
+.option-card-check {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  border: 1.5px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+  color: transparent;
+  transition: background var(--motion-fast), border-color var(--motion-fast), color var(--motion-fast);
+}
+
+.option-card.selected .option-card-check {
+  border-color: var(--teal);
+  background: var(--teal);
+  color: #fff;
 }
 
 .option-card span {
