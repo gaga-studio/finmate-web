@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "typecheck": "tsc -b",
     "test": "vitest run",
+    "test:assets": "node --test scripts/turn-asset-contract.node.mjs && node scripts/verify-turn-assets.mjs",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:api": "./scripts/test-actual-api-e2e.sh",

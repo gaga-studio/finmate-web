@@ -6,14 +6,52 @@ import { MateAvatar } from '../design-v2/MateShared'
 import type { CharacterAssetStem, HomeBattleViewModel } from '../design-v2/viewModels'
 
 type HomeSpecies = CharacterAssetStem
+type PartySpriteState = 'idle' | 'attack' | 'victory'
+type BossSpriteState = 'idle' | 'hit' | 'defeated'
 
 type FloatNumber = { id: string; kind: 'dmg' | 'heal'; value: string; left: number; top: number }
 type HitSpark = { id: string; left: number; top: number }
+
+const TURN_ASSET_DIR = `${HOME_ASSET_DIR}/turn`
 
 // 턴제 연출 타이밍 — 한 캐릭터가 돌진→타격→귀환을 마치면 다음 캐릭터의 턴이 온다.
 const ATTACK_INTERVAL_MS = 1700
 const ATTACK_IMPACT_MS = 320
 const ATTACK_TOTAL_MS = 700
+const SHORT_LIVED_TURN_SPRITES = [
+  `${TURN_ASSET_DIR}/invest-attack-right.png`,
+  `${TURN_ASSET_DIR}/save-attack-right.png`,
+  `${TURN_ASSET_DIR}/consume-attack-right.png`,
+  `${TURN_ASSET_DIR}/mission-attack-right.png`,
+  `${TURN_ASSET_DIR}/boss-hit-left.png`,
+]
+
+function firstWorkingSprite(candidates: string[], brokenPaths: Record<string, true>): string | null {
+  return candidates.find((path) => !brokenPaths[path]) ?? null
+}
+
+function partySpriteCandidates(stem: HomeSpecies, state: PartySpriteState): string[] {
+  const idle = `${TURN_ASSET_DIR}/${stem}-idle-right.png`
+  const legacyIdle = `${HOME_ASSET_DIR}/home-char-${stem}.png`
+
+  if (state === 'victory') return [`${TURN_ASSET_DIR}/${stem}-victory.png`, idle, legacyIdle]
+  if (state === 'attack') {
+    return [
+      `${TURN_ASSET_DIR}/${stem}-attack-right.png`,
+      `${HOME_ASSET_DIR}/home-char-${stem}-atk-right.png`,
+      idle,
+      legacyIdle,
+    ]
+  }
+  return [idle, legacyIdle]
+}
+
+function bossSpriteCandidates(state: BossSpriteState): string[] {
+  const turnSprite = state === 'defeated'
+    ? `${TURN_ASSET_DIR}/boss-defeated.png`
+    : `${TURN_ASSET_DIR}/boss-${state}-left.png`
+  return [turnSprite, `${HOME_ASSET_DIR}/home-boss.png`]
+}
 
 // 재현 가능한 데미지 패턴을 위한 시드 난수 — 시연을 여러 번 반복해도 같은 흐름으로 보인다.
 function mulberry32(seed: number): () => number {
@@ -56,13 +94,25 @@ export function HomeRaidScene({
   const [bossDrift, setBossDrift] = useState<'left' | 'right' | 'up'>('left')
   const [floatNumbers, setFloatNumbers] = useState<FloatNumber[]>([])
   const [hitSparks, setHitSparks] = useState<HitSpark[]>([])
-  const [brokenSprites, setBrokenSprites] = useState<Partial<Record<HomeSpecies, boolean>>>({})
+  const [brokenSpritePaths, setBrokenSpritePaths] = useState<Record<string, true>>({})
   const [attacking, setAttacking] = useState<HomeSpecies | null>(null)
 
   const bossHitTokenRef = useRef(0)
   const turnRef = useRef(0)
   const partyRef = useRef(view.party)
+  const spritePreloadsRef = useRef<HTMLImageElement[]>([])
   partyRef.current = view.party
+
+  useEffect(() => {
+    spritePreloadsRef.current = SHORT_LIVED_TURN_SPRITES.map((src) => {
+      const image = new Image()
+      image.src = src
+      return image
+    })
+    return () => {
+      spritePreloadsRef.current = []
+    }
+  }, [])
 
   // 목표 달성(진행률 100%)이면 레이드를 클리어 상태로 그린다. 턴 루프는 멈추고 보스는 격파된다.
   const isCleared = view.goalProgressPercent >= 100
@@ -129,6 +179,11 @@ export function HomeRaidScene({
     RABBIT: '토끼',
     BIRD: '새',
   }
+  const bossSpriteState: BossSpriteState = isCleared ? 'defeated' : bossHit ? 'hit' : 'idle'
+  const bossSpriteSrc = firstWorkingSprite(
+    bossSpriteCandidates(bossSpriteState),
+    brokenSpritePaths,
+  )
 
   return (
     <div className="screen screen-home screen-home-battle">
@@ -179,28 +234,39 @@ export function HomeRaidScene({
 
         <div className={`home-scene-stage${isCleared ? ' is-cleared' : ''}`}>
           <div className="home-formation">
-            {view.party.map((member) => (
-              <button
-                className={`home-party-slot${attacking === member.assetStem ? ' is-attacking' : ''}`}
-                type="button"
-                onClick={() => onOpenReport(member.reportType)}
-                aria-label={`${animalName[member.animal]} ${member.shortLabel} 리포트 보기`}
-                key={member.animal}
-              >
-                {brokenSprites[member.assetStem] ? (
-                  <span className="home-char-fallback home-party-img" aria-hidden="true">{member.emoji}</span>
-                ) : (
-                  <img
-                    className="home-party-img"
-                    alt=""
-                    draggable={false}
-                    src={`${HOME_ASSET_DIR}/home-char-${member.assetStem}${attacking === member.assetStem ? '-atk-right' : ''}.png`}
-                    onError={() => setBrokenSprites((prev) => ({ ...prev, [member.assetStem]: true }))}
-                  />
-                )}
-                <HomeHPBar percent={member.scorePercent} tone={member.tone === 'blue' ? 'blue' : 'green'} />
-              </button>
-            ))}
+            {view.party.map((member) => {
+              const spriteState: PartySpriteState = isCleared
+                ? 'victory'
+                : attacking === member.assetStem ? 'attack' : 'idle'
+              const spriteSrc = firstWorkingSprite(
+                partySpriteCandidates(member.assetStem, spriteState),
+                brokenSpritePaths,
+              )
+
+              return (
+                <button
+                  className={`home-party-slot${attacking === member.assetStem ? ' is-attacking' : ''}`}
+                  type="button"
+                  onClick={() => onOpenReport(member.reportType)}
+                  aria-label={`${animalName[member.animal]} ${member.shortLabel} 리포트 보기`}
+                  data-sprite-state={spriteState}
+                  key={member.animal}
+                >
+                  {spriteSrc ? (
+                    <img
+                      className="home-party-img"
+                      alt=""
+                      draggable={false}
+                      src={spriteSrc}
+                      onError={() => setBrokenSpritePaths((prev) => ({ ...prev, [spriteSrc]: true }))}
+                    />
+                  ) : (
+                    <span className="home-char-fallback home-party-img" aria-hidden="true">{member.emoji}</span>
+                  )}
+                  <HomeHPBar percent={member.scorePercent} tone={member.tone === 'blue' ? 'blue' : 'green'} />
+                </button>
+              )
+            })}
           </div>
 
           <button
@@ -208,8 +274,19 @@ export function HomeRaidScene({
             type="button"
             onClick={onOpenQuest}
             aria-label={`${view.bossName} 퀘스트 보기`}
+            data-sprite-state={bossSpriteState}
           >
-            <HomeCharacterImg src={`${HOME_ASSET_DIR}/home-boss.png`} emoji="🧳" className="home-boss-img" />
+            {bossSpriteSrc ? (
+              <img
+                className="home-boss-img"
+                src={bossSpriteSrc}
+                alt=""
+                draggable={false}
+                onError={() => setBrokenSpritePaths((prev) => ({ ...prev, [bossSpriteSrc]: true }))}
+              />
+            ) : (
+              <span className="home-char-fallback home-boss-img" aria-hidden="true">🧳</span>
+            )}
             <span className="home-boss-plate">{view.bossName}</span>
           </button>
 
