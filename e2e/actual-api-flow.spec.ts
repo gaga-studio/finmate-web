@@ -35,7 +35,7 @@ test('runs the representative flow against the demo-profile API', async ({ page 
     ['새 퀘스트 XP 리포트 보기', '해냄새'],
   ]) {
     await page.goto('/home')
-    await page.getByRole('button', { name: label }).first().click()
+    await page.locator(`button.home-stat-card[aria-label="${label}"]`).click()
     await expect(page.getByRole('heading', { name: characterName })).toBeVisible()
   }
   await page.getByRole('button', { name: '홈으로' }).click()
@@ -62,6 +62,7 @@ test('runs the representative flow against the demo-profile API', async ({ page 
   await page.goto('/mates/friends')
   await expect(page.getByRole('heading', { name: /친구 \d+명 중 \d+명이/ })).toBeVisible()
   await expect(page.getByText('읽기 전용').first()).toBeVisible()
+  await expect(page.getByRole('button', { name: /응원/ })).toHaveCount(0)
   await page.goto('/mates/explore')
   await page.getByRole('button', { name: /검색하기/ }).click()
   await expect(page.locator('a[href*="/adventurer/"]')).toHaveCount(6)
@@ -109,7 +110,7 @@ test('runs the representative flow against the demo-profile API', async ({ page 
   await expect(page.getByText(/완료했어요|행동을 기록했어요/)).toBeVisible()
 
   await page.getByRole('link', { name: '기록', exact: true }).click()
-  await page.getByRole('button', { name: /기록 상세 보기$/ }).first().click()
+  await page.locator('button.roadmap-stone:not([disabled])').first().click()
   const recordDialog = page.getByRole('dialog')
   await expect(recordDialog).toBeVisible()
   await expect(recordDialog.getByRole('heading', { name: '활동 내역' })).toBeVisible()

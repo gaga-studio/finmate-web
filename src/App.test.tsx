@@ -40,6 +40,7 @@ describe('FinMate representative flow', () => {
     const choice = screen.getByRole('button', { name: '정기 소득 · 자취 중이에요' })
     await user.click(choice)
     expect(choice).toHaveAttribute('aria-pressed', 'true')
+    expect(choice.querySelector('.option-card-check')).toHaveTextContent('✓')
 
     await user.click(screen.getByRole('button', { name: '다음' }))
     await user.click(screen.getByRole('button', { name: '저축을 꾸준히 하고 싶어요' }))
@@ -113,6 +114,14 @@ describe('FinMate representative flow', () => {
     expect(screen.getByRole('link', { name: '목표 설정' })).toHaveAttribute('href', '/goal/confirm')
   })
 
+  it('presents query loading as an accessible centered progress panel', () => {
+    renderApp('/home')
+
+    const loadingState = screen.getByRole('status', { name: '데이터 불러오는 중' })
+    expect(loadingState).toHaveTextContent('불러오는 중')
+    expect(loadingState.querySelector('.state-spinner')).not.toBeNull()
+  })
+
   it('explains the calculated baseline before goal confirmation', async () => {
     renderApp('/onboarding/baseline')
 
@@ -176,6 +185,8 @@ describe('FinMate representative flow', () => {
     renderApp('/mates/group/budget')
 
     expect(await screen.findByRole('heading', { name: '생활비 탐험대' })).toBeInTheDocument()
+    expect(document.querySelector('.mate-view-enter')).not.toBeNull()
+    expect(screen.getByRole('link', { name: /남쪽의 모험가/ })).toHaveClass('mate-interactive-card')
   })
 
   it('frames mate discovery around anonymous routines without public ranking', async () => {
@@ -184,7 +195,7 @@ describe('FinMate representative flow', () => {
     const groupHeading = await screen.findByRole('heading', { name: '나와 비슷한 그룹' })
     expect(groupHeading.closest('.mate-group-section')).not.toBeNull()
     expect(groupHeading.closest('.mate-card')).toBeNull()
-    expect(document.querySelector('.mate-group-section > .mate-group-card')).not.toBeNull()
+    expect(document.querySelector('.mate-group-section > .mate-group-card')).toHaveAttribute('href', '/mates/group/savers')
     expect(screen.getByRole('heading', { name: '추천 유사그룹' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /꾸준저축 원정대/ })).toHaveClass('mate-group-recommendation-card')
     expect(screen.getByRole('link', { name: /생활비 탐험대/ })).toBeInTheDocument()
@@ -192,14 +203,34 @@ describe('FinMate representative flow', () => {
     expect(screen.queryByText(/Hana Card|SAMSUNG|toss/)).not.toBeInTheDocument()
   })
 
-  it('shows read-only friend activity without amounts or ranking', async () => {
+  it('lets users cheer completed friend activity without exposing amounts or ranking', async () => {
+    const user = userEvent.setup()
     renderApp('/mates/friends')
 
     expect(await screen.findByRole('heading', { name: /친구 4명 중 3명이/ })).toBeInTheDocument()
     expect(screen.getByText('오늘의 퀘스트를 완료했어요')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: '금융 근황 피드' }).closest('section')).toHaveTextContent('자동저축 확인 루틴을 이어갔어요.')
+    const cheerButton = screen.getByRole('button', { name: '차분한 토끼 응원' })
+    expect(screen.getAllByRole('button', { name: /응원$/ })).toHaveLength(2)
+    expect(cheerButton).toHaveAttribute('aria-pressed', 'false')
+    await user.click(cheerButton)
+    expect(cheerButton).toHaveAttribute('aria-pressed', 'true')
+    expect(cheerButton).toHaveTextContent('응원됨')
     expect(screen.getByText(/12일째/)).toBeInTheDocument()
-    expect(screen.queryByText(/원|랭킹|1위/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/\d[\d,]*원|랭킹|1위/)).not.toBeInTheDocument()
+  })
+
+  it('keeps an empty friend feed explicitly read-only', async () => {
+    server.use(
+      http.get('/api/v1/mate/friends/overview', () => HttpResponse.json({ friendCount: 0, completedToday: 0, readOnly: true, friends: [] })),
+      http.get('/api/v1/mate/friends/feed', () => HttpResponse.json({ readOnly: true, items: [] })),
+      http.get('/api/v1/mate/friends/streaks', () => HttpResponse.json({ readOnly: true, items: [] })),
+    )
+    renderApp('/mates/friends')
+
+    expect(await screen.findByRole('heading', { name: '친구 0명 중 0명이' })).toBeInTheDocument()
+    expect(screen.getByText('읽기 전용')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /응원/ })).not.toBeInTheDocument()
   })
 
   it('searches approved comparison filters and opens an anonymous adventurer', async () => {

@@ -2698,3 +2698,200 @@
     grid-template-columns: 62px minmax(0, 1fr) auto;
   }
 }
+
+/* AI Studio visual pass, adapted to the production route and data model. */
+.mate-view-enter {
+  animation: mate-view-enter .4s cubic-bezier(.22, .8, .3, 1) both;
+}
+
+.screen-mate-main .mate-group-primary-link {
+  grid-template-columns: minmax(0, 1fr) 132px;
+  grid-template-rows: auto auto;
+  color: inherit;
+  text-decoration: none;
+  transition:
+    transform var(--motion-fast),
+    border-color var(--motion-fast),
+    box-shadow var(--motion-fast);
+}
+
+.screen-mate-main .mate-group-primary-link .mate-group-copy {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.screen-mate-main .mate-group-primary-link .mate-group-trio {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+}
+
+.mate-group-primary-action {
+  grid-column: 1;
+  grid-row: 2;
+  display: inline-flex;
+  align-items: center;
+  align-self: end;
+  gap: 4px;
+  width: fit-content;
+  color: var(--teal-600);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.mate-group-primary-action svg {
+  transition: transform var(--motion-fast);
+}
+
+.mate-feed-copy {
+  display: grid;
+  gap: 2px;
+}
+
+.mate-feed-copy > span {
+  min-width: 0;
+  color: var(--ink-500);
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.mate-feed-actions {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.mate-cheer-button {
+  position: relative;
+  min-height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 1px solid rgba(0, 149, 145, .18);
+  border-radius: var(--r-pill);
+  padding: 5px 9px;
+  color: var(--teal-600);
+  background: rgba(255, 255, 255, .9);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 900;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    transform var(--motion-fast),
+    color var(--motion-fast),
+    border-color var(--motion-fast),
+    background var(--motion-fast);
+}
+
+.mate-cheer-button:active {
+  transform: scale(.94);
+}
+
+.mate-cheer-button.is-cheered {
+  border-color: rgba(244, 63, 94, .2);
+  color: #E63E64;
+  background: #FFF0F4;
+}
+
+.mate-cheer-burst {
+  position: absolute;
+  left: 50%;
+  top: 2px;
+  color: #F43F5E;
+  font-size: 14px;
+  font-style: normal;
+  pointer-events: none;
+  animation: mate-cheer-rise .8s ease-out both;
+}
+
+.mate-friend-avatar-slot {
+  display: inline-flex;
+}
+
+.mate-interactive-card {
+  transition:
+    transform var(--motion-fast),
+    border-color var(--motion-fast),
+    background var(--motion-fast),
+    box-shadow var(--motion-fast);
+}
+
+@media (hover: hover) {
+  .screen-mate-main .mate-group-primary-link:hover {
+    border-color: rgba(0, 149, 145, .34);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, .94),
+      0 18px 34px rgba(83, 158, 153, .18);
+    transform: translateY(-2px) scale(1.005);
+  }
+
+  .screen-mate-main .mate-group-primary-link:hover .mate-group-primary-action svg {
+    transform: translateX(3px);
+  }
+
+  .mate-interactive-card:hover,
+  .mate-feed-item-polished:hover,
+  .mate-streak-row:hover {
+    border-color: rgba(0, 149, 145, .2);
+    background: rgba(239, 253, 250, .92);
+    transform: translateY(-1px);
+  }
+
+  .mate-cheer-button:hover {
+    border-color: rgba(0, 149, 145, .35);
+    background: var(--teal-50);
+  }
+}
+
+@media (max-width: 390px) {
+  .mate-feed-item-polished {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .mate-feed-actions {
+    grid-column: 2;
+    justify-content: space-between;
+  }
+
+  .screen-mate-main .mate-group-primary-link {
+    gap: 10px;
+    padding: 16px;
+  }
+}
+
+@keyframes mate-view-enter {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mate-cheer-rise {
+  from {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(.6);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -42px) scale(1.7);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mate-view-enter,
+  .mate-cheer-burst {
+    animation: none;
+  }
+
+  .mate-interactive-card,
+  .screen-mate-main .mate-group-primary-link {
+    transition: none;
+  }
+}

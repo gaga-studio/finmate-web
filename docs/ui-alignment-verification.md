@@ -49,6 +49,33 @@ Mock payloads, copy rules, component props, dependencies, and four-tab IA remain
 The new source auth entry, branded product media, external image URLs, ranking/product content,
 immediate financial-stat gain language, and legacy interactions were not imported.
 
+## AI Studio selective-integration boundary
+
+The public AI Studio app `bb02f8c2-0599-4b8f-b310-64b2efe7945c` was exported on
+2026-07-17 and compared against both its detected `adfaa31` source baseline and the
+current `codex/sync-frontdesign-dca4837` tree. Its centered loading treatment, compact
+onboarding selection state, combat-number motion, mate entry/hover treatment, linked
+primary-group promotion, and local-only friend cheer interaction were recreated with
+the existing React and CSS stack.
+
+The export's CDN asset helper, enlarged/re-encoded binaries, demo credentials, hardcoded
+record month, automatic comparison search, browser-history back buttons, service-worker
+removal, generated API replacement, in-process Mock replacement, Tailwind import, and
+`motion` dependency were rejected. This keeps production assets local and preserves all
+current route, query, API, month-safety, record-safety, and `dca4837` layout behavior.
+The original 58 asset hashes remain unchanged.
+
+### AI Studio integration verification result
+
+- Unit/component tests: 44/44
+- TypeScript typecheck: passed
+- OXLint: passed
+- Production build: passed
+- Mock browser E2E: 1/1
+- Actual-API browser E2E: 4/4
+- 360px, 390px, and 430px horizontal-overflow, console, and image checks: passed
+- Frozen asset verification: 58/58
+
 ### `dca4837` verification result
 
 - Unit/component tests: 42/42

@@ -13,7 +13,7 @@ export function MateGroupDetailView({
   adventurers: Schema['RecommendedAdventurerCard'][]
 }) {
   return (
-    <div className="mate-tab-stack">
+    <div className="mate-tab-stack mate-view-enter">
       <MateSectionCard className="mate-group-card" eyebrowIcon="profile" title={group.name} subtitle="비슷한 출발점에서 꾸준히 유지한 루틴을 살펴보세요.">
         <div className="mate-group-copy"><p>{group.memberCount}명의 익명 모험가</p><div className="mate-group-trio"><MateAvatar species="bird" size={86} fit="contain"/><MateAvatar species={adventurerSpecies(group.groupId)} size={86} fit="contain"/><MateAvatar species="otter" size={86} fit="contain"/></div></div>
       </MateSectionCard>
@@ -23,7 +23,7 @@ export function MateGroupDetailView({
           const routine = adventurer.routines[0]
           return (
           <Link
-            className="mate-anonymous-card"
+            className="mate-anonymous-card mate-interactive-card"
             to={`/mates/group/${group.groupId}/adventurer/${adventurer.adventurerId}`}
             key={adventurer.adventurerId}
           >
@@ -41,7 +41,7 @@ export function MateGroupDetailView({
 export function AdventurerRoutineIntro({ routine }: { routine: Schema['AdventurerRoutine'] }) {
   const alias = routine.groupId === 'budget' ? '남쪽의 모험가' : '북쪽의 모험가'
   return (
-    <section className="screen-stack tab-main-stack mate-profile-detail-stack">
+    <section className="screen-stack tab-main-stack mate-profile-detail-stack mate-view-enter">
       <section className="mate-card mate-adventurer-card"><div className="mate-adventurer-body"><MateAvatar species={adventurerSpecies(routine.groupId)} size={118} fit="contain" className="mate-adventurer-avatar"/><div><span className="mate-adventurer-match">추천 익명 모험가</span><h1 className="mate-adventurer-name">{alias}</h1><p className="mate-adventurer-tagline">나와 비슷한 생활 조건에서 목표를 달성했어요.</p></div></div></section>
       <MateSectionCard eyebrowIcon="spark" title={routine.title} subtitle="검증된 루틴"><div className="mate-maintenance-summary"><CalendarCheck size={21}/><strong>{routine.maintenanceDays}일 유지</strong></div><ol className="mate-reason-list">{routine.steps.map((step) => <li key={step}>{step}</li>)}</ol></MateSectionCard>
       <aside className="mate-banner"><ShieldCheck size={20}/><p>상대의 정확한 금액은 복사하지 않고 내 여윳돈과 목표에 맞춰 다시 계산해요.</p></aside>

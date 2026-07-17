@@ -157,10 +157,31 @@ the approved IA intentionally changes content, goal semantics, tab labels, and r
 features. Asset identity, source CSS identity, viewport behavior, and screen-by-screen composition
 are verified separately.
 
+### AI Studio app selective integration
+
+- Source app: `https://ai.studio/apps/bb02f8c2-0599-4b8f-b310-64b2efe7945c`
+- Export: `finmate.zip`, 40,608,956 bytes, downloaded 2026-07-17 13:33 KST
+- Export SHA-256:
+  `b22bf4683a3fdb157bcac823b185717ca43a20bcedc5a604af2c5a4adb618ecb`
+- Detected source baseline: `finmate-web@adfaa31`
+- Included: accessible loading treatment, compact onboarding selection treatment,
+  home combat-number animation, mate entry/hover polish, linked primary group card,
+  and local-only friend cheer interaction
+- Preserved: current OpenAPI and generated types, React Query hooks, routes, MSW/API
+  behavior, deterministic month handling, `frontdesign@dca4837` layouts, dependencies,
+  and all 58 asset hashes
+- Excluded: CDN and cache-busting asset rewrites, exported binary replacements,
+  prefilled credentials, hardcoded dates, automatic search, service-worker removal,
+  in-process mock replacement, Tailwind, and `motion`
+- Verification: Vitest 44/44, typecheck, lint, production build, Mock E2E 1/1,
+  actual-API E2E 4/4, 360/390/430px overflow and image checks, and 58/58 asset
+  hashes all pass
+
 ## Sign-off
 
 - Design handoff audit: Codex, `2026-07-14`
 - `frontdesign@dca4837` selective sync: Codex, `2026-07-16`
+- AI Studio app selective integration: Codex, `2026-07-17`
 - Product/asset license owner confirmation: pending
 - Frontend owner review: pending
 - Next review: stacked Draft PR review and product/asset license confirmation

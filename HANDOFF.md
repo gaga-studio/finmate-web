@@ -81,6 +81,32 @@ IA와 공개 컴포넌트 인터페이스는 유지했다.
 최종 검증 수치와 화면별 상태는 [`HANDOFF_MANIFEST.md`](HANDOFF_MANIFEST.md)와
 [`docs/screen-inventory.md`](docs/screen-inventory.md)에 기록한다.
 
+## AI Studio 앱 선택 이식
+
+2026-07-17에 공개 AI Studio 앱
+`bb02f8c2-0599-4b8f-b310-64b2efe7945c`를 ZIP으로 내보내 현재 운영 브랜치와
+3-way 비교했다. 내보낸 소스의 공통 기준점은 `finmate-web@adfaa31`이었으므로,
+그 이후 운영 API·라우트·`frontdesign@dca4837` 시각 동기화를 되돌리지 않고
+AI Studio에서 새로 만든 표현만 현재 DOM에 맞춰 다시 구현했다.
+
+포함 범위는 접근 가능한 로딩 패널, 온보딩 선택 표시와 세로 공간 보정, 홈 전투
+수치 애니메이션, 메이트 화면 진입·호버 효과, 클릭 가능한 대표 그룹 카드, 완료된
+친구 활동의 로컬 응원 토글이다. 응원 상태는 서버 쓰기 없이 현재 화면의 로컬
+상태로만 유지한다.
+
+다음 AI Studio 전용 변경은 이식하지 않았다.
+
+- 외부 jsDelivr 에셋 URL, `assetHelper.ts`, 캐시 무효화 쿼리
+- 손상된 ZIP 바이너리와 신규 정적 자산
+- 가입 폼의 기본 이메일·비밀번호와 기록 월 하드코딩
+- 서비스 워커 비활성화, 대형 인프로세스 Mock, API·생성 타입 교체
+- 비교 탐색 자동 실행과 브라우저 히스토리 기반 뒤로가기
+- Tailwind 런타임과 `motion` 의존성
+
+ZIP SHA-256은
+`b22bf4683a3fdb157bcac823b185717ca43a20bcedc5a604af2c5a4adb618ecb`이며,
+기존 58개 운영 에셋 해시는 변경하지 않았다.
+
 ## 1차 판정
 
 | 범위 | 판정 | 이유 |

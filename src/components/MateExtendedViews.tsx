@@ -1,7 +1,10 @@
+import { useState } from 'react'
 import {
   ArrowLeft,
   ChevronRight,
+  Heart,
   ShieldCheck,
+  Sparkles,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { MateExploreSearchPage, Schema } from '../api/client'
@@ -50,8 +53,40 @@ export function FriendOverviewView({
   feed: Schema['MateFriendFeed']
   streaks: Schema['MateStreakPage']
 }) {
-  return <div className="mate-tab-stack"><MateSectionCard className="mate-friend-summary" eyebrowIcon="profile" title={<>친구 {overview.friendCount}명 중 <b style={{ color: 'var(--teal-600)' }}>{overview.completedToday}</b>명이</>} subtitle="오늘의 퀘스트를 완료했어요" action={<div className="mate-friend-slots">{overview.friends.map((friend) => <MateAvatar key={friend.friendId} species={speciesFor(friend.avatarCode)} size={54} fit="contain" locked={!friend.questCompletedToday} badge={friend.questCompletedToday ? '✓' : undefined}/>)}</div>}/>
-    <MateSectionCard eyebrowIcon="spark" title="금융 근황 피드" action={<span className="mate-card-link">읽기 전용</span>}><div className="mate-feed-list">{feed.items.map((item) => <div className="mate-feed-item" key={`${item.friendId}-${item.occurredAt}`}><MateAvatar species={speciesFor(item.avatarCode)} size={48} fit="contain"/><span className="mate-feed-copy"><b>{item.alias}</b>가 {item.message}</span><span className={`mate-feed-stat ${item.completed ? 'teal' : 'warning'}`}>{item.completed ? '완료' : '진행 중'}</span></div>)}</div></MateSectionCard>
+  const [cheeredIds, setCheeredIds] = useState<Set<string>>(() => new Set())
+  const toggleCheer = (key: string) => {
+    setCheeredIds((current) => {
+      const next = new Set(current)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }
+  const canCheer = feed.items.some((item) => item.completed)
+
+  return <div className="mate-tab-stack mate-view-enter"><MateSectionCard className="mate-friend-summary" eyebrowIcon="profile" title={<>친구 {overview.friendCount}명 중 <b style={{ color: 'var(--teal-600)' }}>{overview.completedToday}</b>명이</>} subtitle="오늘의 퀘스트를 완료했어요" action={<div className="mate-friend-slots">{overview.friends.map((friend) => <span className="mate-friend-avatar-slot" title={friend.alias} key={friend.friendId}><MateAvatar species={speciesFor(friend.avatarCode)} size={54} fit="contain" locked={!friend.questCompletedToday} badge={friend.questCompletedToday ? '✓' : undefined}/></span>)}</div>}/>
+    <MateSectionCard eyebrowIcon="spark" title="금융 근황 피드" action={<span className="mate-card-link">{canCheer ? '응원 가능' : '읽기 전용'}</span>}><div className="mate-feed-list">{feed.items.map((item) => {
+      const key = `${item.friendId}-${item.occurredAt}`
+      const isCheered = cheeredIds.has(key)
+      return <div className="mate-feed-item mate-feed-item-polished" key={key}>
+        <MateAvatar species={speciesFor(item.avatarCode)} size={48} fit="contain"/>
+        <span className="mate-feed-copy"><b>{item.alias}</b><span>{item.message}</span></span>
+        <span className="mate-feed-actions">
+          <span className={`mate-feed-stat ${item.completed ? 'teal' : 'warning'}`}>{item.completed ? '완료' : '진행 중'}</span>
+          {item.completed ? <button
+            aria-label={`${item.alias} ${isCheered ? '응원 취소' : '응원'}`}
+            aria-pressed={isCheered}
+            className={`mate-cheer-button${isCheered ? ' is-cheered' : ''}`}
+            type="button"
+            onClick={() => toggleCheer(key)}
+          >
+            {isCheered ? <Heart size={13} fill="currentColor"/> : <Sparkles size={13}/>}
+            <span>{isCheered ? '응원됨' : '응원'}</span>
+            {isCheered ? <i className="mate-cheer-burst" aria-hidden="true">♥</i> : null}
+          </button> : null}
+        </span>
+      </div>
+    })}</div></MateSectionCard>
     <MateSectionCard eyebrowIcon="gift" title="연속기록"><div className="mate-streak-list">{streaks.items.map((item) => <div className="mate-streak-row" key={item.friendId}><div className="mate-streak-avatars"><MateAvatar species="me" size={52} fit="contain"/><MateAvatar species="rabbit" size={52} fit="contain"/></div><div className="mate-streak-copy"><strong>🔥 {item.alias}와 {item.daysTogether}일째</strong><span>{item.label}</span></div></div>)}</div><p className="mate-streak-note">공개 순위 없이 함께 이어온 행동만 확인해요.</p></MateSectionCard>
     <div className="mate-banner"><MateAvatar species="coach" size={86} fit="contain" className="mate-coach-avatar"/><p>정확한 금액 없이 친구가 이어온 금융 행동만 가볍게 확인해요.</p></div>
   </div>
@@ -59,7 +94,7 @@ export function FriendOverviewView({
 
 export function GroupInsightView({ report }: { report: Schema['MateGroupReport'] }) {
   return (
-    <div className="mate-tab-stack">
+    <div className="mate-tab-stack mate-view-enter">
       <MateSectionCard eyebrowIcon="spark" title="이 그룹이 추천된 이유" subtitle="정확 금액 대신 생활 맥락과 금융 습관 범위를 비교해요.">
         <ul className="mate-reason-list">{report.selectionReasons.map((reason) => <li key={reason}>{reason}</li>)}</ul>
       </MateSectionCard>
@@ -89,7 +124,7 @@ export function ExploreResults({ results }: { results: MateExploreSearchPage | n
   if (!results) return <EmptyState title="비교 조건을 정해보세요" subtitle="검수된 조합 안에서 나와 비슷한 합성 모험가를 찾아드려요." />
   if (results.items.length === 0) return <EmptyState title="조건에 맞는 모험가가 없어요" subtitle="금융여력 조건은 유지하고 생활 조건을 한 단계 넓혀보세요." />
   return (
-    <section className="mate-card mate-explore-results-card">
+    <section className="mate-card mate-explore-results-card mate-view-enter">
       <header className="mate-explore-results-head">
         <span>추천 결과{dataSource ? ` · ${dataSource}` : ''}</span>
         <h2>{results.items.length}명의 익명 모험가</h2>
@@ -97,7 +132,7 @@ export function ExploreResults({ results }: { results: MateExploreSearchPage | n
       </header>
       <div className="mate-anonymous-list">
         {results.items.map((adventurer) => (
-          <Link className="mate-anonymous-card" to={`/mates/group/${adventurer.groupId}/adventurer/${adventurer.adventurerId}`} key={adventurer.adventurerId}>
+          <Link className="mate-anonymous-card mate-interactive-card" to={`/mates/group/${adventurer.groupId}/adventurer/${adventurer.adventurerId}`} key={adventurer.adventurerId}>
             <MateAvatar species={speciesFor(adventurer.adventurerId)} size={82} fit="contain" className="mate-anonymous-avatar" />
             <span className="mate-anonymous-copy"><strong>{adventurer.alias}</strong><small>{adventurer.representativeRoutine.title} · {adventurer.maintenanceDays}일</small><em>{adventurer.contextTags.join(' · ')}</em></span>
             <span className="mate-anonymous-stat-strip"><i>{routineDomainLabel(adventurer.representativeRoutine.domain)} · 유사도 {percent(adventurer.similarityScoreBps)}</i><ChevronRight size={18} /></span>
@@ -110,7 +145,7 @@ export function ExploreResults({ results }: { results: MateExploreSearchPage | n
 
 export function AdventurerProfileView({ adventurer }: { adventurer: Schema['RecommendedAdventurerCard'] }) {
   return (
-    <section className="screen-stack tab-main-stack mate-profile-detail-stack">
+    <section className="screen-stack tab-main-stack mate-profile-detail-stack mate-view-enter">
       <Link className="mate-back-link" to={`/mates/group/${adventurer.groupId}`}><ArrowLeft size={19} />그룹으로</Link>
       <section className="mate-card mate-adventurer-card">
         <div className="mate-adventurer-top"><span className="mate-adventurer-match">추천 익명 모험가</span><span className="mate-card-link">검증 {new Date(adventurer.verifiedAt).toLocaleDateString('ko-KR')}</span></div>
@@ -130,7 +165,7 @@ export function AdventurerProfileView({ adventurer }: { adventurer: Schema['Reco
 export function AdventurerReportView({ report }: { report: Schema['AdventurerReport'] }) {
   const routine = report.adventurer.routines[0]
   return (
-    <section className="screen-stack tab-main-stack mate-profile-detail-stack">
+    <section className="screen-stack tab-main-stack mate-profile-detail-stack mate-view-enter">
       <Link className="mate-back-link" to={`/mates/group/${report.adventurer.groupId}/adventurer/${report.adventurer.adventurerId}`}><ArrowLeft size={19}/>모험가로</Link>
       <section className="mate-card mate-adventurer-card">
         <div className="mate-adventurer-body"><MateAvatar species="me" size={92} fit="contain"/><div><span className="mate-adventurer-match">익명 1:1 비교</span><h1 className="mate-adventurer-name">나와 {report.adventurer.alias}</h1><p className="mate-adventurer-tagline">순위가 아니라 습관 범위를 비교해요.</p></div><MateAvatar species={speciesFor(report.adventurer.groupId)} size={92} fit="contain"/></div>
