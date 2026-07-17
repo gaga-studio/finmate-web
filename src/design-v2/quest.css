@@ -517,6 +517,8 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
+  border-radius: var(--r-lg);
+  padding: 18px 20px;
   text-align: left;
   background: linear-gradient(150deg, #FFF7E6 0%, #FFF1CF 100%);
   border-color: #FBE3A6;
@@ -565,10 +567,17 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-2);
+  gap: 10px;
+  min-height: 64px;
   border-radius: var(--r-md);
-  padding: var(--space-2) var(--space-3);
+  padding: 10px 12px;
   background: var(--paper);
+}
+
+.quest-point-row .quest-icon {
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #FFF3D6, #FFE9B0);
 }
 
 .quest-point-copy {
@@ -578,23 +587,27 @@
 }
 
 .quest-point-copy strong {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 800;
   color: var(--ink-800);
   word-break: keep-all;
 }
 
 .quest-point-copy small {
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 600;
   color: var(--ink-500);
 }
 
 .quest-point-amount {
   flex: 0 0 auto;
+  border-radius: var(--r-pill);
+  padding: 5px 10px;
+  background: #FFF3D6;
+  color: #A66A00;
   font-size: 13px;
   font-weight: 800;
-  color: var(--teal-600);
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
