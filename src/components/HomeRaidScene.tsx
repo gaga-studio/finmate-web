@@ -2,6 +2,7 @@ import { useCallback, useLayoutEffect, useRef, useState } from 'react'
 import type { Schema } from '../api/client'
 import { AppIcon } from '../design-v2/primitives'
 import { HOME_ASSET_DIR, HomeCharacterImg, HomeHPBar } from '../design-v2/HomeShared'
+import { MateAvatar } from '../design-v2/MateShared'
 import type { CharacterAssetStem, HomeBattleViewModel } from '../design-v2/viewModels'
 import {
   ORBIT_CONFIGS,
@@ -317,6 +318,19 @@ export function HomeRaidScene({
           ))}
         </div>
 
+        {view.goalTitle && view.goalCurrentAmountKrw !== null && view.goalTargetAmountKrw !== null ? (
+          <section className="home-goal-progress" aria-label="목표 진행 현황">
+            <div className="home-goal-progress-head">
+              <strong>{view.goalTitle}</strong>
+              <b>달성률 {view.goalProgressPercent}%</b>
+            </div>
+            <div className="home-goal-progress-body">
+              <HomeHPBar percent={view.goalProgressPercent} tone="green" />
+              <span>현재 {view.goalCurrentAmountKrw.toLocaleString('ko-KR')}원 · 목표까지 {Math.max(0, view.goalTargetAmountKrw - view.goalCurrentAmountKrw).toLocaleString('ko-KR')}원</span>
+            </div>
+          </section>
+        ) : null}
+
         <div className="home-action-row">
           {view.party.map((member) => (
             <div className="home-action-slot" key={member.animal}>
@@ -378,7 +392,7 @@ export function HomeRaidScene({
         </div>
 
         <section className="mate-coach-card">
-          <img className="mate-coach-avatar" src="/assets/characters/mate/mate-coach-wizard.png" alt="AI 코치" />
+          <MateAvatar species="coach" size={86} fit="contain" className="mate-coach-avatar"/>
           <div className="mate-coach-copy">
             <span className="mate-coach-name">AI 코치</span>
             <p>{view.raidStatus === 'WAITING_FOR_DATA' ? '행동은 기록됐어요. 새 금융데이터가 확인되면 레이드가 갱신돼요.' : '퀘스트는 XP를, 확인된 금융데이터는 레이드 진행을 바꿔요.'}</p>

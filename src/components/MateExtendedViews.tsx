@@ -1,5 +1,5 @@
 import {
-  ArrowLeft,
+  ChevronLeft,
   ChevronRight,
   ShieldCheck,
 } from 'lucide-react'
@@ -36,8 +36,8 @@ export function MateSectionNav({ active }: { active: 'friends' | 'groups' | 'exp
   )
 }
 
-export function MateTopHeader({ subtitle, pointBalance }: { subtitle: string; pointBalance: number }) {
-  return <><div className="mate-reference-status roadmap-status" aria-hidden="true"><strong>9:41</strong><span><i/><i/><i/></span></div><header className="mate-hero-header mate-reference-topline"><div><h1>메이트</h1><p>{subtitle}</p></div><div className="mate-top-bar"><MatePointPill value={pointBalance}/><Link className="mate-top-avatar-button" to="/settings" aria-label="공개 범위와 설정"><MateAvatar species="me" size={52} fit="contain" className="mate-top-avatar"/></Link></div></header></>
+export function MateTopHeader({ subtitle, pointBalance, title = '메이트' }: { subtitle: string; pointBalance: number; title?: string }) {
+  return <><div className="mate-reference-status roadmap-status" aria-hidden="true"><strong>9:41</strong><span><i/><i/><i/></span></div><header className="mate-hero-header mate-reference-topline"><div><h1>{title}</h1><p>{subtitle}</p></div><div className="mate-top-bar"><MatePointPill value={pointBalance}/><Link className="mate-top-avatar-button" to="/settings" aria-label="공개 범위와 설정"><MateAvatar species="me" size={52} fit="contain" className="mate-top-avatar"/></Link></div></header></>
 }
 
 export function FriendOverviewView({
@@ -96,7 +96,7 @@ export function ExploreResults({ results }: { results: Schema['RecommendedAdvent
 export function AdventurerProfileView({ adventurer }: { adventurer: Schema['RecommendedAdventurerCard'] }) {
   return (
     <section className="screen-stack tab-main-stack mate-profile-detail-stack">
-      <Link className="mate-back-link" to={`/mates/group/${adventurer.groupId}`}><ArrowLeft size={19} />그룹으로</Link>
+      <Link className="mate-back-link" to={`/mates/group/${adventurer.groupId}`}><ChevronLeft size={18} />그룹으로</Link>
       <section className="mate-card mate-adventurer-card">
         <div className="mate-adventurer-top"><span className="mate-adventurer-match">추천 익명 모험가</span><span className="mate-card-link">검증 {new Date(adventurer.verifiedAt).toLocaleDateString('ko-KR')}</span></div>
         <div className="mate-adventurer-body"><MateAvatar species={speciesFor(adventurer.groupId)} size={118} fit="contain" className="mate-adventurer-avatar"/><div><h1 className="mate-adventurer-name">{adventurer.alias}</h1><p className="mate-adventurer-tagline">{adventurer.goalAchievementLabel}</p></div></div>
@@ -116,7 +116,7 @@ export function AdventurerReportView({ report }: { report: Schema['AdventurerRep
   const routine = report.adventurer.routines[0]
   return (
     <section className="screen-stack tab-main-stack mate-profile-detail-stack">
-      <Link className="mate-back-link" to={`/mates/group/${report.adventurer.groupId}/adventurer/${report.adventurer.adventurerId}`}><ArrowLeft size={19}/>모험가로</Link>
+      <Link className="mate-back-link" to={`/mates/group/${report.adventurer.groupId}/adventurer/${report.adventurer.adventurerId}`}><ChevronLeft size={18}/>모험가로</Link>
       <section className="mate-card mate-adventurer-card">
         <div className="mate-adventurer-body"><MateAvatar species="me" size={92} fit="contain"/><div><span className="mate-adventurer-match">익명 1:1 비교</span><h1 className="mate-adventurer-name">나와 {report.adventurer.alias}</h1><p className="mate-adventurer-tagline">순위가 아니라 습관 범위를 비교해요.</p></div><MateAvatar species={speciesFor(report.adventurer.groupId)} size={92} fit="contain"/></div>
       </section>

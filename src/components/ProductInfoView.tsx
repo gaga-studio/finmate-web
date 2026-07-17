@@ -1,4 +1,4 @@
-import { ArrowLeft, CalendarDays, ExternalLink, Info, ShieldCheck } from 'lucide-react'
+import { CalendarDays, ChevronLeft, ExternalLink, Info, ShieldCheck } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { Schema } from '../api/client'
 import { MateSectionCard, RpgIcon } from '../design-v2/MateShared'
@@ -6,7 +6,7 @@ import { MateSectionCard, RpgIcon } from '../design-v2/MateShared'
 export function ProductInfoView({ product }: { product: Schema['RelatedHanaProductInfo'] }) {
   return (
     <section className="screen screen-compare compare-flow-screen product-info-screen">
-      <header className="compare-flow-header"><Link className="mate-back-link" to="/mates"><ArrowLeft size={19}/>메이트로</Link><h1>하나 상품 정보</h1></header>
+      <header className="compare-flow-header"><Link className="mate-back-link" to="/mates"><ChevronLeft size={18}/>메이트로</Link><h1>하나 상품 정보</h1></header>
       <section className="compare-flow-body mate-tab-stack"><section className="mate-card product-info-hero"><RpgIcon name="piggy" fallback="₩" size={72}/><span className="mate-adventurer-match">관련 금융 정보</span><h1>{product.displayName}</h1><p>{product.category} · {product.relatedRoutineDomain === 'SAVING' ? '저축 루틴 참고' : '생활 루틴 참고'}</p></section>
       <aside className="mate-banner"><ShieldCheck size={22}/><p><strong>루틴과 상품 정보는 분리돼요.</strong> 이 페이지를 열어도 XP, 금융 스탯, 레이드 진행률은 바뀌지 않아요.</p></aside>
       <MateSectionCard title="주요 조건" action={<Info size={21}/>}><ul className="mate-reason-list">{product.keyConditions.map((condition) => <li key={condition}>{condition}</li>)}</ul></MateSectionCard>

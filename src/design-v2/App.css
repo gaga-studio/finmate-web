@@ -5978,6 +5978,7 @@ button.profile-activity-row:active {
   font-size: 14px;
   font-weight: 700;
   color: var(--ink-800);
+  text-decoration: none;
   background: linear-gradient(180deg, rgba(255, 255, 255, .96) 0%, color-mix(in srgb, var(--surface-muted) 88%, white 12%) 100%);
   box-shadow: var(--clay-shadow-soft);
   cursor: pointer;
@@ -6412,7 +6413,7 @@ button.profile-activity-row:active {
 }
 
 .roadmap-stone.is-selected {
-  outline: 3px solid rgba(0, 149, 145, .28);
+  outline: 3px solid rgba(0, 132, 133, .28);
   outline-offset: 2px;
 }
 
@@ -7343,6 +7344,7 @@ button.journey-card {
   align-content: start;
   gap: var(--space-4);
   padding-bottom: var(--space-6);
+  background: linear-gradient(180deg, var(--teal-50) 0%, var(--surface) 300px);
 }
 
 .auth-hero {
@@ -7358,7 +7360,10 @@ button.journey-card {
   padding: var(--space-5);
   border: 1px solid var(--teal-100);
   border-radius: var(--r-lg);
-  background: var(--teal-50);
+  background:
+    radial-gradient(120% 95% at 90% 8%, color-mix(in srgb, var(--teal-100) 60%, transparent) 0%, transparent 58%),
+    linear-gradient(155deg, var(--teal-50) 0%, var(--surface) 125%);
+  box-shadow: var(--shadow-2);
 }
 
 .auth-hero .surface-label,
@@ -7366,13 +7371,23 @@ button.journey-card {
   grid-area: label;
 }
 
-.auth-hero img {
+.auth-hero .auth-brand-logo {
+  grid-area: label;
+  width: 118px;
+  max-width: 46%;
+  height: auto;
+  object-fit: contain;
+  justify-self: start;
+}
+
+.auth-hero .auth-hero-mascot {
   grid-area: art;
   width: calc(var(--space-9) + var(--space-8));
   height: calc(var(--space-9) + var(--space-8));
   object-fit: contain;
   justify-self: end;
   align-self: center;
+  filter: drop-shadow(0 8px 14px rgba(5, 48, 45, .22));
 }
 
 .auth-hero h1 {
@@ -7410,7 +7425,7 @@ button.journey-card {
     font-size: 24px;
   }
 
-  .auth-hero img {
+  .auth-hero .auth-hero-mascot {
     width: calc(var(--space-9) + var(--space-6));
     height: calc(var(--space-9) + var(--space-6));
   }
@@ -7562,6 +7577,7 @@ button.journey-card {
 
 .onboarding-content {
   display: grid;
+  align-content: start;
   gap: var(--space-4);
 }
 
@@ -7605,7 +7621,6 @@ button.journey-card {
   line-height: 1.55;
 }
 
-.survey-heading h2,
 .scope-card h2,
 .consent-preview-card h2,
 .ready-summary h2 {
@@ -7865,8 +7880,9 @@ button.journey-card {
 .onboarding-actions {
   position: static;
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: 1fr;
   gap: var(--space-2);
+  align-self: end;
   padding-top: var(--space-2);
   background: var(--surface);
 }
@@ -8513,6 +8529,14 @@ button.journey-card {
   box-shadow: var(--clay-shadow-soft);
 }
 
+.goal-summary-card > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+}
+
 .goal-summary-card h2,
 .completion-card h1,
 .completion-card h2,
@@ -8531,6 +8555,91 @@ button.journey-card {
   color: var(--ink-500);
   line-height: 1.55;
   word-break: keep-all;
+}
+
+/* ── 목표 시작·완주 축하 연출 ─────────────────────────────── */
+.goal-success-screen,
+.completion-screen {
+  position: relative;
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.goal-success-screen .onboarding-shell,
+.completion-screen .onboarding-shell {
+  align-content: center;
+}
+
+.goal-success-screen .completion-card {
+  animation: completion-rise 480ms var(--ease-standard) both;
+}
+
+.completion-card .completion-mascot {
+  animation: completion-pop 640ms var(--ease-spring) 120ms both;
+}
+
+.completion-card .completion-medal {
+  animation: completion-pop 700ms var(--ease-spring) 140ms both;
+}
+
+.completion-amount {
+  display: grid;
+  gap: 2px;
+}
+
+.completion-amount strong {
+  font-family: var(--font-display);
+  font-size: 32px;
+  line-height: 1.15;
+  color: var(--teal-700);
+  font-variant-numeric: tabular-nums;
+}
+
+.completion-amount span {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ink-500);
+}
+
+.completion-confetti {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.completion-confetti i {
+  position: absolute;
+  top: -16px;
+  display: block;
+  animation: confetti-fall linear infinite;
+}
+
+.completion-confetti i:nth-child(2n) {
+  animation-name: confetti-fall-sway;
+}
+
+@keyframes completion-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes completion-pop {
+  0% { opacity: 0; transform: scale(.5); }
+  65% { opacity: 1; transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes confetti-fall {
+  0% { transform: translate3d(0, -6vh, 0) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translate3d(14px, 108vh, 0) rotate(640deg); opacity: .85; }
+}
+
+@keyframes confetti-fall-sway {
+  0% { transform: translate3d(0, -6vh, 0) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translate3d(-16px, 108vh, 0) rotate(-560deg); opacity: .85; }
 }
 
 .data-state-notice {
@@ -8694,9 +8803,14 @@ button.journey-card {
 }
 
 .product-info-screen .compare-flow-body,
-.settings-screen .compare-flow-body,
-.quest-detail-screen .compare-flow-body {
+.settings-screen .compare-flow-body {
   padding-bottom: calc(var(--bottom-nav-height) + var(--space-6));
+}
+
+/* 주요 CTA는 하단 고정 바(.compare-flow-bottom-cta)로 옮겼으므로,
+   본문 끝은 화면 자체 패딩(낸비 + 액션 바 높이)만 비워 두면 된다. */
+.quest-detail-screen .compare-flow-body {
+  padding-bottom: var(--space-2);
 }
 
 .product-info-hero .rpg-icon {
@@ -8716,17 +8830,18 @@ button.journey-card {
 }
 
 .roadmap-demo-link {
-  position: absolute;
-  right: var(--space-5);
-  bottom: calc(var(--bottom-nav-height) + var(--space-6));
-  z-index: 45;
-  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 34px;
+  margin-top: 10px;
   border: 1px solid var(--teal-100);
   border-radius: var(--r-pill);
   padding: 0 var(--space-3);
   color: var(--teal-700);
   background: rgba(255, 255, 255, .94);
-  box-shadow: var(--clay-shadow-soft);
+  box-shadow: var(--shadow-1);
   font-size: 11px;
   font-weight: 800;
 }

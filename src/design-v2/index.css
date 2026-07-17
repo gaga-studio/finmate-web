@@ -14,18 +14,18 @@
 
 :root {
   /* ── Brand ─────────────────────────────────────────── */
-  --teal: #009591; /* primary */
+  --teal: #008485; /* primary (하나금융 하나그린) */
   --red: #ED1651; /* accent / FOMO */
 
   /* Teal scale */
-  --teal-50: #E6F5F4;
-  --teal-100: #BEE6E4;
-  --teal-200: #79CAC7;
-  --teal-400: #1BA9A4;
-  --teal-500: #009591; /* = --teal */
-  --teal-600: #007C78;
-  --teal-700: #00605D;
-  --teal-900: #06312F;
+  --teal-50: #E5F4F2;
+  --teal-100: #BCE5E0;
+  --teal-200: #74C6BF;
+  --teal-400: #12A29B;
+  --teal-500: #008485; /* = --teal */
+  --teal-600: #006D6E;
+  --teal-700: #005556;
+  --teal-900: #05302D;
 
   /* Red scale */
   --red-50: #FDE7EC;
@@ -54,7 +54,7 @@
   --warning: #E8912A;
   --warning-tint: #FCF0E1;
   --fomo: var(--red);
-  --focus-ring: rgba(0, 149, 145, 0.32);
+  --focus-ring: rgba(0, 132, 133, 0.32);
 
   /* ── Compare distribution chart (teal sequential + red gap) ── */
   --color-accent: var(--red);
@@ -155,6 +155,7 @@ body {
   min-width: 320px;
   margin: 0;
   background: var(--paper);
+  word-break: keep-all;
 }
 
 a {

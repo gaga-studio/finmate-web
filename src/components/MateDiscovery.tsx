@@ -9,7 +9,7 @@ export function MateDiscovery({ groups }: { groups: MateGroup[] }) {
   return <div className="mate-tab-stack">
     {primary ? <MateSectionCard eyebrowIcon="profile" title="나와 비슷한 그룹" className="mate-group-card">
       <div className="mate-group-copy"><p><IconBadge icon="profile" tone="teal"/>{primary.name}</p><p><IconBadge icon="saving" tone="warning"/>비슷한 출발점에서 루틴을 이어온 익명 그룹</p></div>
-      <div className="mate-group-trio"><MateAvatar species="otter" size={86} fit="contain"/><MateAvatar species="rabbit" size={86} fit="contain"/><MateAvatar species="bear" size={86} fit="contain"/></div>
+      <div className="mate-group-trio"><MateAvatar species="otter" size={76} fit="contain"/><MateAvatar species="rabbit" size={76} fit="contain"/><MateAvatar species="bear" size={76} fit="contain"/></div>
       <span className="mate-group-count">그룹 구성원 {primary.memberCount.toLocaleString('ko-KR')}명</span>
     </MateSectionCard> : null}
 

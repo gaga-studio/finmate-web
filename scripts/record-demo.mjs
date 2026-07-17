@@ -60,6 +60,7 @@ try {
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
     deviceScaleFactor: 1,
+    locale: 'ko-KR',
     recordVideo: { dir: rawDir, size: { width: 390, height: 844 } },
   })
   const page = await context.newPage()
