@@ -332,338 +332,8 @@
 .mate-feed-stat.warning { color: var(--warning); }
 
 /* ── VS 비교 카드 ────────────────────────────────────── */
-.mate-vs-card {
-  gap: var(--space-4);
-}
-
-.mate-vs-row {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.mate-vs-side {
-  display: grid;
-  justify-items: center;
-  gap: 6px;
-  min-width: 76px;
-}
-
-.mate-vs-side strong {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--ink-800);
-}
-
-.mate-vs-level {
-  display: inline-flex;
-  align-items: center;
-  height: 22px;
-  padding: 0 var(--space-2);
-  border-radius: var(--r-pill);
-  background: var(--teal-50);
-  color: var(--teal-600);
-  font-size: 11px;
-  font-weight: 800;
-}
-
-.mate-vs-badge {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--surface-muted);
-  color: var(--ink-500);
-  font-size: 12px;
-  font-weight: 800;
-  border: 1px solid var(--line);
-}
 
 /* ── 친구들과 나 비교: 1대1 대신 친구 행동 시그널 리포트 ───── */
-.mate-friend-compare-card {
-  overflow: hidden;
-}
-
-.mate-friend-compare-hero {
-  display: grid;
-  grid-template-columns: minmax(132px, .82fr) minmax(0, 1.18fr);
-  gap: var(--space-3);
-  align-items: stretch;
-}
-
-.mate-friend-compare-me,
-.mate-friend-compare-summary {
-  min-width: 0;
-  border: 1px solid color-mix(in srgb, var(--clay-stroke) 86%, transparent);
-  border-radius: var(--r-md);
-  background: linear-gradient(145deg, rgba(255, 255, 255, .94), rgba(239, 249, 247, .8));
-  box-shadow:
-    inset -2px -2px 8px rgba(255, 255, 255, .82),
-    inset 2px 2px 8px rgba(21, 38, 35, .05);
-}
-
-.mate-friend-compare-me {
-  display: grid;
-  justify-items: center;
-  align-content: center;
-  gap: 7px;
-  padding: 12px 10px;
-  text-align: center;
-}
-
-.mate-friend-compare-me > strong {
-  color: var(--ink-800);
-  font-size: 20px;
-  font-weight: 800;
-  line-height: 1.05;
-}
-
-.mate-friend-me-avatar {
-  width: 104px !important;
-  height: 104px !important;
-  background: radial-gradient(circle, #F4FFF9 0%, #D9F6E8 62%, transparent 63%) !important;
-  box-shadow: none;
-}
-
-.mate-friend-me-tags {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 5px;
-  width: 100%;
-}
-
-.mate-friend-me-tags span {
-  border-radius: var(--r-pill);
-  padding: 4px 7px;
-  background: rgba(255, 255, 255, .78);
-  color: var(--ink-600);
-  font-size: 9.5px;
-  font-weight: 800;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.mate-friend-compare-summary {
-  display: grid;
-  align-content: center;
-  gap: 7px;
-  padding: 16px;
-  text-align: left;
-}
-
-.mate-friend-compare-summary b {
-  font-size: 12px;
-  font-weight: 900;
-  color: var(--teal-600);
-}
-
-.mate-friend-compare-summary strong {
-  color: var(--ink-800);
-  font-size: 19px;
-  font-weight: 900;
-  line-height: 1.22;
-  word-break: keep-all;
-}
-
-.mate-friend-compare-summary p {
-  margin: 0;
-  color: var(--ink-500);
-  font-family: var(--font-sans);
-  font-size: 11px;
-  font-weight: 400;
-  line-height: 1.4;
-  word-break: keep-all;
-}
-
-.mate-friend-insight-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.mate-friend-insight-card {
-  display: grid;
-  align-content: start;
-  justify-items: start;
-  gap: 7px;
-  min-width: 0;
-  border-radius: var(--r-md);
-  padding: 10px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, .94), rgba(239, 249, 247, .78));
-  box-shadow: var(--clay-shadow-soft);
-}
-
-.mate-friend-insight-card .icon-badge {
-  width: 28px;
-  height: 28px;
-}
-
-.mate-friend-insight-card span {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-
-.mate-friend-insight-card small {
-  color: var(--teal-600);
-  font-size: 9.5px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.mate-friend-insight-card strong {
-  color: var(--ink-800);
-  font-size: 14px;
-  font-weight: 900;
-  line-height: 1.05;
-}
-
-.mate-friend-insight-card em {
-  color: var(--ink-500);
-  font-family: var(--font-sans);
-  font-size: 9.5px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 1.28;
-  word-break: keep-all;
-}
-
-.mate-friend-signal-list {
-  display: grid;
-  gap: 8px;
-}
-
-.mate-friend-signal-row {
-  position: relative;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 9px;
-  overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--clay-stroke) 86%, transparent);
-  border-radius: var(--r-md);
-  padding: 9px 10px 15px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, .94), rgba(239, 249, 247, .78));
-  box-shadow: var(--clay-shadow-soft);
-  text-align: left;
-}
-
-.mate-friend-signal-copy {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-
-.mate-friend-signal-copy strong {
-  overflow: hidden;
-  font-size: 12.5px;
-  font-weight: 800;
-  line-height: 1.2;
-  color: var(--ink-800);
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.mate-friend-signal-copy small {
-  overflow: hidden;
-  font-family: var(--font-sans);
-  font-size: 10px;
-  font-weight: 400;
-  line-height: 1.25;
-  color: var(--ink-500);
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.mate-friend-signal-copy i {
-  margin-top: 2px;
-  color: var(--ink-500);
-  font-size: 10.5px;
-  font-style: normal;
-  font-weight: 700;
-}
-
-.mate-friend-signal-copy i b {
-  color: var(--teal-700);
-}
-
-.mate-friend-signal-status {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 48px;
-  height: 24px;
-  border-radius: var(--r-pill);
-  padding: 0 8px;
-  background: var(--surface);
-  color: var(--ink-500);
-  font-size: 10px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.mate-friend-signal-status.is-ready {
-  background: var(--teal-50);
-  color: var(--teal-700);
-}
-
-.mate-friend-signal-status.is-done {
-  background: #E8F7DD;
-  color: #2C8846;
-}
-
-.mate-friend-signal-track {
-  position: absolute;
-  left: 10px;
-  right: 10px;
-  bottom: 8px;
-  height: 5px;
-  overflow: hidden;
-  border-radius: var(--r-pill);
-  background: rgba(26, 55, 57, .08);
-}
-
-.mate-friend-signal-track span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, var(--teal-400), var(--teal));
-}
-
-.mate-friend-fomo {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 10px;
-  border-radius: var(--r-md);
-  padding: 10px;
-  background: linear-gradient(145deg, rgba(232, 250, 246, .96), rgba(255, 255, 255, .86));
-}
-
-.mate-friend-fomo p {
-  margin: 0;
-  font-family: var(--font-sans);
-  font-size: 11px;
-  font-weight: 400;
-  line-height: 1.38;
-  color: var(--ink-700);
-  word-break: keep-all;
-}
-
-.mate-friend-fomo button {
-  height: 34px;
-  border: none;
-  border-radius: var(--r-pill);
-  padding: 0 12px;
-  background: var(--teal);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 800;
-  white-space: nowrap;
-}
 
 /* ── 연속기록 ────────────────────────────────────────── */
 .mate-streak-list {
@@ -1058,98 +728,8 @@
 }
 
 /* ── 메이트 찾기: 내 위치는 어떤가요 ─────────────────── */
-.mate-position-head {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-5);
-  padding-bottom: var(--space-1);
-}
-
-.mate-position-col {
-  display: grid;
-  justify-items: center;
-  gap: 6px;
-}
-
-.mate-position-col span {
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--ink-500);
-}
-
-.mate-position-level {
-  display: grid;
-  place-items: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: var(--teal-50);
-  color: var(--teal-700);
-  font-size: 11px;
-  font-weight: 800;
-  text-align: center;
-  line-height: 1.2;
-  border: 2px solid var(--teal-100);
-}
-
-.mate-position-group {
-  display: flex;
-}
-
-.mate-position-group .mate-avatar {
-  margin-left: -10px;
-  border: 2px solid var(--surface);
-}
-
-.mate-position-group .mate-avatar:first-child {
-  margin-left: 0;
-}
 
 /* ── 인기 장비 / 습관 요약 리스트 ─────────────────────── */
-.mate-gear-list {
-  display: grid;
-  gap: var(--space-2);
-}
-
-.mate-gear-row {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: var(--space-3);
-  border-radius: var(--r-md);
-  padding: var(--space-2) var(--space-3);
-  background: var(--paper);
-  text-align: left;
-}
-
-.mate-gear-copy {
-  min-width: 0;
-}
-
-.mate-gear-copy strong {
-  display: block;
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--ink-800);
-}
-
-.mate-gear-copy small {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--ink-500);
-}
-
-.mate-gear-usage {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--teal-600);
-  white-space: nowrap;
-}
 
 /* ── 인사이트 2칸 ────────────────────────────────────── */
 .mate-insight-grid {
@@ -1190,17 +770,6 @@
 /* ── 비교 탐색: 필터 카드 ────────────────────────────── */
 .mate-filter-card-head {
   align-items: center;
-}
-
-.mate-filter-reset {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  border: none;
-  background: none;
-  color: var(--ink-500);
-  font-size: 12px;
-  font-weight: 800;
 }
 
 .mate-filter-grid {
@@ -1251,37 +820,6 @@
   background: linear-gradient(145deg, rgba(239, 253, 250, .98), rgba(255, 255, 255, .86));
 }
 
-.mate-filter-options {
-  display: flex;
-  gap: 7px;
-  overflow-x: auto;
-  padding: 2px 1px 7px;
-  scrollbar-width: none;
-}
-
-.mate-filter-options::-webkit-scrollbar {
-  display: none;
-}
-
-.mate-filter-options button {
-  flex: 0 0 auto;
-  min-height: 34px;
-  border: 1px solid color-mix(in srgb, var(--clay-stroke) 80%, transparent);
-  border-radius: var(--r-pill);
-  padding: 0 12px;
-  background: rgba(255, 255, 255, .76);
-  color: var(--ink-600);
-  font-size: 12px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.mate-filter-options button.is-active {
-  border-color: var(--teal);
-  background: var(--teal);
-  color: #fff;
-}
-
 .mate-filter-cta {
   display: flex;
   align-items: center;
@@ -1312,7 +850,6 @@
 }
 
 /* ── 비교 탐색: 결과/익명 프로필 상세 ───────────────────── */
-.mate-explore-results-stack,
 .mate-profile-detail-stack {
   gap: 10px;
 }
@@ -1353,9 +890,7 @@
   font-weight: 800;
 }
 
-.mate-explore-results-head p,
-.mate-empty-profile-card p,
-.mate-anonymous-build-summary {
+.mate-explore-results-head p {
   margin: 4px 0 0;
   font-family: var(--font-sans);
   color: var(--ink-500);
@@ -1436,224 +971,6 @@
   white-space: nowrap;
 }
 
-.mate-profile-snapshot-grid {
-  display: grid;
-  gap: 8px;
-}
-
-.mate-profile-snapshot-item {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 10px;
-  border-radius: 20px;
-  padding: 10px 12px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, .9), rgba(238, 250, 247, .72));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .86), 0 8px 18px rgba(23, 74, 70, .07);
-}
-
-.mate-profile-snapshot-item span {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-
-.mate-profile-snapshot-item small {
-  color: var(--teal-600);
-  font-size: 10px;
-  font-weight: 800;
-}
-
-.mate-profile-snapshot-item strong {
-  color: var(--ink-800);
-  font-size: 17px;
-  font-weight: 900;
-  line-height: 1.1;
-}
-
-.mate-profile-snapshot-item em {
-  color: var(--ink-500);
-  font-family: var(--font-sans);
-  font-size: 11px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 1.35;
-  word-break: keep-all;
-}
-
-.mate-asset-stack {
-  display: flex;
-  overflow: hidden;
-  height: 14px;
-  border-radius: var(--r-pill);
-  background: rgba(222, 236, 234, .76);
-  box-shadow: inset 0 2px 5px rgba(27, 62, 59, .09);
-}
-
-.mate-asset-stack-segment {
-  min-width: 8px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .58);
-}
-
-.mate-asset-stack-checking {
-  background: #62C9C4;
-}
-
-.mate-asset-stack-savings,
-.mate-asset-stack-travel {
-  background: #7FE1A4;
-}
-
-.mate-asset-stack-investment {
-  background: #9CB7FF;
-}
-
-.mate-asset-stack-deposit,
-.mate-asset-stack-pension {
-  background: #FFD979;
-}
-
-.mate-asset-breakdown,
-.mate-money-line-list {
-  display: grid;
-  gap: 8px;
-}
-
-.mate-asset-line,
-.mate-money-line {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 10px;
-  border-radius: 20px;
-  padding: 12px;
-  background: linear-gradient(145deg, rgba(255, 255, 255, .94), rgba(245, 252, 250, .84));
-  box-shadow: var(--clay-shadow-soft);
-}
-
-.mate-asset-line span,
-.mate-money-line span {
-  display: grid;
-  gap: 4px;
-  min-width: 0;
-}
-
-.mate-asset-line b,
-.mate-money-line b {
-  color: var(--ink-800);
-  font-size: 13px;
-  font-weight: 900;
-  line-height: 1.2;
-}
-
-.mate-asset-line small,
-.mate-money-line small {
-  color: var(--ink-500);
-  font-family: var(--font-sans);
-  font-size: 11px;
-  font-weight: 400;
-  line-height: 1.35;
-  word-break: keep-all;
-}
-
-.mate-asset-line strong,
-.mate-money-line strong {
-  color: var(--ink-800);
-  font-size: 13px;
-  font-weight: 900;
-  white-space: nowrap;
-}
-
-.mate-money-delta.is-up {
-  color: #0C8C76;
-}
-
-.mate-money-delta.is-down {
-  color: #D85C5C;
-}
-
-.mate-money-delta.is-flat {
-  color: var(--ink-500);
-}
-
-.mate-spending-chip-list {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.mate-spending-chip {
-  display: grid;
-  align-content: start;
-  gap: 5px;
-  min-width: 0;
-  border-radius: 20px;
-  padding: 12px 10px;
-  background: linear-gradient(145deg, rgba(244, 255, 252, .96), rgba(255, 255, 255, .88));
-  box-shadow: var(--clay-shadow-soft);
-}
-
-.mate-spending-chip span {
-  color: var(--teal-700);
-  font-size: 11px;
-  font-weight: 900;
-}
-
-.mate-spending-chip strong {
-  color: var(--ink-800);
-  font-size: 14px;
-  font-weight: 900;
-  line-height: 1.12;
-}
-
-.mate-spending-chip small {
-  color: var(--ink-500);
-  font-family: var(--font-sans);
-  font-size: 10px;
-  font-weight: 400;
-  line-height: 1.32;
-  word-break: keep-all;
-}
-
-.mate-empty-profile-card {
-  justify-items: center;
-  text-align: center;
-}
-
-.mate-empty-profile-card strong {
-  color: var(--ink-800);
-  font-size: 15px;
-  font-weight: 800;
-}
-
-.mate-anonymous-detail-card {
-  gap: 12px;
-}
-
-.mate-anonymous-detail-hero {
-  display: grid;
-  grid-template-columns: 138px minmax(0, 1fr);
-  align-items: center;
-  gap: 10px;
-}
-
-.mate-anonymous-detail-hero h2 {
-  margin: 8px 0 0;
-  color: var(--ink-800);
-  font-size: 18px;
-  font-weight: 800;
-}
-
-.mate-anonymous-detail-hero p {
-  margin: 5px 0 0;
-  color: var(--ink-500);
-  font-family: var(--font-sans);
-  font-size: 12px;
-  font-weight: 400;
-  line-height: 1.38;
-  word-break: keep-all;
-}
-
 /* ── 비교 탐색: 추천 익명 모험가 ─────────────────────── */
 .mate-adventurer-card {
   background: linear-gradient(150deg, #FFF7E6 0%, #FFF1CF 100%);
@@ -1732,109 +1049,9 @@
   height: 22px;
 }
 
-.mate-adventurer-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-2);
-}
-
-.mate-profile-detail-stack > .mate-adventurer-actions {
-  grid-template-columns: 1fr;
-}
-
-.mate-adventurer-actions .app-button {
-  width: 100%;
-}
-
-.mate-adventurer-like {
-  grid-column: 1 / -1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  height: 40px;
-  border-radius: var(--r-pill);
-  border: 1px solid var(--line);
-  background: var(--surface);
-  color: var(--red-600);
-  font-size: 13px;
-  font-weight: 800;
-}
-
 /* ── 습관 요약 3칸 ────────────────────────────────────── */
-.mate-habit-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-2);
-}
-
-.mate-habit-card {
-  display: grid;
-  gap: var(--space-2);
-  border-radius: var(--r-md);
-  padding: var(--space-3);
-  background: var(--paper);
-  text-align: center;
-  justify-items: center;
-}
-
-.mate-habit-card strong {
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--ink-800);
-  word-break: keep-all;
-}
-
-.mate-habit-card p {
-  margin: 0;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--ink-500);
-  line-height: 1.4;
-  word-break: keep-all;
-}
-
-.mate-habit-pill {
-  display: inline-flex;
-  border-radius: var(--r-pill);
-  padding: 2px var(--space-2);
-  background: var(--teal-50);
-  color: var(--teal-700);
-  font-size: 11px;
-  font-weight: 800;
-}
 
 /* ── 토글 ────────────────────────────────────────────── */
-.mate-toggle {
-  position: relative;
-  flex: 0 0 auto;
-  width: 46px;
-  height: 26px;
-  border-radius: var(--r-pill);
-  border: none;
-  background: var(--ink-300);
-  transition: background var(--motion-fast);
-}
-
-.mate-toggle.is-on {
-  background: var(--teal);
-}
-
-.mate-toggle-knob {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: var(--shadow-1);
-  transition: transform var(--motion-fast);
-}
-
-.mate-toggle.is-on .mate-toggle-knob {
-  transform: translateX(20px);
-}
 
 /* ── 빌드 따라하기 페이지 ────────────────────────────── */
 .mate-build-profile {
@@ -1897,82 +1114,6 @@
   word-break: keep-all;
 }
 
-.mate-chart-card-head {
-  align-items: center;
-}
-
-.mate-chart-badge {
-  flex: 0 0 auto;
-  display: grid;
-  justify-items: center;
-  border-radius: var(--r-md);
-  padding: 6px var(--space-3);
-  background: var(--red-50);
-  color: var(--red-600);
-  font-size: 11px;
-  font-weight: 800;
-  line-height: 1.3;
-  text-align: center;
-}
-
-.mate-chart-badge b {
-  font-size: 15px;
-}
-
-.mate-chart-svg-wrap {
-  position: relative;
-}
-
-.mate-chart-svg-wrap svg {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.mate-chart-legend {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--ink-500);
-}
-
-.mate-chart-legend span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.mate-chart-legend i {
-  width: 16px;
-  height: 3px;
-  border-radius: 2px;
-  display: inline-block;
-}
-
-.mate-chart-legend i.mine { background: var(--teal); }
-.mate-chart-legend i.other { background: var(--ink-300); }
-
-.mate-preview-card {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: var(--space-3);
-}
-
-.mate-preview-col {
-  display: grid;
-  justify-items: center;
-  gap: 4px;
-}
-
-.mate-preview-col span {
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--ink-500);
-}
-
 .mate-build-note {
   text-align: center;
   font-size: 13px;
@@ -1984,9 +1125,6 @@
 @media (max-width: 360px) {
   .mate-filter-grid,
   .mate-adventurer-badges {
-    grid-template-columns: 1fr;
-  }
-  .mate-habit-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -2023,52 +1161,6 @@
 
 .mate-feed-stat {
   font-size: 14px;
-}
-
-.mate-vs-card {
-  overflow: hidden;
-}
-
-.mate-vs-row {
-  grid-template-columns: 114px minmax(0, 1fr) 114px;
-  gap: 8px;
-}
-
-.mate-vs-side {
-  min-width: 0;
-  gap: 4px;
-}
-
-.mate-vs-side .mate-avatar {
-  background: radial-gradient(circle, #E9FFF2 0%, #E2F8F0 62%, transparent 63%) !important;
-  box-shadow: none;
-}
-
-.mate-vs-badge {
-  align-self: start;
-  margin-top: 22px;
-}
-
-.mate-position-head {
-  gap: 22px;
-}
-
-.mate-position-level {
-  width: 66px;
-  height: 66px;
-  background: linear-gradient(160deg, #FFF6D9, #F4BA4D);
-  border-color: #FFE7A3;
-  color: #664200;
-  font-size: 12px;
-}
-
-.mate-position-group .mate-avatar {
-  margin-left: -18px;
-}
-
-.mate-gear-row {
-  border-radius: 18px;
-  padding: 8px 10px;
 }
 
 .mate-filter-grid {
@@ -2139,19 +1231,6 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.mate-adventurer-actions {
-  grid-template-columns: 1fr 1.28fr;
-}
-
-.mate-adventurer-like {
-  width: 126px;
-  justify-self: end;
-}
-
-.mate-habit-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
 .mate-coach-card {
   min-height: 104px;
 }
@@ -2210,20 +1289,6 @@
 
 .mate-option-row:last-child {
   border-bottom: none;
-}
-
-.mate-toggle {
-  width: 58px;
-  height: 34px;
-}
-
-.mate-toggle-knob {
-  width: 28px;
-  height: 28px;
-}
-
-.mate-toggle.is-on .mate-toggle-knob {
-  transform: translateX(24px);
 }
 
 @media (max-width: 390px) {
@@ -2289,19 +1354,13 @@
   line-height: 1.28;
 }
 
-.screen-mate-main .mate-vs-side strong,
-.screen-mate-main .mate-gear-copy strong,
-.screen-mate-main .mate-habit-card strong,
 .screen-mate-main .mate-filter-field strong,
-.screen-mate-main .mate-stat-badge,
-.mate-build-screen .mate-option-row strong {
+  .screen-mate-main .mate-stat-badge,
+  .mate-build-screen .mate-option-row strong {
   font-size: 12px;
 }
 
-.screen-mate-main .mate-filter-field-label,
-.screen-mate-main .mate-gear-copy small,
-.screen-mate-main .mate-habit-card p,
-.screen-mate-main .mate-habit-pill {
+.screen-mate-main .mate-filter-field-label {
   font-size: 12px;
 }
 
@@ -2327,10 +1386,6 @@
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.mate-build-screen .mate-chart-svg-wrap {
-  margin-bottom: 14px;
 }
 
 .mate-build-screen .compare-flow-bottom-cta {
@@ -2403,21 +1458,17 @@
 
 /* ── small-copy tone: 상세프로필 AI 코치 본문처럼 얇은 Paperlogy 톤 ── */
 .screen-mate-main .mate-hero-header p,
-.screen-quest-main .mate-hero-header p,
-.screen-mate-main .mate-card-head-title p,
-.screen-quest-main .mate-card-head-title p,
-.mate-build-screen .mate-card-head-title p,
-.screen-mate-main .mate-feed-copy,
-.screen-mate-main .mate-filter-field-label,
-.screen-mate-main .mate-gear-copy small,
-.screen-mate-main .mate-habit-card p,
-.screen-mate-main .mate-adventurer-tagline,
-.screen-mate-main .mate-coach-copy p,
-.mate-build-screen .mate-option-row small,
-.mate-build-screen .mate-build-profile span,
-.mate-build-screen .mate-chart-legend,
-.mate-build-screen .mate-preview-col span,
-.mate-build-screen .mate-build-note {
+  .screen-quest-main .mate-hero-header p,
+  .screen-mate-main .mate-card-head-title p,
+  .screen-quest-main .mate-card-head-title p,
+  .mate-build-screen .mate-card-head-title p,
+  .screen-mate-main .mate-feed-copy,
+  .screen-mate-main .mate-filter-field-label,
+  .screen-mate-main .mate-adventurer-tagline,
+  .screen-mate-main .mate-coach-copy p,
+  .mate-build-screen .mate-option-row small,
+  .mate-build-screen .mate-build-profile span,
+  .mate-build-screen .mate-build-note {
   font-family: var(--font-sans);
   font-weight: 400;
 }
@@ -2429,45 +1480,36 @@
 
 /* ── claymorphism pass: 메이트/빌드 카드 재질 통일 ───────────── */
 .screen-mate-main .mate-point-pill,
-.screen-mate-main > .segmented-control,
-.screen-mate-main .mate-card,
-.screen-mate-main .mate-feed-item,
-.screen-mate-main .mate-streak-row,
-.screen-mate-main .mate-banner,
-.screen-mate-main .mate-coach-card,
-.screen-mate-main .mate-gear-row,
-.screen-mate-main .mate-insight-card,
-.screen-mate-main .mate-filter-field,
-.screen-mate-main .mate-filter-cta,
-.screen-mate-main .mate-stat-badge,
-.screen-mate-main .mate-adventurer-like,
-.screen-mate-main .mate-habit-card,
-.screen-mate-main .mate-position-level,
-.mate-build-screen .mate-card,
-.mate-build-screen .mate-build-profile,
-.mate-build-screen .mate-option-row,
-.mate-build-screen .mate-preview-card {
+  .screen-mate-main > .segmented-control,
+  .screen-mate-main .mate-card,
+  .screen-mate-main .mate-feed-item,
+  .screen-mate-main .mate-streak-row,
+  .screen-mate-main .mate-banner,
+  .screen-mate-main .mate-coach-card,
+  .screen-mate-main .mate-insight-card,
+  .screen-mate-main .mate-filter-field,
+  .screen-mate-main .mate-filter-cta,
+  .screen-mate-main .mate-stat-badge,
+  .mate-build-screen .mate-card,
+  .mate-build-screen .mate-build-profile,
+  .mate-build-screen .mate-option-row {
   border: 1px solid color-mix(in srgb, var(--clay-stroke) 86%, transparent);
   box-shadow: var(--clay-shadow-soft);
 }
 
 .screen-mate-main .mate-card,
-.mate-build-screen .mate-card,
-.mate-build-screen .mate-build-profile,
-.mate-build-screen .mate-preview-card {
+  .mate-build-screen .mate-card,
+  .mate-build-screen .mate-build-profile {
   background: linear-gradient(145deg, rgba(255, 255, 255, .98), rgba(239, 250, 248, .86));
 }
 
 .screen-mate-main .mate-point-pill,
-.screen-mate-main > .segmented-control,
-.screen-mate-main .mate-feed-item,
-.screen-mate-main .mate-streak-row,
-.screen-mate-main .mate-gear-row,
-.screen-mate-main .mate-filter-field,
-.screen-mate-main .mate-stat-badge,
-.screen-mate-main .mate-adventurer-like,
-.screen-mate-main .mate-habit-card,
-.mate-build-screen .mate-option-row {
+  .screen-mate-main > .segmented-control,
+  .screen-mate-main .mate-feed-item,
+  .screen-mate-main .mate-streak-row,
+  .screen-mate-main .mate-filter-field,
+  .screen-mate-main .mate-stat-badge,
+  .mate-build-screen .mate-option-row {
   background: linear-gradient(145deg, rgba(255, 255, 255, .94), rgba(239, 249, 247, .78));
 }
 

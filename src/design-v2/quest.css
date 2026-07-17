@@ -50,14 +50,6 @@
   flex: 1.3 1 0;
 }
 
-.quest-tab-divider {
-  width: 1px;
-  height: 16px;
-  background: var(--line);
-  flex: 0 0 auto;
-  margin: 0 auto;
-}
-
 .quest-tab {
   position: relative;
   width: 100%;
@@ -137,73 +129,6 @@
 }
 
 /* ── 참여 가능한 퀘스트: 카테고리 카드 ───────────────────── */
-.quest-category-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.quest-category-tile {
-  display: grid;
-  justify-items: center;
-  gap: 8px;
-  border-radius: 12px;
-  padding: 0 6px 10px;
-  background: var(--paper);
-  text-align: center;
-}
-
-.quest-category-label {
-  display: inline-flex;
-  justify-content: center;
-  width: calc(100% + 12px);
-  border-radius: var(--r-pill);
-  padding: 6px var(--space-2);
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.quest-category-tile.tone-mint .quest-category-label { background: #DDF5E4; color: #1E8A4C; }
-.quest-category-tile.tone-pink .quest-category-label { background: #FBDCE5; color: #C23768; }
-.quest-category-tile.tone-teal .quest-category-label { background: var(--teal-100); color: var(--teal-700); }
-.quest-category-tile.tone-purple .quest-category-label { background: #E5DBFB; color: #6238B5; }
-
-.quest-category-tile p {
-  margin: 0;
-  min-height: 44px;
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.4;
-  color: var(--ink-700);
-  word-break: keep-all;
-}
-
-.quest-join-button {
-  width: 100%;
-  height: 32px;
-  border: none;
-  border-radius: var(--r-pill);
-  background: var(--teal-50);
-  color: var(--teal-700);
-  font-size: 13px;
-  font-weight: 800;
-}
-
-.quest-category-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-  padding-top: var(--space-1);
-  border-top: 1px solid var(--line);
-}
-
-.quest-category-footer span {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--ink-500);
-  word-break: keep-all;
-}
 
 /* ── 퀘스트 요약 ─────────────────────────────────────────── */
 .quest-numbered-heading {
@@ -336,10 +261,6 @@
   background: var(--paper);
 }
 
-.quest-reward-icon {
-  font-size: 22px;
-}
-
 .quest-reward-copy {
   display: grid;
   gap: 4px;
@@ -454,11 +375,6 @@
 }
 
 /* ── 진행 중 퀘스트 ──────────────────────────────────────── */
-.quest-inprogress-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
 
 .quest-count-pill {
   display: inline-flex;
@@ -509,12 +425,6 @@
   font-size: 12px;
   font-weight: 800;
   color: var(--ink-500);
-}
-
-.quest-progress-time {
-  font-size: 10.5px;
-  font-weight: 700;
-  color: var(--ink-400);
 }
 
 .quest-progress-reward {
@@ -662,9 +572,6 @@
 }
 
 @media (max-width: 360px) {
-  .quest-category-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
   .quest-summary-top {
     grid-template-columns: 1fr;
   }
@@ -678,24 +585,6 @@
   font-size: 13px;
 }
 
-.quest-category-label {
-  font-size: 11px;
-}
-
-.quest-category-tile p {
-  min-height: 36px;
-  font-size: 10.5px;
-  line-height: 1.35;
-}
-
-.quest-join-button {
-  font-size: 10.5px;
-}
-
-.quest-category-tile {
-  gap: 6px;
-}
-
 .quest-icon img {
   padding: 8px;
 }
@@ -705,10 +594,9 @@
 }
 
 .quest-stat-box span,
-.quest-ai-recommend small,
-.quest-progress-time,
-.quest-progress-reward span,
-.quest-progress-reward em {
+  .quest-ai-recommend small,
+  .quest-progress-reward span,
+  .quest-progress-reward em {
   font-size: 12px;
 }
 
@@ -717,10 +605,6 @@
 .quest-progress-body strong,
 .quest-progress-reward strong {
   font-size: 12px;
-}
-
-.quest-category-footer span {
-  font-size: 10px;
 }
 
 .quest-summary-mascot .quest-mascot {
@@ -733,17 +617,14 @@
 }
 
 /* ── small-copy tone: 상세프로필 AI 코치 본문처럼 얇은 Paperlogy 톤 ── */
-.screen-quest-main .quest-category-tile p,
-.screen-quest-main .quest-category-footer span,
 .screen-quest-main .quest-stat-box span,
-.screen-quest-main .quest-ai-recommend small,
-.screen-quest-main .quest-ai-message p,
-.screen-quest-main .quest-progress-time,
-.screen-quest-main .quest-progress-reward span,
-.screen-quest-main .quest-progress-reward em,
-.screen-quest-main .quest-completed-copy small,
-.screen-quest-main .quest-points-hero p,
-.screen-quest-main .quest-point-copy small {
+  .screen-quest-main .quest-ai-recommend small,
+  .screen-quest-main .quest-ai-message p,
+  .screen-quest-main .quest-progress-reward span,
+  .screen-quest-main .quest-progress-reward em,
+  .screen-quest-main .quest-completed-copy small,
+  .screen-quest-main .quest-points-hero p,
+  .screen-quest-main .quest-point-copy small {
   font-family: var(--font-sans);
   font-weight: 400;
 }
@@ -756,14 +637,13 @@
 
 /* ── claymorphism pass: 퀘스트 카드/탭 재질 통일 ───────────── */
 .screen-quest-main .quest-tabs,
-.screen-quest-main .quest-category-tile,
-.screen-quest-main .quest-stat-box,
-.screen-quest-main .quest-reward-box,
-.screen-quest-main .quest-ai-box,
-.screen-quest-main .quest-progress-row,
-.screen-quest-main .quest-completed-row,
-.screen-quest-main .quest-points-hero,
-.screen-quest-main .quest-point-row {
+  .screen-quest-main .quest-stat-box,
+  .screen-quest-main .quest-reward-box,
+  .screen-quest-main .quest-ai-box,
+  .screen-quest-main .quest-progress-row,
+  .screen-quest-main .quest-completed-row,
+  .screen-quest-main .quest-points-hero,
+  .screen-quest-main .quest-point-row {
   border: 1px solid color-mix(in srgb, var(--clay-stroke) 86%, transparent);
   box-shadow: var(--clay-shadow-soft);
 }
@@ -775,10 +655,6 @@
 .screen-quest-main .quest-completed-row,
 .screen-quest-main .quest-point-row {
   background: linear-gradient(145deg, rgba(255, 255, 255, .95), rgba(239, 249, 247, .8));
-}
-
-.screen-quest-main .quest-category-tile {
-  background: linear-gradient(145deg, rgba(255, 255, 255, .9), rgba(239, 249, 247, .75));
 }
 
 .screen-quest-main .quest-ai-box {

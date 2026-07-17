@@ -10,8 +10,6 @@ import './design-v2/App.css'
 import './design-v2/home.css'
 import './design-v2/mate.css'
 import './design-v2/quest.css'
-import './design-v2/detailedProfile.css'
-import './design-v2/signature.css'
 import App from './App.tsx'
 
 async function enableMocking() {
