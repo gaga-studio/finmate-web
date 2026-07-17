@@ -318,11 +318,13 @@
   object-fit: contain;
   filter: drop-shadow(0 10px 14px rgba(20, 40, 20, .28));
   transform-origin: 50% 85%;
+  /* 보스는 파티(왼쪽)를 바라본다 */
+  transform: scaleX(-1);
 }
 
 .home-boss.is-defeated .home-boss-img {
   filter: grayscale(1) brightness(.94) opacity(.55);
-  transform: rotate(-10deg) translateY(8px) scale(.96);
+  transform: scaleX(-1) rotate(-10deg) translateY(8px) scale(.96);
   transition: filter .6s ease, transform .6s ease;
 }
 
@@ -434,9 +436,15 @@
   padding: 0;
 }
 
-/* 후열(토끼·새)은 살짝 위로·작게 — 사이드뷰 턴제 진형의 원근감 */
-.home-party-slot:nth-child(n + 3) {
-  transform: translateY(-10px) scale(.9);
+/* 웨지 진형: 전열(곰·물개)은 보스 쪽으로, 후열(토끼·새)은 대각선 뒤로 — 정사각 2×2가 아닌 사이드뷰 대열 */
+.home-party-slot:nth-child(1) { transform: translate(14px, 8px); }
+.home-party-slot:nth-child(2) { transform: translate(22px, 0); }
+.home-party-slot:nth-child(3) {
+  transform: translate(-12px, -12px) scale(.88);
+  transform-origin: bottom center;
+}
+.home-party-slot:nth-child(4) {
+  transform: translate(-4px, -20px) scale(.88);
   transform-origin: bottom center;
 }
 
@@ -446,29 +454,29 @@
 }
 
 .home-party-slot .home-party-img {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 1 / 1;
+  height: 64px;
+  width: auto;
   object-fit: contain;
   filter: drop-shadow(0 6px 8px rgba(20, 40, 20, .25));
-  /* 살짝 위아래로 흔들리는 idle 웨이브 */
+  /* 살짝 위아래로 흔들리는 idle 웨이브 — 캐릭터별 주기를 달리해 기계적 동기화를 피한다 */
   animation: home-bob 2.1s ease-in-out infinite;
 }
 
-.home-party-slot:nth-child(2) .home-party-img { animation-delay: .35s; }
-.home-party-slot:nth-child(3) .home-party-img { animation-delay: .7s; }
-.home-party-slot:nth-child(4) .home-party-img { animation-delay: 1.05s; }
+.home-party-slot:nth-child(1) .home-party-img { animation-duration: 1.9s; }
+.home-party-slot:nth-child(2) .home-party-img { animation-duration: 2.3s; animation-delay: .35s; }
+.home-party-slot:nth-child(3) .home-party-img { animation-duration: 2.5s; animation-delay: .7s; }
+.home-party-slot:nth-child(4) .home-party-img { animation-duration: 2.05s; animation-delay: 1.05s; }
 
-/* 턴 공격: 보스(오른쪽) 방향으로 돌진했다가 귀환 */
+/* 턴 공격: 보스(오른쪽) 방향으로 몸을 기울이며 돌진했다가 귀환 */
 .home-party-slot.is-attacking .home-party-img {
   animation: home-party-lunge .7s cubic-bezier(.3, .7, .4, 1);
 }
 
 @keyframes home-party-lunge {
-  0% { transform: translateX(0); }
-  45% { transform: translateX(52px) scale(1.05); }
-  62% { transform: translateX(49px); }
-  100% { transform: translateX(0); }
+  0% { transform: translateX(0) rotate(0deg); }
+  45% { transform: translateX(52px) rotate(5deg) scale(1.04); }
+  62% { transform: translateX(49px) rotate(3deg); }
+  100% { transform: translateX(0) rotate(0deg); }
 }
 
 /* 클리어 상태에서는 파티도 멈춘다 */
@@ -796,16 +804,16 @@
 /* ── 애니메이션 ──────────────────────────────────────────── */
 @keyframes home-bob {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+  50% { transform: translateY(-3px); }
 }
 
-/* 보스 피격 — 화면 중앙 부근에 고정된 채로 아주 짧게 2~4px만 밀리는 흔들림 */
+/* 보스 피격 — 화면 중앙 부근에 고정된 채로 아주 짧게 2~4px만 밀리는 흔들림 (좌우 반전 유지) */
 @keyframes home-boss-shake {
-  0% { transform: translate(0, 0) rotate(0) scale(1); }
-  20% { transform: translate(3px, -2px) rotate(1.2deg) scale(.985, 1.015); }
-  45% { transform: translate(-4px, 2px) rotate(-1.6deg) scale(1.015, .985); }
-  70% { transform: translate(2px, -1px) rotate(1deg) scale(1); }
-  100% { transform: translate(0, 0) rotate(0) scale(1); }
+  0% { transform: translate(0, 0) rotate(0) scale(-1, 1); }
+  20% { transform: translate(3px, -2px) rotate(1.2deg) scale(-.985, 1.015); }
+  45% { transform: translate(-4px, 2px) rotate(-1.6deg) scale(-1.015, .985); }
+  70% { transform: translate(2px, -1px) rotate(1deg) scale(-1, 1); }
+  100% { transform: translate(0, 0) rotate(0) scale(-1, 1); }
 }
 
 @keyframes home-boss-drift-left {

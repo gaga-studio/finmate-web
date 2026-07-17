@@ -208,14 +208,9 @@
   object-fit: contain;
 }
 
-/* 곰 아트는 지팡이가 캔버스 우단에 있어 원 크롭에 잘리므로, 좌상단 기준으로 살짝 확대해 캐릭터만 채운다 */
+/* 캔버스 끝에 소품이 있는 아트도 잘리지 않게 안쪽 여백을 둔다 */
 .mate-anonymous-avatar img {
-  padding: 0;
-  width: 124%;
-  height: auto;
-  max-width: none;
-  object-fit: cover;
-  object-position: left top;
+  padding: 10px;
 }
 
 .mate-avatar-fallback {
