@@ -84,7 +84,7 @@
 }
 
 .home-identity-meta span {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--ink-500);
   white-space: nowrap;
@@ -106,7 +106,7 @@
   background: var(--surface);
   border: 1px solid var(--line);
   box-shadow: var(--shadow-1);
-  font-size: 11px;
+  font-size: 12px;
   white-space: nowrap;
 }
 
@@ -162,12 +162,12 @@
 
 .home-scene-toggles button {
   min-width: 56px;
-  height: 26px;
+  min-height: 36px;
   border-radius: var(--r-pill);
   border: 1px solid rgba(255, 255, 255, 0.7);
   background: rgba(255, 255, 255, 0.55);
   color: var(--ink-600);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
 }
 
@@ -205,14 +205,14 @@
 }
 
 .home-quest-scroll-copy b {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   color: var(--ink-700);
   line-height: 1.2;
 }
 
 .home-quest-scroll-copy span {
-  font-size: 9.5px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--ink-600);
   white-space: nowrap;
@@ -222,7 +222,7 @@
 
 .home-quest-scroll-copy em {
   font-style: normal;
-  font-size: 9.5px;
+  font-size: 12px;
   font-weight: 800;
   color: var(--teal-700);
 }
@@ -236,7 +236,7 @@
 }
 
 .home-stage-badge {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   color: #fff;
   text-shadow: 0 1px 3px rgba(0, 0, 0, .35);
@@ -258,7 +258,7 @@
 }
 
 .home-boss-hp-row span {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   color: #fff;
   text-shadow: 0 1px 2px rgba(0, 0, 0, .35);
@@ -389,7 +389,7 @@
   padding: 2px 10px;
   background: rgba(60, 40, 20, 0.75);
   color: #FCEFD8;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
 }
 
@@ -533,7 +533,7 @@
 }
 
 .home-goal-progress-head b {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   color: var(--teal-700);
   white-space: nowrap;
@@ -551,7 +551,7 @@
 }
 
 .home-goal-progress-body span {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--ink-700);
   white-space: nowrap;
@@ -633,14 +633,14 @@
 
 .home-stat-copy em {
   font-style: normal;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--ink-700);
   line-height: 1.15;
 }
 
 .home-stat-copy small {
-  font-size: 9.5px;
+  font-size: 13px;
   font-weight: 400;
   color: var(--ink-500);
   line-height: 1.22;
@@ -653,7 +653,7 @@
   width: 20px;
   height: 20px;
   border-radius: var(--r-sm);
-  font-size: 10px;
+  font-size: 12px;
   position: absolute;
   right: -3px;
   bottom: -3px;
@@ -684,13 +684,13 @@
 }
 
 .home-today-head strong {
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 800;
   color: var(--ink-800);
 }
 
 .home-today-head span {
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 800;
   color: var(--teal-600);
 }
@@ -729,7 +729,7 @@
   border: 1.5px solid var(--surface);
   background: var(--teal);
   color: #fff;
-  font-size: 8px;
+  font-size: 11px;
   font-style: normal;
 }
 
@@ -742,7 +742,7 @@
   background: none;
   padding: 0;
   text-align: left;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--ink-500);
   word-break: keep-all;
@@ -772,7 +772,7 @@
 }
 
 .home-streak-copy small {
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--ink-500);
 }
@@ -902,7 +902,7 @@
   .home-currency-pill {
     height: 24px;
     padding-left: 7px;
-    font-size: 10.5px;
+    font-size: 12px;
   }
 
   .home-currency-pill button {
@@ -957,11 +957,11 @@
   }
 
   .home-stat-copy em {
-    font-size: 10.5px;
+    font-size: 12px;
   }
 
   .home-stat-copy small {
-    font-size: 9px;
+    font-size: 13px;
   }
 
   .home-below-grid {
@@ -1165,7 +1165,7 @@
   padding: 0 11px;
   background: color-mix(in srgb, var(--report-accent) 14%, #fff);
   color: var(--report-accent);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
 }
 
@@ -1215,7 +1215,7 @@
 .home-report-primary-stat span,
 .home-report-stat span,
 .home-report-section-head span {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   color: var(--report-accent);
 }
@@ -1283,7 +1283,7 @@
 
 .home-report-stat small {
   min-height: 28px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 400;
   line-height: 1.35;
   color: var(--ink-500);
@@ -1403,7 +1403,7 @@
 }
 
 .home-report-history-list small {
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 400;
   color: var(--ink-500);
   line-height: 1.25;

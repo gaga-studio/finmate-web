@@ -6015,7 +6015,7 @@ button.profile-activity-row:active {
   border-radius: var(--r-pill);
   color: var(--ink-500);
   background: transparent;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   text-decoration: none;
   cursor: pointer;
@@ -6438,7 +6438,7 @@ button.profile-activity-row:active {
   border-radius: 7px;
   background: rgba(255, 255, 255, .86);
   color: #23364b;
-  font-size: 10px;
+  font-size: 12px;
   font-style: normal;
   font-weight: 800;
 }
@@ -7225,7 +7225,7 @@ button.journey-card {
   align-items: center;
   gap: var(--space-1);
   color: var(--ink-500);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
 }
 
@@ -7616,7 +7616,7 @@ button.journey-card {
 
 .option-card strong {
   color: var(--ink-500);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.4;
   overflow-wrap: anywhere;
 }
@@ -7627,7 +7627,7 @@ button.journey-card {
   padding: var(--space-1) var(--space-2);
   color: var(--teal);
   background: var(--surface);
-  font-size: 10px;
+  font-size: 12px;
   font-style: normal;
   font-weight: 800;
 }
@@ -8198,7 +8198,7 @@ button.journey-card {
 }
 
 .roadmap-topline p {
-  font-size: 11.5px;
+  font-size: 13px;
 }
 
 .roadmap-wallet {
@@ -8240,7 +8240,7 @@ button.journey-card {
 }
 
 .roadmap-metric span {
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .roadmap-metric strong {
@@ -8277,7 +8277,7 @@ button.journey-card {
 
 .stone-tags i {
   padding: 2px 6px;
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .roadmap-stone.is-primary {
@@ -8328,7 +8328,7 @@ button.journey-card {
 
 .activity-chips span,
 .quest-card p span {
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .roadmap-screen {
@@ -8778,7 +8778,7 @@ button.journey-card {
 .quest-stat-box small,
 .product-as-of {
   color: var(--ink-500);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.45;
 }
 
@@ -8814,7 +8814,7 @@ button.journey-card {
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 34px;
+  min-height: 36px;
   margin-top: 10px;
   border: 1px solid var(--teal-100);
   border-radius: var(--r-pill);
@@ -8822,7 +8822,7 @@ button.journey-card {
   color: var(--teal-700);
   background: rgba(255, 255, 255, .94);
   box-shadow: var(--shadow-1);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
 }
 
