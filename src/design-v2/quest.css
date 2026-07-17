@@ -240,21 +240,48 @@
 
 .quest-summary-top {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 132px;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: var(--space-3);
-  align-items: stretch;
+  align-items: center;
 }
 
-.quest-summary-left {
+.quest-summary-progress {
   display: grid;
-  gap: var(--space-2);
+  gap: 4px;
   min-width: 0;
-  grid-column: 1 / -1;
 }
 
-.quest-stat-row {
+.quest-summary-label,
+.quest-summary-progress small {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--ink-500);
+  word-break: keep-all;
+}
+
+.quest-summary-count {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  color: var(--ink-800);
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.quest-summary-count em {
+  color: var(--ink-500);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.quest-summary-meta {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-2);
 }
 
@@ -290,9 +317,10 @@
   display: inline-flex;
   align-items: center;
   border-radius: var(--r-pill);
-  padding: 2px 8px;
-  font-size: 11px;
+  padding: 3px 10px;
+  font-size: 12px;
   font-weight: 800;
+  font-variant-numeric: tabular-nums;
 }
 
 .quest-pill.xp { background: #E1EEFF; color: #2E6BD6; }
@@ -332,8 +360,7 @@
 .quest-summary-mascot {
   display: grid;
   place-items: center;
-  min-width: 0;
-  align-self: end;
+  align-self: center;
 }
 
 .quest-progress-track {
