@@ -291,24 +291,24 @@
 .home-scene-stage {
   position: relative;
   z-index: 1; /* 이 박스 안에서만 z-index가 경쟁하는 독립 stacking context를 만든다 —
-                 캐릭터의 y좌표 기반 z-index가 상단 AUTO/자동 토글 같은 바깥 UI를 절대 침범하지 않는다 */
-  min-height: 306px;
-  padding-bottom: var(--space-3);
+                 캐릭터/이펙트의 z-index가 상단 AUTO/연출 토글 같은 바깥 UI를 절대 침범하지 않는다 */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-height: 250px;
+  padding: 10px 8px var(--space-3);
 }
 
 .home-boss {
-  position: absolute;
-  left: 50%;
-  top: 45%;
-  width: 44%;
-  max-width: 190px;
-  transform: translate(-50%, -50%);
+  position: relative;
+  width: 42%;
+  max-width: 186px;
   border: none;
   background: none;
   display: grid;
   justify-items: center;
   gap: 4px;
-  /* z-index는 JS가 보스 중심 y좌표로 설정한다(캐릭터와 동일한 좌표계 기준 깊이 정렬) */
 }
 
 .home-boss-img {
@@ -318,6 +318,41 @@
   object-fit: contain;
   filter: drop-shadow(0 10px 14px rgba(20, 40, 20, .28));
   transform-origin: 50% 85%;
+}
+
+.home-boss.is-defeated .home-boss-img {
+  filter: grayscale(1) brightness(.94) opacity(.55);
+  transform: rotate(-10deg) translateY(8px) scale(.96);
+  transition: filter .6s ease, transform .6s ease;
+}
+
+.home-boss.is-defeated .home-boss-plate {
+  opacity: .6;
+}
+
+.home-clear-banner {
+  position: absolute;
+  right: 4%;
+  top: 14%;
+  z-index: 1000;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  background: rgba(60, 40, 20, .85);
+  color: #FFE9A8;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .3);
+  box-shadow: 0 6px 16px rgba(20, 30, 20, .25);
+  animation: home-clear-pop .5s cubic-bezier(.2, 1.4, .4, 1) both;
+}
+
+@keyframes home-clear-pop {
+  from { transform: scale(.6); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 .home-boss.is-hit .home-boss-img {
@@ -382,24 +417,31 @@
 
 /* 보스 주위를 계속 도는 캐릭터 슬롯 — 위치는 오직 JS가 wrapper의 translate3d로만 갱신한다.
    (좌우 반전은 절대 이 요소의 transform으로 처리하지 않는다. 안쪽 img의 src 교체로만 처리) */
+.home-formation {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 10px 8px;
+  align-items: end;
+}
+
 .home-party-slot {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 27%;
-  max-width: 108px;
-  border: none;
-  background: none;
   display: grid;
   justify-items: center;
   gap: 4px;
-  will-change: transform;
-  /* 스케줄이 아직 계산되기 전 첫 프레임에는 화면 밖에 둬서 좌상단에 캐릭터가 뭉쳐 보이는 깜빡임을 막는다 */
-  transform: translate3d(-999px, -999px, 0);
+  width: 72px;
+  border: none;
+  background: none;
+  padding: 0;
+}
+
+/* 후열(토끼·새)은 살짝 위로·작게 — 사이드뷰 턴제 진형의 원근감 */
+.home-party-slot:nth-child(n + 3) {
+  transform: translateY(-10px) scale(.9);
+  transform-origin: bottom center;
 }
 
 .home-party-slot .home-hp-bar {
-  width: 90%;
+  width: 58px;
   height: 4px;
 }
 
@@ -409,8 +451,29 @@
   aspect-ratio: 1 / 1;
   object-fit: contain;
   filter: drop-shadow(0 6px 8px rgba(20, 40, 20, .25));
-  /* 살짝 위아래로 흔들리는 idle 웨이브 — wrapper의 위치 이동과는 별개 요소(img)에서만 동작하므로 서로 덮어쓰지 않는다 */
+  /* 살짝 위아래로 흔들리는 idle 웨이브 */
   animation: home-bob 2.1s ease-in-out infinite;
+}
+
+.home-party-slot:nth-child(2) .home-party-img { animation-delay: .35s; }
+.home-party-slot:nth-child(3) .home-party-img { animation-delay: .7s; }
+.home-party-slot:nth-child(4) .home-party-img { animation-delay: 1.05s; }
+
+/* 턴 공격: 보스(오른쪽) 방향으로 돌진했다가 귀환 */
+.home-party-slot.is-attacking .home-party-img {
+  animation: home-party-lunge .7s cubic-bezier(.3, .7, .4, 1);
+}
+
+@keyframes home-party-lunge {
+  0% { transform: translateX(0); }
+  45% { transform: translateX(52px) scale(1.05); }
+  62% { transform: translateX(49px); }
+  100% { transform: translateX(0); }
+}
+
+/* 클리어 상태에서는 파티도 멈춘다 */
+.home-scene-stage.is-cleared .home-party-img {
+  animation-play-state: paused;
 }
 
 /* ── 보스 피격 스파크 파티클 ─────────────────────────────── */
@@ -746,24 +809,24 @@
 }
 
 @keyframes home-boss-drift-left {
-  0% { transform: translate(-50%, -50%); }
-  28% { transform: translate(calc(-50% - 10px), calc(-50% + 4px)); }
-  62% { transform: translate(calc(-50% + 5px), calc(-50% - 2px)); }
-  100% { transform: translate(-50%, -50%); }
+  0% { transform: translate(0, 0); }
+  28% { transform: translate(-10px, 4px); }
+  62% { transform: translate(5px, -2px); }
+  100% { transform: translate(0, 0); }
 }
 
 @keyframes home-boss-drift-right {
-  0% { transform: translate(-50%, -50%); }
-  28% { transform: translate(calc(-50% + 11px), calc(-50% + 3px)); }
-  62% { transform: translate(calc(-50% - 4px), calc(-50% - 2px)); }
-  100% { transform: translate(-50%, -50%); }
+  0% { transform: translate(0, 0); }
+  28% { transform: translate(11px, 3px); }
+  62% { transform: translate(-4px, -2px); }
+  100% { transform: translate(0, 0); }
 }
 
 @keyframes home-boss-drift-up {
-  0% { transform: translate(-50%, -50%); }
-  28% { transform: translate(calc(-50% + 3px), calc(-50% - 12px)); }
-  62% { transform: translate(calc(-50% - 3px), calc(-50% + 4px)); }
-  100% { transform: translate(-50%, -50%); }
+  0% { transform: translate(0, 0); }
+  28% { transform: translate(3px, -12px); }
+  62% { transform: translate(-3px, 4px); }
+  100% { transform: translate(0, 0); }
 }
 
 @keyframes home-boss-flash {
@@ -789,6 +852,7 @@
   .home-boss.is-hit .home-boss-img,
   .home-boss.is-hit::after,
   .home-hit-spark,
+  .home-clear-banner,
   .home-float-number {
     animation: none !important;
   }
@@ -860,15 +924,15 @@
   }
 
   .home-scene-stage {
-    min-height: 286px;
+    min-height: 236px;
   }
 
-  .home-boss {
-    width: 45%;
+  .home-formation {
+    gap: 8px 4px;
   }
 
   .home-party-slot {
-    width: 25%;
+    width: 64px;
   }
 
   .home-action-row {
