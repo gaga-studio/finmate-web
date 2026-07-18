@@ -303,7 +303,7 @@
 .home-boss {
   position: relative;
   width: 42%;
-  max-width: 186px;
+  max-width: 196px;
   border: none;
   background: none;
   display: grid;
@@ -430,7 +430,7 @@
   display: grid;
   justify-items: center;
   gap: 4px;
-  width: 72px;
+  width: 84px;
   border: none;
   background: none;
   padding: 0;
@@ -454,7 +454,7 @@
 }
 
 .home-party-slot .home-party-img {
-  height: 64px;
+  height: 88px;
   width: auto;
   object-fit: contain;
   filter: drop-shadow(0 6px 8px rgba(20, 40, 20, .25));
@@ -940,7 +940,11 @@
   }
 
   .home-party-slot {
-    width: 64px;
+    width: 74px;
+  }
+
+  .home-party-slot .home-party-img {
+    height: 76px;
   }
 
   .home-action-row {
