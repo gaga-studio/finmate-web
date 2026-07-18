@@ -117,35 +117,19 @@ export function HomeRaidScene({
   // 목표 달성(진행률 100%)이면 레이드를 클리어 상태로 그린다. 턴 루프는 멈추고 보스는 격파된다.
   const isCleared = view.goalProgressPercent >= 100
 
-  // 클리어 1회 연출: 보스가 서 있다가 쓰러지고(standing → falling), 격파 아트와 배너가 나타난다(done).
-  // 목표별로 세션에 한 번만 재생한다.
+  // 클리어 연출: 보스가 서 있다가 쓰러지고(standing → falling), 격파 아트와 배너가 나타난다(done).
+  // 클리어 상태로 홈이 마운트될 때마다 재생한다 — 시연을 같은 탭에서 여러 번 돌려도 매번 보인다.
   const [celebratePhase, setCelebratePhase] = useState<'standing' | 'falling' | 'done'>('done')
-  const goalKey = view.goalTitle ?? 'goal'
   useEffect(() => {
     if (!isCleared) return undefined
-    const key = `finmate.clear-celebrated:${goalKey}`
-    let seen = false
-    try {
-      seen = Boolean(window.sessionStorage.getItem(key))
-    } catch {
-      // sessionStorage를 쓸 수 없으면 매번 연출한다
-    }
-    if (seen) return undefined
     setCelebratePhase('standing')
     const standing = window.setTimeout(() => setCelebratePhase('falling'), 450)
-    const done = window.setTimeout(() => {
-      setCelebratePhase('done')
-      try {
-        window.sessionStorage.setItem(key, '1')
-      } catch {
-        // 저장 실패는 무시한다
-      }
-    }, 450 + 900)
+    const done = window.setTimeout(() => setCelebratePhase('done'), 450 + 900)
     return () => {
       window.clearTimeout(standing)
       window.clearTimeout(done)
     }
-  }, [isCleared, goalKey])
+  }, [isCleared])
 
   const spawnFloatNumber = useCallback((kind: FloatNumber['kind'], value: string, left: number, top: number) => {
     const id = `${Date.now()}-${Math.random()}`
