@@ -484,6 +484,31 @@
   animation-play-state: paused;
 }
 
+/* 클리어 연출: 보스가 쓰러지고(standing→falling) 파티가 차례로 환호한다 */
+.home-scene-stage.is-boss-falling .home-boss-img {
+  animation: home-boss-fall .9s cubic-bezier(.3, .7, .4, 1) both;
+}
+
+@keyframes home-boss-fall {
+  0% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-8px) rotate(3deg); }
+  100% { transform: translateY(10px) rotate(-9deg) scale(.96); }
+}
+
+.home-scene-stage.is-celebrating .home-party-img {
+  animation: home-victory-hop .9s cubic-bezier(.2, 1.6, .4, 1) both;
+}
+
+.home-scene-stage.is-celebrating .home-party-slot:nth-child(2) .home-party-img { animation-delay: .12s; }
+.home-scene-stage.is-celebrating .home-party-slot:nth-child(3) .home-party-img { animation-delay: .24s; }
+.home-scene-stage.is-celebrating .home-party-slot:nth-child(4) .home-party-img { animation-delay: .36s; }
+
+@keyframes home-victory-hop {
+  0% { transform: translateY(0) scale(.9); opacity: .4; }
+  55% { transform: translateY(-14px) scale(1.04); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
 /* ── 보스 피격 스파크 파티클 ─────────────────────────────── */
 .home-hit-spark {
   position: absolute;
@@ -861,6 +886,7 @@
   .home-boss.is-hit::after,
   .home-hit-spark,
   .home-clear-banner,
+  .home-scene-stage.is-boss-falling .home-boss-img,
   .home-float-number {
     animation: none !important;
   }

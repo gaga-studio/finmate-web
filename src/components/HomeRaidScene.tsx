@@ -117,6 +117,36 @@ export function HomeRaidScene({
   // 목표 달성(진행률 100%)이면 레이드를 클리어 상태로 그린다. 턴 루프는 멈추고 보스는 격파된다.
   const isCleared = view.goalProgressPercent >= 100
 
+  // 클리어 1회 연출: 보스가 서 있다가 쓰러지고(standing → falling), 격파 아트와 배너가 나타난다(done).
+  // 목표별로 세션에 한 번만 재생한다.
+  const [celebratePhase, setCelebratePhase] = useState<'standing' | 'falling' | 'done'>('done')
+  const goalKey = view.goalTitle ?? 'goal'
+  useEffect(() => {
+    if (!isCleared) return undefined
+    const key = `finmate.clear-celebrated:${goalKey}`
+    let seen = false
+    try {
+      seen = Boolean(window.sessionStorage.getItem(key))
+    } catch {
+      // sessionStorage를 쓸 수 없으면 매번 연출한다
+    }
+    if (seen) return undefined
+    setCelebratePhase('standing')
+    const standing = window.setTimeout(() => setCelebratePhase('falling'), 450)
+    const done = window.setTimeout(() => {
+      setCelebratePhase('done')
+      try {
+        window.sessionStorage.setItem(key, '1')
+      } catch {
+        // 저장 실패는 무시한다
+      }
+    }, 450 + 900)
+    return () => {
+      window.clearTimeout(standing)
+      window.clearTimeout(done)
+    }
+  }, [isCleared, goalKey])
+
   const spawnFloatNumber = useCallback((kind: FloatNumber['kind'], value: string, left: number, top: number) => {
     const id = `${Date.now()}-${Math.random()}`
     setFloatNumbers((list) => [...list, { id, kind, value, left, top }])
@@ -179,7 +209,7 @@ export function HomeRaidScene({
     RABBIT: '토끼',
     BIRD: '새',
   }
-  const bossSpriteState: BossSpriteState = isCleared ? 'defeated' : bossHit ? 'hit' : 'idle'
+  const bossSpriteState: BossSpriteState = isCleared ? (celebratePhase === 'done' ? 'defeated' : 'idle') : bossHit ? 'hit' : 'idle'
   const bossSpriteSrc = firstWorkingSprite(
     bossSpriteCandidates(bossSpriteState),
     brokenSpritePaths,
@@ -232,7 +262,7 @@ export function HomeRaidScene({
           </div>
         </div>
 
-        <div className={`home-scene-stage${isCleared ? ' is-cleared' : ''}`}>
+        <div className={`home-scene-stage${isCleared ? ' is-cleared' : ''}${isCleared && celebratePhase !== 'done' ? ' is-celebrating' : ''}${celebratePhase === 'falling' ? ' is-boss-falling' : ''}`}>
           <div className="home-formation">
             {view.party.map((member) => {
               const spriteState: PartySpriteState = isCleared
@@ -296,7 +326,7 @@ export function HomeRaidScene({
           {hitSparks.map((entry) => (
             <span className="home-hit-spark" style={{ left: `${entry.left}%`, top: `${entry.top}%` }} key={entry.id} aria-hidden="true" />
           ))}
-          {isCleared ? <span className="home-clear-banner" role="status">🏆 레이드 클리어!</span> : null}
+          {isCleared && celebratePhase === 'done' ? <span className="home-clear-banner" role="status">🏆 레이드 클리어!</span> : null}
         </div>
 
         {view.goalTitle && view.goalCurrentAmountKrw !== null && view.goalTargetAmountKrw !== null ? (
