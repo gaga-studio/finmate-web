@@ -149,7 +149,8 @@ describe('HomeRaidScene turn sprites', () => {
     )
   })
 
-  it('uses victory and defeated sprites when the raid is cleared', () => {
+  it('plays standing, falling, and defeated phases when the raid is cleared', () => {
+    vi.useFakeTimers()
     const { container } = renderScene(makeView({
       goalProgressPercent: 100,
       bossHpPercent: 0,
@@ -163,10 +164,29 @@ describe('HomeRaidScene turn sprites', () => {
       '/assets/home/turn/consume-victory.png',
       '/assets/home/turn/mission-victory.png',
     ])
+    expect(container.querySelector('.home-scene-stage')).toHaveClass('is-cleared', 'is-celebrating')
+    expect(container.querySelector('.home-scene-stage')).not.toHaveClass('is-boss-falling')
+    expect(container.querySelector('.home-boss-img')).toHaveAttribute(
+      'src',
+      '/assets/home/turn/boss-idle-left.png',
+    )
+    expect(container.querySelector('.home-clear-banner')).not.toBeInTheDocument()
+
+    act(() => vi.advanceTimersByTime(450))
+    expect(container.querySelector('.home-scene-stage')).toHaveClass('is-boss-falling')
+    expect(container.querySelector('.home-boss-img')).toHaveAttribute(
+      'src',
+      '/assets/home/turn/boss-idle-left.png',
+    )
+    expect(container.querySelector('.home-clear-banner')).not.toBeInTheDocument()
+
+    act(() => vi.advanceTimersByTime(900))
+    expect(container.querySelector('.home-scene-stage')).not.toHaveClass('is-celebrating', 'is-boss-falling')
     expect(container.querySelector('.home-boss-img')).toHaveAttribute(
       'src',
       '/assets/home/turn/boss-defeated.png',
     )
+    expect(container.querySelector('.home-clear-banner')).toHaveTextContent('레이드 클리어!')
   })
 
   it('falls back per failed path without disabling other poses', () => {
